@@ -1,0 +1,21 @@
+# Development of focusing and deflecting devices for plasma acceleration
+
+## Astra
+*Astra* beam dynamics is a software developed by DESY collaboration to track and simulate space charge. Software can be downloaded from: 
+
+https://www.desy.de/~mpyflo/
+
+On the same page can be found a manual for working with the software. Another source of learning can be found:
+
+https://indico.cern.ch/event/528094/contributions/2172891/attachments/1323896/1987279/Bacci_tutorial.pdf
+
+Problem with library *libimf.so* was solved by downloading intel basekit from:
+
+https://www.intel.com/content/www/us/en/docs/oneapi/installation-guide-linux/2023-0/apt.html#APT-PACKAGES
+
+
+To visualize results from Astra simulation, one can use *PGPlot* software, which can be obtained by following the description on page:
+
+https://sites.google.com/fqa.ub.edu/robert-estalella-home-page/pgplot_gfortran
+
+
