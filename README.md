@@ -9,7 +9,9 @@ On the same page can be found a manual for working with the software. Another so
 
 https://indico.cern.ch/event/528094/contributions/2172891/attachments/1323896/1987279/Bacci_tutorial.pdf
 
-Problem with library *libimf.so* was solved by downloading intel basekit from:
+Problem with library *libimf.so* was solved by downloading Intel basekit from the link below and also exporting the library path:
+
+<code> export LD_LIBRARY_PATH=/usr/local/lib/ </code>
 
 https://www.intel.com/content/www/us/en/docs/oneapi/installation-guide-linux/2023-0/apt.html#APT-PACKAGES
 
