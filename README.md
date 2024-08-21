@@ -11,7 +11,7 @@ https://indico.cern.ch/event/528094/contributions/2172891/attachments/1323896/19
 
 Problem with library *libimf.so* was solved by downloading Intel basekit from the link below and also exporting the library path:
 
-<code> export LD_LIBRARY_PATH=/usr/local/lib/ </code>
+<pre><code> export LD_LIBRARY_PATH=/usr/local/lib/ </pre></code>
 
 https://www.intel.com/content/www/us/en/docs/oneapi/installation-guide-linux/2023-0/apt.html#APT-PACKAGES
 

@@ -2935,7 +2935,7 @@
  /
  &CAVITY
  LOOP    = F,
- LEFIELD = T,
+ LEFIELD = F,
  FILE_EFIELD     = 3_cell_L-Band.dat                                                                                                 
                                                                                                                                      
                                                                                                                                      
@@ -4246,7 +4246,7 @@
  /
  &SOLENOID
  LOOP    = F,
- LBFIELD = T,
+ LBFIELD = F,
  FILE_BFIELD     = Solenoid.dat                                                                                                      
                                                                                                                                      
                                                                                                                                      
@@ -4340,8 +4340,8 @@
  /
  &QUADRUPOLE
  LOOP    = F,
- LQUAD   = F,
- Q_TYPE  =                                                                                                                           
+ LQUAD   = T,
+ Q_TYPE  = tr                                                                                                                        
                                                                                                                                      
                                                                                                                                      
                                                                                                                                      
@@ -4911,16 +4911,16 @@
                                                                                                                                      
                                    ,
  Q_NOSCALE       = 500*F,
- Q_SMOOTH        = 500*0,
- Q_GRAD  = 500*0.000000000000000E+000  ,
+ Q_SMOOTH        =          10, 499*0,
+ Q_GRAD  =   2.00000000000000     , 499*0.000000000000000E+000  ,
  Q_K     = 500*0.000000000000000E+000  ,
  Q_MULT_A        = 3000*0.000000000000000E+000  ,
  Q_MULT_B        = 3000*0.000000000000000E+000  ,
- Q_LENGTH        = 500*0.000000000000000E+000  ,
- Q_BORE  = 500*3.500000000000000E-002  ,
+ Q_LENGTH        =  0.100000000000000     , 499*0.000000000000000E+000  ,
+ Q_BORE  =  7.000000000000000E-003, 499*3.500000000000000E-002  ,
  Q_RAD   = 500*1.00000000000000        ,
- Q_DIST  = 500*0.000000000000000E+000  ,
- Q_POS   = 500*0.000000000000000E+000  ,
+ Q_DIST  =  0.300000000000000     , 499*0.000000000000000E+000  ,
+ Q_POS   =  0.200000000000000     , 499*0.000000000000000E+000  ,
  Q_XOFF  = 500*0.000000000000000E+000  ,
  Q_YOFF  = 500*0.000000000000000E+000  ,
  Q_XROT  = 500*0.000000000000000E+000  ,
@@ -4997,8 +4997,8 @@
  /
  End of Input deck
 Example.ini                     0.1136D-06  0.0000D+00  F
-Example.0150.001                1.5000D+00  1.0425D-02  F
+Example.0150.001                1.5000D+00  0.0000D+00  F
 
-     execution started:   21. 8.2024     12:09
-     execution finished:  21. 8.2024     12:09
-     execution time:  0.76 sec                         
+     execution started:   21. 8.2024     18:31
+     execution finished:  21. 8.2024     18:31
+     execution time:  0.59 sec                         
