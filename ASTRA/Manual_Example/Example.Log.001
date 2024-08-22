@@ -1,7 +1,7 @@
  Echo Input deck
  &NEWRUN
  VERSION =           4,
- HEAD    =  Example of ASTRA users manual                                                                                            
+ HEAD    = Example of ASTRA users manual                                                                                             
                              ,
  RUN     =           1,
  LOOP    = F,
@@ -30,7 +30,7 @@
  TRACK_ALL       = T,
  TRACK_ON_AXIS   = F,
  AUTO_PHASE      = T,
- PHASE_SCAN      = F,
+ PHASE_SCAN      = T,
  CHECK_REF_PART  = T,
  L_RM_BACK       = F,
  LMONITOR        = F,
@@ -65,7 +65,7 @@
  SIGMAS  = F,
  PHASES  = T,
  T_PHASES        = F,
- TRACKS  = F,
+ TRACKS  = T,
  TCHECKS = F,
  CATHODES        = F,
  LANDFS  = F,
@@ -105,7 +105,7 @@
  PHASES  = T,
  T_PHASES        = F,
  LDISCARD        = F,
- TRACKS  = F,
+ TRACKS  = T,
  TCHECKS = F,
  CATHODES        = F,
  LANDFS  = F,
@@ -4341,7 +4341,7 @@
  &QUADRUPOLE
  LOOP    = F,
  LQUAD   = T,
- Q_TYPE  = tr                                                                                                                        
+ Q_TYPE  =                                                                                                                           
                                                                                                                                      
                                                                                                                                      
                                                                                                                                      
@@ -4911,18 +4911,18 @@
                                                                                                                                      
                                    ,
  Q_NOSCALE       = 500*F,
- Q_SMOOTH        =          10, 499*0,
- Q_GRAD  =   2.00000000000000     , 499*0.000000000000000E+000  ,
+ Q_SMOOTH        = 500*0,
+ Q_GRAD  =   222.000000000000     , 499*0.000000000000000E+000  ,
  Q_K     = 500*0.000000000000000E+000  ,
  Q_MULT_A        = 3000*0.000000000000000E+000  ,
  Q_MULT_B        = 3000*0.000000000000000E+000  ,
- Q_LENGTH        =  0.100000000000000     , 499*0.000000000000000E+000  ,
- Q_BORE  =  7.000000000000000E-003, 499*3.500000000000000E-002  ,
+ Q_LENGTH        =  3.600000000000000E-002, 499*0.000000000000000E+000  ,
+ Q_BORE  =  3.500000000000000E-003, 499*3.500000000000000E-002  ,
  Q_RAD   = 500*1.00000000000000        ,
- Q_DIST  =  0.300000000000000     , 499*0.000000000000000E+000  ,
- Q_POS   =  0.200000000000000     , 499*0.000000000000000E+000  ,
- Q_XOFF  = 500*0.000000000000000E+000  ,
- Q_YOFF  = 500*0.000000000000000E+000  ,
+ Q_DIST  = 500*0.000000000000000E+000  ,
+ Q_POS   =  0.700000000000000     , 499*0.000000000000000E+000  ,
+ Q_XOFF  =  0.749700000000000     , 499*0.000000000000000E+000  ,
+ Q_YOFF  =  0.750000000000000     , 499*0.000000000000000E+000  ,
  Q_XROT  = 500*0.000000000000000E+000  ,
  Q_YROT  = 500*0.000000000000000E+000  ,
  Q_ZROT  = 500*0.000000000000000E+000  
@@ -4996,9 +4996,9 @@
  STAT    = 188*F, T, F, T, F, T, F, T, F, T, F, T, F, T, F, T, F, 198*T
  /
  End of Input deck
-Example.ini                     0.1136D-06  0.0000D+00  F
+Example.ini                    -0.3508D-04  0.0000D+00  F
 Example.0150.001                1.5000D+00  0.0000D+00  F
 
-     execution started:   21. 8.2024     18:31
-     execution finished:  21. 8.2024     18:31
-     execution time:  0.59 sec                         
+     execution started:   22. 8.2024     11:17
+     execution finished:  22. 8.2024     11:17
+     execution time:  0.16 sec                         
