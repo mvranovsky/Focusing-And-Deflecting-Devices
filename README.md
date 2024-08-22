@@ -5,13 +5,16 @@
 
 https://www.desy.de/~mpyflo/
 
-On the same page can be found a manual for working with the software. Another source of learning can be found:
+On the same page can be found a manual for working with the software. Another source of information can be found:
 
 https://indico.cern.ch/event/528094/contributions/2172891/attachments/1323896/1987279/Bacci_tutorial.pdf
 
-Problem with library *libimf.so* was solved by downloading Intel basekit from the link below and also exporting the library path:
+Problem with library *libimf.so* was solved by downloading Intel basekit from the link below and also exporting the library path or simply by sourcing a created script:
 
 <pre><code> export LD_LIBRARY_PATH=/usr/local/lib/ </pre></code>
+
+<pre><code> source /opt/intel/oneapi/setvars.sh </pre></code>
+
 
 https://www.intel.com/content/www/us/en/docs/oneapi/installation-guide-linux/2023-0/apt.html#APT-PACKAGES
 

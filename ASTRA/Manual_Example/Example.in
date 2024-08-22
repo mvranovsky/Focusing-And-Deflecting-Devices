@@ -32,7 +32,7 @@
 &NEWRUN
  Head='Example of ASTRA users manual'
  RUN=1
- Distribution = 'Example.ini'
+Distribution=test4.ini
  Xoff=0.0
  Yoff=0.0
  TRACK_ALL=T
@@ -85,13 +85,13 @@
 
 &QUADRUPOLE
  Lquad=T,
- Q_grad=222
+ Q_grad=-222
  Q_length=0.036
  Q_smooth(1)=0
  Q_bore(1)=0.0035
  Q_pos(1)=0.7
- Q_xoff(1)=0.7497
- Q_yoff(1)=0.7500
+ Q_xoff(1)=0
+ Q_yoff(1)=0
  Q_xrot(1)=0
  Q_yrot(1)=0
  Q_zrot(1)=0
