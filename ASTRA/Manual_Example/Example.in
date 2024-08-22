@@ -85,11 +85,11 @@ Distribution=test4.ini
 
 &QUADRUPOLE
  Lquad=T,
- Q_grad=-222
+ Q_grad=222
  Q_length=0.036
  Q_smooth(1)=0
  Q_bore(1)=0.0035
- Q_pos(1)=0.7
+ Q_pos(1)=0.2
  Q_xoff(1)=0
  Q_yoff(1)=0
  Q_xrot(1)=0
@@ -97,19 +97,19 @@ Distribution=test4.ini
  Q_zrot(1)=0
 /
 
-!&QUADRUPOLE
-! Lquad=T,
-! Q_grad=-94
-! Q_length=0.12
-! Q_smooth(2)=0
-! Q_bore(2)=0.009
-! Q_pos(2)=0.2
-! Q_xoff(2)=0
-! Q_yoff(2)=0
-! Q_xrot(2)=0
-! Q_yrot(2)=0
-! Q_zrot(2)=0
-!/
+&QUADRUPOLE
+ Lquad=T,
+ Q_grad=-94
+ Q_length=0.12
+ Q_smooth(2)=0
+ Q_bore(2)=0.009
+ Q_pos(2)=0.3
+ Q_xoff(2)=0
+ Q_yoff(2)=0
+ Q_xrot(2)=0
+ Q_yrot(2)=0
+ Q_zrot(2)=0
+/
 
 !&QUADRUPOLE
 ! Lquad=T,
