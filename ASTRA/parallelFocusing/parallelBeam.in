@@ -1,10 +1,10 @@
 &INPUT
-  FNAME = 'Example.ini'
+  FNAME = 'parallelBeam.ini'
   Add=FALSE
   N_add=0
-  IPart=10
+  IPart=500
   Species='electrons'
-  Probe=True
+  Probe=False
   Noise_reduc=F
   Cathode=F
   Q_total=1.0E0
@@ -19,11 +19,13 @@
   Dist_x='gauss'
   sig_x=0.75E0
   Dist_px='g'
+  sig_px=0.075E0
   Nemit_x=1.0E0
   cor_px=0.0E0
   Dist_y='g'
   sig_y=0.75E0
   Dist_py='g'
+  sig_py=0.075E0
   Nemit_y=1.0E0
   cor_py=0.0E0
  /
@@ -32,7 +34,7 @@
 &NEWRUN
  Head='Example of ASTRA users manual'
  RUN=1
- Distribution=test3.ini
+ Distribution=test4.ini
  Xoff=0.0
  Yoff=0.0
  TRACK_ALL=T
@@ -85,42 +87,37 @@
 
 &QUADRUPOLE
  Lquad=T,
- Q_grad=222
- Q_length=0.036
+ Q_grad(1)=222
+ Q_length(1)=0.036
  Q_smooth(1)=0
  Q_bore(1)=0.0035
- Q_pos(1)=0.018
+ Q_pos(1)=0.028499999999999998
  Q_xoff(1)=0
  Q_yoff(1)=0
  Q_xrot(1)=0
  Q_yrot(1)=0
  Q_zrot(1)=0
-/
 
-&QUADRUPOLE
- Lquad=T,
- Q_grad=-94
- Q_length=0.12
+ Q_grad(2)=-94
+ Q_length(2)=0.12
  Q_smooth(2)=0
  Q_bore(2)=0.009
- Q_pos(2)=0.4293333333333333
+ Q_pos(2)=0.14400000000000002
  Q_xoff(2)=0
  Q_yoff(2)=0
  Q_xrot(2)=0
  Q_yrot(2)=0
  Q_zrot(2)=0
-/
 
-!&QUADRUPOLE
-! Lquad=T,
-! Q_grad=57
-! Q_length=0.12
-! Q_smooth(3)=0
-! Q_bore(3)=0.009
- Q_pos(3)=0.8726666666666667
-! Q_xoff(3)=0
-! Q_yoff(3)=0
-! Q_xrot(3)=0
-! Q_yrot(3)=0
-! Q_zrot(3)=0
-!/
+ Q_grad(3)=57
+ Q_length(3)=0.1
+ Q_smooth(3)=0
+ Q_bore(3)=0.009
+ Q_pos(3)=0.326
+ Q_xoff(3)=0
+ Q_yoff(3)=0
+ Q_xrot(3)=0
+ Q_yrot(3)=0
+ Q_zrot(3)=0
+
+/
