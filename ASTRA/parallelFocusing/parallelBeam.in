@@ -2,7 +2,7 @@
   FNAME = 'parallelBeam.ini'
   Add=FALSE
   N_add=0
-  IPart=500
+ IPart=500
   Species='electrons'
   Probe=False
   Noise_reduc=F
@@ -17,15 +17,15 @@
   sig_Ekin=1.5
   cor_Ekin=0.0E0
   Dist_x='gauss'
-  sig_x=0.75E0
+ sig_x=0.75
   Dist_px='g'
-  sig_px=0.075E0
+ sig_px=0.075
   Nemit_x=1.0E0
   cor_px=0.0E0
   Dist_y='g'
-  sig_y=0.75E0
+ sig_y=0.75
   Dist_py='g'
-  sig_py=0.075E0
+ sig_py=0.075
   Nemit_y=1.0E0
   cor_py=0.0E0
  /
@@ -34,7 +34,7 @@
 &NEWRUN
  Head='Example of ASTRA users manual'
  RUN=1
- Distribution=test4.ini
+ Distribution=test2.ini
  Xoff=0.0
  Yoff=0.0
  TRACK_ALL=T
@@ -90,8 +90,8 @@
  Q_grad(1)=222
  Q_length(1)=0.036
  Q_smooth(1)=0
- Q_bore(1)=0.0035
- Q_pos(1)=0.028499999999999998
+ Q_bore(1)=0.007
+ Q_pos(1)=0.039
  Q_xoff(1)=0
  Q_yoff(1)=0
  Q_xrot(1)=0
@@ -101,8 +101,8 @@
  Q_grad(2)=-94
  Q_length(2)=0.12
  Q_smooth(2)=0
- Q_bore(2)=0.009
- Q_pos(2)=0.14400000000000002
+ Q_bore(2)=0.018
+ Q_pos(2)=0.372
  Q_xoff(2)=0
  Q_yoff(2)=0
  Q_xrot(2)=0
@@ -112,8 +112,8 @@
  Q_grad(3)=57
  Q_length(3)=0.1
  Q_smooth(3)=0
- Q_bore(3)=0.009
- Q_pos(3)=0.326
+ Q_bore(3)=0.03
+ Q_pos(3)=0.6859999999999998
  Q_xoff(3)=0
  Q_yoff(3)=0
  Q_xrot(3)=0
