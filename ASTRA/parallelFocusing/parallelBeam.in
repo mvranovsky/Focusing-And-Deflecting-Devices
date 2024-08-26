@@ -34,10 +34,10 @@
 &NEWRUN
  Head='Example of ASTRA users manual'
  RUN=1
- Distribution=test2.ini
+ Distribution=test4.ini
  Xoff=0.0
  Yoff=0.0
- TRACK_ALL=T
+ Track_All=T
  Auto_phase=T
  check_ref_part=T
  PHASE_SCAN=T
@@ -91,7 +91,7 @@
  Q_length(1)=0.036
  Q_smooth(1)=0
  Q_bore(1)=0.007
- Q_pos(1)=0.039
+ Q_pos(1)=0.20566666666666664
  Q_xoff(1)=0
  Q_yoff(1)=0
  Q_xrot(1)=0
@@ -102,7 +102,7 @@
  Q_length(2)=0.12
  Q_smooth(2)=0
  Q_bore(2)=0.018
- Q_pos(2)=0.372
+ Q_pos(2)=0.35866666666666663
  Q_xoff(2)=0
  Q_yoff(2)=0
  Q_xrot(2)=0
@@ -113,7 +113,7 @@
  Q_length(3)=0.1
  Q_smooth(3)=0
  Q_bore(3)=0.03
- Q_pos(3)=0.6859999999999998
+ Q_pos(3)=0.6126666666666666
  Q_xoff(3)=0
  Q_yoff(3)=0
  Q_xrot(3)=0
