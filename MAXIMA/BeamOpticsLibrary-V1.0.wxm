@@ -1,0 +1,269 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 22.04.0 ] */
+/* [wxMaxima: section start ]
+Definitions
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Utilities
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+matrix_element_mult: ".";
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+Zero2():= zeromatrix(2,2)$
+Zero2();
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+Unit2():= identfor(zeromatrix(2,2))$
+Unit2();
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Drift 2D, 4D, 6D
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: input   start ] */
+Drift2(D):= matrix(
+    [1,D],
+    [0,1]
+    )$
+Drift2(D);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+Drift4B(D) := matrix(
+    [Drift2(D),   Zero2()],
+    [  Zero2(), Drift2(D)])$
+Drift4B(D);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+Drift4U(D) := mat_unblocker(Drift4B(D))$
+Drift4U(D);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+Drift6B(D) := matrix(
+    [Drift2(D),   Zero2(),   Zero2()],
+    [  Zero2(), Drift2(D),   Zero2()],
+    [  Zero2(),   Zero2(), Drift2(D/%gamma^2)]
+)$
+Drift6B(D);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+Drift6U(D) := mat_unblocker(Drift6B(D));
+Drift6U(D);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Thin Quadrupole 2D, 4D, 6D
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: input   start ] */
+ThinQuad2(F) := matrix([1,0],[-1/F,1])$
+ThinQuad2(F);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+ThinQuad4B(F) := matrix(
+    [ThinQuad2(F),       Zero2()],
+    [     Zero2(), ThinQuad2(-F)])$
+ThinQuad4B(F);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+ThinQuad4U(F) := mat_unblocker(ThinQuad4B(F))$
+ThinQuad4U(F);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+ThinQuad6B(F) := matrix(
+    [ThinQuad2(F),    Zero2(),   Zero2()],
+    [  Zero2(), ThinQuad2(-F),   Zero2()],
+    [  Zero2(),       Zero2(),   Unit2()]
+)$
+ThinQuad6B(F);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+ThinQuad6U(F) := mat_unblocker(ThinQuad6B(F))$
+ThinQuad6U(F);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Thick Quadrupole 2D, 4D, 6D
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: input   start ] */
+k(G,P) := sqrt(q*G/P);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+Quad2(L,k) := matrix([cos(k*L),sin(k*L)/k],[-k*sin(k*L),cos(k*L)])$
+Quad2(L,k);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+QuadC2(L,k) := Quad2(L,k)$
+QuadC2(L,k);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+QuadD2(L,k) := Quad2(L,%i*k)$
+QuadD2(L,k);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+Quad4B(L,k) := matrix(
+    [QuadC2(L,k),    Zero2()],
+    [Zero2()   , QuadD2(L,k)]
+)$
+Quad4B(L,k);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+Quad4U(L,k) := mat_unblocker(Quad4B(L,k));
+Quad4U(L,k);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+Quad6B(L,k) := matrix(
+    [QuadC2(L,k),    Zero2(),    Zero2()],
+    [Zero2()   , QuadD2(L,k),    Zero2()],
+    [Zero2()   ,     Zero2(),    Unit2()]
+)$
+Quad6B(L,k);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+Quad6U(L,k) := mat_unblocker(Quad6B(L,k));
+Quad6U(L,k);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Sector bend dipole magnet (no pole face tilt) 2D, 4D, 6D
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+R_[1-2][1-2] horizontal focussing
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+SBend2(R,phi):= matrix(
+    [      cos(phi),     R*sin(phi)], 
+    [ -1/R*sin(phi),       cos(phi)]
+)$
+SBend2(R,phi);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+R_[1-2][5-6] displacement from dispersion
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+SBendDisp2(R,phi):= matrix(
+    [ 0, R*(1-cos(phi))], 
+    [ 0,      sin(phi) ]
+)$
+SBendDisp2(R,phi);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+R_[5-6][1-2] delay from displacement, no magic just a ricky way to get it from R_[1-2][5-6]
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+SBendPsid2(R,phi):=matrix([0,1],[1,0]).ctranspose(SBendDisp2(R,phi)).matrix([0,1],[1,0]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+R_[5-6][5-6] longitudinal dispersions
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+SBendLong2(R,phi):= matrix(
+    [        1, R*(phi-sin(phi)) - R*phi/%gamma^2], 
+    [        0,             1   ]
+)$
+SBendLong2(R,phi);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+SBend4B(R,phi):= matrix(
+    [SBend2(r,phi),      Zero2()],
+    [           Zero2(), Drift2(R*phi)]
+)$
+SBend4B(R,phi);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+SBend4U(R,phi):=mat_unblocker(SBend4B(R,phi))$
+SBend4U(R,phi);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+SBend6B(R,phi):= matrix(
+    [    SBend2(R,phi),       Zero2(), SBendDisp2(R,phi)],
+    [          Zero2(), Drift2(R*phi),            Zero2()],
+    [SBendPsid2(R,phi),       Zero2(),         SBendLong2(R,phi)]
+)$
+SBend6B(R,phi);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+SBend6U(R,phi):=mat_unblocker(SBend6B(R,phi))$
+SBend6U(R,phi);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+matrix_element_mult: "*";
+/* [wxMaxima: input   end   ] */
+
+
+
+/* Old versions of Maxima abort on loading files that end in a comment. */
+"Created with wxMaxima 22.04.0"$

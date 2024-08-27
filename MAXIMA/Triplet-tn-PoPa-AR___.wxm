@@ -1,0 +1,177 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 22.04.0 ] */
+/* [wxMaxima: title   start ]
+Study of Triplets - Point-Parallel
+   [wxMaxima: title   end   ] */
+
+
+/* [wxMaxima: section start ]
+Load Libraries
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: input   start ] */
+maxima_tempdir:"/Users/rameshan/Desktop/Maxima/MyMaxima/";
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+file_search_maxima: append (file_search_maxima,["/Users/rameshan/Desktop/Maxima/MyMaxima/$$$.{wxm,mac,mc}","$$$.{wxm,mac,mc}"]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+file_search("./BeamOpticsLibrary-V1.0.wxm");
+batchload("./BeamOpticsLibrary-V1.0.wxm");
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+load(draw);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: section start ]
+Triplet Matrices
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: comment start ]
+Drift distances : D
+Quadrupole lengths : L
+Quadrupole gradients : G
+Electron momentum : p
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+l1: 36/1000$
+l2: 12/100$
+l3 : 1/10$
+r1: 35/10000$
+r2: 9/1000$
+r3 : 15/1000$
+g1: 222$
+g2: -94$
+g3 : 57$
+c: 29979/100$
+f1: 1/(l1*c*g1/p)$
+f2: 1/(l2*c*g2/p)$
+f3: 1/(l3*c*g3/p)$
+k1: sqrt(c*g1/p)$
+k2: sqrt(c*g2/p)$
+k3: sqrt(c*g3/p)$
+subF: [F1=f1,F2=f2,F3=f3]$
+subL: [L1=l1,L2=l2,L3=l3]$
+subK: [K1=k1,K2=k2,K3=k3]$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Thin Quadrupole Triplet
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: input   start ] */
+tR: Drift4U(D4).ThinQuad4U(F3).Drift4U(D3).ThinQuad4U(F2).Drift4U(D2).ThinQuad4U(F1).Drift4U(D1);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: section start ]
+Point-Parallel Focussing
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Thin Quadrupole Doublet
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+Point-Parallel focusing ⇒ R[1,2] = R[4,4] = 0
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+tsolutions: solve([tR[1,2],tR[4,4]], [D4,D3,D2,D1]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+tSd0 : zeromatrix(3,4)$
+for j : 1 thru 4 do (
+    tSd0[1,5-j] : psubst([rhs(tsolutions[1][4])=D1,rhs(tsolutions[1][3])=D2],rhs(tsolutions[1][j])),
+    tSd0[2,5-j] : psubst([rhs(tsolutions[2][4])=D1],rhs(tsolutions[2][j])),
+    tSd0[3,5-j] : rhs(tsolutions[3][j])
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+tSd0;
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+tSd : psubst(subF,tSd0)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxdraw3d(
+    draw_realpart = false,
+    zrange = [0,2],
+    
+    color = red,
+    explicit(subst(1/10,D1,tSd[1,3]),p,100,1000,D2,0,1/2),
+    color = blue,
+    explicit(subst(1/4,D1,tSd[1,3]),p,100,1000,D2,0,1/2),
+    color = green,
+    explicit(subst(1/2,D1,tSd[1,3]),p,100,1000,D2,0,1/2)
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Max D2, Min p. Larger D1 - lesser area.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxdraw3d(
+    draw_realpart = false,
+    zrange = [0,2],
+    
+    color = red,
+    explicit(subst(1/10,D1,tSd[1,4]),p,100,1000,D2,0,1/2),
+    color = blue,
+    explicit(subst(1/4,D1,tSd[1,4]),p,100,1000,D2,0,1/2),
+    color = green,
+    explicit(subst(1/2,D1,tSd[1,4]),p,100,1000,D2,0,1/2)
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxdraw3d(
+    draw_realpart = false,
+    zrange = [0,2],
+    
+    color = red,
+    explicit(subst(1/4,D1,tSd[1,3]),p,100,1000,D2,0,1/2),
+    color = blue,
+    explicit(subst(1/4,D1,tSd[1,4]),p,100,1000,D2,0,1/2),
+    color = green,
+    explicit(subst(1/4,D1,tSd[1,3]+tSd[1,4]),p,100,1000,D2,0,1/2)
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Greater overlap for larger D1.
+   [wxMaxima: comment end   ] */
+
+
+
+/* Old versions of Maxima abort on loading files that end in a comment. */
+"Created with wxMaxima 22.04.0"$

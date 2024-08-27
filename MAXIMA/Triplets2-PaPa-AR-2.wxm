@@ -1,0 +1,1043 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 20.12.1 ] */
+/* [wxMaxima: title   start ]
+Triplet Study: Task-1
+   [wxMaxima: title   end   ] */
+
+
+/* [wxMaxima: comment start ]
+We study point-point to parallel-parallel focusing of two different quadrupole triplets.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: section start ]
+Load Libraries
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: input   start ] */
+file_search_maxima: append (file_search_maxima,["/Users/rameshan/Desktop/Maxima/MyMaxima/$$$.{wxm,mac,mc}","$$$.{wxm,mac,mc}"])$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+file_search("./BeamOpticsLibrary-V1.0.wxm")$
+batchload("./BeamOpticsLibrary-V1.0.wxm")$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+load(draw)$
+set_draw_defaults(
+    grid   = true,
+    draw_realpart = false
+)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: section start ]
+Magnet Parameters
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: comment start ]
+Lengths of the magnets (L[i,j]: i = triplet number and j = magnet number):
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+L : matrix(
+ [36/1000,12/100,1/10], 
+ [36/1000,12/100,1/10]
+)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Bore radii of the magnets (r[i,j]: i = triplet number and j = magnet number):
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+r : matrix(
+ [35/10000,9/1000,15/1000], 
+ [53/10000,9/1000,15/1000]
+)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Field gradients of the magnets (G[i,j]: i = triplet number and j = magnet number):
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+G : matrix(
+ [222,-94,57], 
+ [155,-94,57]
+)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+float(L*G)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+The K in the arguments of the trignometric functions in the quadrupole transfer matrices:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+K : sqrt((29979/100)*G/p)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+where p is the momentum of the electron in MeV.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+subslist0 : makelist([L1=L[i,1],L2=L[i,2],L3=L[i,3],K1=K[i,1],K2=K[i,2],K3=K[i,3]],i,1,2)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: section start ]
+Triplet Matrix
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: input   start ] */
+R: Quad4U(L3,K3).Drift4U(D3).Quad4U(L2,K2).Drift4U(D2).Quad4U(L1,K1).Drift4U(D1);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Here, D1, D2 and D3 are the first, the second and the third drift distances respectively.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: section start ]
+Point-Point to Parallel-Parallel Focusing
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Drift Distances
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+Point-point to parallel-parallel focusing ⇒ initial values of x and y and final values of x' and y' are zero ⇒ R[2,2] = R[4,4] = 0, where R is the transfer matrix.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+sol : solve([R[2,2],R[4,4]],[D3,D2,D1]);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+⇒ There are four solutions. 
+Building a matrix of solutions:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+D : zeromatrix(2,3)$
+for i : 1 thru 2 do (
+    for j : 1 thru 3 do (
+        if i = 1 or i = 2 then
+            D[i,4-j] : subst(D1,rhs(sol[i][3]),rhs(sol[i][j]))
+        else
+            D[i,4-j] : rhs(sol[i][j])
+    )
+)$
+D$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+(D[i,j]: i = solution number and j = drift distance number)
+* In solutions 1 and 2, D1 is a free parameter, and D2 and D3 are dependent on D1.
+* In solutions 2 and 3, D1, D2 and D3 are independent of each other.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: comment start ]
+Substituting the values of the magnet parameters:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+Dtp : makelist(psubst(subslist0[i],D),i,1,2)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+(Dtp[i][j,k]: i = triplet number, j = solution number and k = drift distance number)
+
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+/* Define the value of p */
+p_value: 200; /* Replace 100 with the actual momentum value you are interested in */
+d1_value: 0.3
+
+
+value1: subst(D1 = d1_value, p = p_value, Dtp[1][1,2]);
+print("value1 at D1 =",d1_value ,"and p =", p_value, "is", value1);
+
+
+value2: subst(D1 = d1_value,p = p_value, Dtp[1][1,3]);
+print("value2 at p =", p_value, "is", S4_D3_value);
+
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: subsect start ]
+3D Plots
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+Momentum and D1 ranges for the plots:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+pmin : 100$
+pmax : 1000$
+
+D1min : 0$
+D1max : 1/2$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: subsubsect start ]
+Solution-1
+   [wxMaxima: subsubsect end   ] */
+
+
+/* [wxMaxima: heading5 start ]
+Triplet-1
+   [wxMaxima: heading5 end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxdraw3d(
+    user_preamble = "set xyplane at 0",
+    xu_grid = 20,
+    yv_grid = 20,
+    zrange = [0,2/5],
+    contour = both,
+    contour_levels = 10,
+    
+    title = "Drift Distances: Solution-1 Triplet-1",
+    
+    xlabel = "Momentum (MeV)",
+    ylabel = "D1 (m)",
+    zlabel = "Distance (m)",
+    
+    key = "D2",
+    color = red,
+    explicit(Dtp[1][1,2],p,pmin,pmax,D1,D1min,D1max),
+    
+    key = "D3",
+    color = blue,
+    explicit(Dtp[1][1,3],p,pmin,pmax,D1,D1min,D1max)
+)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: heading5 start ]
+Triplet-2
+   [wxMaxima: heading5 end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxdraw3d(
+    user_preamble = "set xyplane at 0",
+    xu_grid = 20,
+    yv_grid = 20,
+    zrange = [0,1/2],
+    contour = both,
+    contour_levels = 10,
+    
+    title = "Drift Distances: Solution-1 Triplet-2",
+    
+    xlabel = "Momentum (MeV)",
+    ylabel = "D1 (m)",
+    zlabel = "Distance (m)",
+    
+    key = "D2",
+    color = red,
+    explicit(Dtp[2][1,2],p,pmin,pmax,D1,D1min,D1max),
+    
+    key = "D3",
+    color = blue,
+    explicit(Dtp[2][1,3],p,pmin,pmax,D1,D1min,D1max)
+)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: subsubsect start ]
+Solution-2
+   [wxMaxima: subsubsect end   ] */
+
+
+/* [wxMaxima: heading5 start ]
+Triplet-1
+   [wxMaxima: heading5 end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxdraw3d(
+    user_preamble = "set xyplane at 0",
+    xu_grid = 20,
+    yv_grid = 20,
+    zrange = [0,1/2],
+    contour = both,
+    contour_levels = 10,
+    
+    title = "Drift Distances: Solution-2 Triplet-1",
+    
+    xlabel = "Momentum (MeV)",
+    ylabel = "D1 (m)",
+    zlabel = "Distance (m)",
+    
+    key = "D2",
+    color = red,
+    explicit(Dtp[1][2,2],p,pmin,pmax,D1,D1min,D1max),
+    
+    key = "D3",
+    color = blue,
+    explicit(Dtp[1][2,3],p,pmin,pmax,D1,D1min,D1max)
+)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: heading5 start ]
+Triplet-2
+   [wxMaxima: heading5 end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxdraw3d(
+    user_preamble = "set xyplane at 0",
+    xu_grid = 20,
+    yv_grid = 20,
+    zrange = [0,1/2],
+    contour = both,
+    contour_levels = 10,
+    
+    title = "Drift Distances: Solution-2 Triplet-2",
+    
+    xlabel = "Momentum (MeV)",
+    ylabel = "D1 (m)",
+    zlabel = "Distance (m)",
+    
+    key = "D2",
+    color = red,
+    explicit(Dtp[2][2,2],p,pmin,pmax,D1,D1min,D1max),
+    
+    key = "D3",
+    color = blue,
+    explicit(Dtp[2][2,3],p,pmin,pmax,D1,D1min,D1max)
+)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: subsubsect start ]
+Solution-3 and Solution-4
+   [wxMaxima: subsubsect end   ] */
+
+
+/* [wxMaxima: heading5 start ]
+Triplet-1
+   [wxMaxima: heading5 end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxdraw2d(
+    yrange=[-1/2,1/2],
+    
+    title = "Drift Distance: Solution 3 and 4 - Triplet-1",
+    xlabel = "Momentum (MeV)",
+    ylabel = "Distance (m)",
+    
+    key="S3 D1",
+    color=orange,
+    explicit(Dtp[1][3,1],p,pmin,pmax),
+    
+    key="S3 D2",
+    color=purple,
+    explicit(Dtp[1][3,2],p,pmin,pmax),
+    
+    key="S3 D3",
+    color=yellow,
+    explicit(Dtp[1][3,3],p,pmin,pmax),
+  
+    key="S4 D1",
+    color=red,
+    explicit(Dtp[1][4,1],p,pmin,pmax),
+    
+    key="S4 D2",
+    color=blue,
+    explicit(Dtp[1][4,2],p,pmin,pmax),
+    
+    key="S4 D3",
+    color=green,
+    explicit(Dtp[1][4,3],p,pmin,pmax)
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: heading5 start ]
+Triplet-2
+   [wxMaxima: heading5 end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxdraw2d(
+    yrange=[-1/2,1/2],
+    
+    title = "Drift Distance: Solution 3 and 4 - Triplet-2",
+    xlabel = "Momentum (MeV)",
+    ylabel = "Distance (m)",
+    
+    key="S3 D1",
+    color=orange,
+    explicit(Dtp[2][3,1],p,pmin,pmax),
+    
+    key="S3 D2",
+    color=purple,
+    explicit(Dtp[2][3,2],p,pmin,pmax),
+    
+    key="S3 D3",
+    color=yellow,
+    explicit(Dtp[2][3,3],p,pmin,pmax),
+  
+    key="S4 D1",
+    color=red,
+    explicit(Dtp[2][4,1],p,pmin,pmax),
+    
+    key="S4 D2",
+    color=blue,
+    explicit(Dtp[2][4,2],p,pmin,pmax),
+    
+    key="S4 D3",
+    color=green,
+    explicit(Dtp[2][4,3],p,pmin,pmax)
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: subsubsect start ]
+Comparison plots
+   [wxMaxima: subsubsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+From the previous plots, it is clear that solutions 2 and 3 are irrelevant. It can also be seen from the following plots that solution-4 is "contained" in solution-1: the former is possibly a line of discontinuity of the latter.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: comment start ]
+The region where relevant values of D2 and D3 exist is larger for triplet-2 as compared to triplet-1.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+Ltot : makelist(Dtp[i][1,1]+L[i,1]+Dtp[i][1,2]+L[i,2]+Dtp[i][1,3]+L[i,3],i,1,2)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxdraw3d(
+    user_preamble = "set xyplane at 0",
+    xu_grid = 20,
+    yv_grid = 20,
+    zrange = [0,12/10],
+    contour = both,
+    contour_levels = 10,
+    
+    title = "Drift Distances and Total Length: Triplet-1 vs. Triplet-2",
+    
+    xlabel = "Momentum (MeV)",
+    ylabel = "D1 (m)",
+    zlabel = "Distance (m)",
+    
+    key = "Tp1 S1 D2",
+    color = red,
+    explicit(Dtp[1][1,2],p,pmin,pmax,D1,D1min,D1max),
+    
+    key = "Tp1 S1 D3",
+    color = blue,
+    explicit(Dtp[1][1,3],p,pmin,pmax,D1,D1min,D1max),
+    
+    key = "Tp1 Ltot",
+    color = green,
+    explicit(Ltot[1],p,pmin,pmax,D1,D1min,D1max),
+    
+    key = "Tp2 S1 D2",
+    color = orange,
+    explicit(Dtp[2][1,2],p,pmin,pmax,D1,D1min,D1max),
+    
+    key = "Tp2 S1 D3",
+    color = purple,
+    explicit(Dtp[2][1,3],p,pmin,pmax,D1,D1min,D1max),
+    
+    key = "Tp2 Ltot",
+    color = darkgreen,
+    explicit(Ltot[2],p,pmin,pmax,D1,D1min,D1max),
+    
+    nticks     = 2,
+    line_width = 3,
+
+    key = "Tp1 S4 D2",
+    color = red,
+    parametric(p,Dtp[1][4,1],Dtp[1][4,2],p,pmin,pmax),
+    
+    key = "Tp1 S4 D3",
+    color = blue,
+    parametric(p,Dtp[1][4,1],Dtp[1][4,3],p,pmin,pmax),
+    
+    key = "Tp2 S4 D2",
+    color = orange,
+    parametric(p,Dtp[2][4,1],Dtp[2][4,2],p,pmin,pmax),
+    
+    key = "Tp2 S4 D3",
+    color = purple,
+    parametric(p,Dtp[2][4,1],Dtp[2][4,3],p,pmin,pmax)
+)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+for i : 1 thru 2 do (
+    subslist1[i] : append([D2=Dtp[i][1,2],D3=Dtp[i][1,3]],subslist0[i])
+)$
+subslist1$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: section start ]
+2D Plots
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: subsect start ]
+Isolines of Total Length
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: comment start ]
+As we increase p, to maintain total length fixed, one has to reduce D1.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxdraw(
+    gr3d(
+        user_preamble = "set xyplane at 0",
+        xu_grid = 20,
+        yv_grid = 20,
+        contour = map,
+        contour_levels = 10,
+    
+        title = "Total Length Isolines: Triplet-1",
+        xlabel = "Momentum (MeV)",
+        ylabel = "D1 (m)",
+    
+        key = "Tp1 Ltot",
+        explicit(Ltot[1],p,pmin,pmax,D1,D1min,D1max)
+    ),
+    gr3d(user_preamble = "set xyplane at 0",
+        xu_grid = 20,
+        yv_grid = 20,
+        contour = map,
+        contour_levels = 10,
+    
+        title = "Total Length Isolines: Triplet-2",
+        xlabel = "Momentum (MeV)",
+        ylabel = "D1 (m)",
+    
+        key = "Tp2 Ltot",
+        explicit(Ltot[2],p,pmin,pmax,D1,D1min,D1max))
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: subsect start ]
+D2, D3 and Ltot at constant p
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: input   start ] */
+pp : 500$
+pDtp : subst(pp,p,Dtp)$
+pLtot : subst(pp,p,Ltot)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxdraw2d(
+    yrange = [0,85/100],
+    title = sconcat("D2, D3 and Ltot at p=",pp),
+    xlabel = "D1 (m)",
+    ylabel = "Distance (m)",
+    
+    key = "Tp1 D2",
+    color = red,
+    explicit(pDtp[1][1,2],D1,D1min,D1max),
+    
+    key = "Tp1 D3",
+    color = blue,
+    explicit(pDtp[1][1,3],D1,D1min,D1max),
+    
+    key = "Tp1 Ltot",
+    color = green,
+    explicit(pLtot[1],D1,D1min,D1max),
+    
+    key = "Tp2 D1",
+    color = orange,
+    explicit(pDtp[2][1,2],D1,D1min,D1max),
+    
+    key = "Tp2 D3",
+    color = purple,
+    explicit(pDtp[2][1,3],D1,D1min,D1max),
+    
+    key = "Tp2 Ltot",
+    color = darkgreen,
+    explicit(pLtot[2],D1,D1min,D1max),
+    
+    key = "D1",
+    color = black,
+    explicit(D1,D1,D1min,D1max)
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: subsect start ]
+D2, D3 and Ltot at constant D1
+   [wxMaxima: subsect end   ] */
+
+
+/* [wxMaxima: input   start ] */
+DD : 1/10$
+DDtp : subst(DD,D1,Dtp)$
+DLtot : subst(DD,D1,Ltot)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxdraw2d(
+    
+    title = sconcat("D2 and D3 at D1=",DD,"m"),
+    xlabel = "Momentum (MeV)",
+    ylabel = "Distance (m)",
+    
+    key = "Tp1 D2",
+    color = red,
+    explicit(DDtp[1][1,2],p,pmin,pmax),
+    
+    key = "Tp1 D3",
+    color = blue,
+    explicit(DDtp[1][1,3],p,pmin,pmax),
+    
+    key = "Tp1 Ltot",
+    color = green,
+    explicit(DLtot[1],p,pmin,pmax),
+    
+    key = "Tp2 D1",
+    color = orange,
+    explicit(DDtp[2][1,2],p,pmin,pmax),
+    
+    key = "Tp2 D3",
+    color = purple,
+    explicit(DDtp[2][1,3],p,pmin,pmax),
+    
+    key = "Tp2 Ltot",
+    color = darkgreen,
+    explicit(DLtot[2],p,pmin,pmax),
+    
+    key = "D1",
+    color = black,
+    explicit(DD,p,pmin,pmax)
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+mD2 : makelist(makelist(subst(j,D1,Dtp[i][1,2]),j,0.1,0.5,0.2),i,1,2)$
+mD3 : makelist(makelist(subst(j,D1,Dtp[i][1,3]),j,0.1,0.5,0.2),i,1,2)$
+legend : append(['legend],makelist(sconcat("D1=",i),i,0.1,0.5,0.2))$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxplot2d(
+    mD2[1],
+    [p,100,1000],
+    [title,"Triplet-1 D2"],
+    legend,
+    [nticks,20]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxplot2d(
+    mD3[1],
+    [p,100,1000],
+    [title,"Triplet-1 D3"],
+    legend,
+    [nticks,20]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxplot2d(
+    mD2[2],
+    [p,100,1000],
+    [title,"Triplet-2 D2"],
+    legend,
+    [nticks,20]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxplot2d(
+    mD3[2],
+    [p,100,1000],
+    [title,"Triplet-2 D3"],
+    legend,
+    [nticks,20]
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: section start ]
+Beam Aspect Ratio
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: comment start ]
+* Point-point to parallel-parallel focusing ⇒ x_i = y_i = xp_f = yp_f = 0  ⇒
+    1. x_f = R[1,2] times xp_i.
+    2. y_f = R[3,4] times yp_i. 
+    3. R[2,2] = R[4,4] = 0.
+  Here, xp = dx/dz and yp = dy/dz, and i and f refer to initial and final values respectively.
+* Determinent of x and y blocks of R are individually equal to 1 ⇒
+    1. R[1,2] = -1/R[2,1]
+    2. R[3,4] = -1/R[4,3]
+Since the expressions for R[2,1] and R[4,3] are simpler than those of R[1,2] and R[3,4] respectively, these relations could be used to simplify the calculation of beam aspect ratio.
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+Hx : makelist(psubst(subslist1[i],-1/R[2,1]),i,1,2)$
+Hy : makelist(psubst(subslist1[i],-1/R[4,3]),i,1,2)$
+bar : Hx/Hy$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxdraw3d(
+    user_preamble = "set xyplane at 0",
+    xu_grid = 20,
+    yv_grid = 20,
+    
+    title = "Image Heights and Beam Aspect Ratio: Triplet-1 vs. Triplet-2",
+    xlabel = "Momentum (MeV)",
+    
+    key = "Tp1: x_f (mm) for xp_i = 1 mrad",
+    color = red,
+    explicit(Hx[1],p,pmin,pmax,D1,D1min,D1max),
+    
+    key = "Tp1 y_f (mm) for yp_i = 1 mrad",
+    color = orange,
+    explicit(Hy[1],p,pmin,pmax,D1,D1min,D1max),
+    
+    key = "Tp1 (x_f/y_f)/10",
+    color = darkred,
+    line_type = dots,
+    explicit(bar[1]/10,p,pmin,pmax,D1,D1min,D1max),
+    
+    key = "Tp2 x_f (mm) for xp_i = 1 mrad",
+    color = blue,
+    line_type = solid,
+    explicit(Hx[2],p,pmin,pmax,D1,D1min,D1max),
+    
+    key = "Tp2 y_f (mm) for yp_i = 1 mrad",
+    color = purple,
+    explicit(Hy[2],p,pmin,pmax,D1,D1min,D1max),
+    
+    key = "Tp2 (x_f/y_f)/10",
+    color = darkblue,
+    line_type = dots,
+    explicit(bar[2]/10,p,pmin,pmax,D1,D1min,D1max)
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: section start ]
+Angular Acceptance
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: input   start ] */
+ψ0 : matrix([0], [θ], [0], [-θ])$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+ψd1 : Drift4U(z).ψ0$
+ψq01 : subst(D1,z,ψd1)$
+ψq1 : Quad4U(z,K1).ψq01$
+ψd02 : subst(L1,z,ψq1)$
+ψd2 : Drift4U(z).ψd02$
+ψq02 : subst(D2,z,ψd2)$
+ψq2 : Quad4U(z,K2).ψq02$
+ψd03 : subst(L2,z,ψq2)$
+ψd3 : Drift4U(z).ψd03$
+ψq03 : subst(D3,z,ψd3)$
+ψq3 : Quad4U(z,K3).ψq03$
+ψd04 : subst(L3,z,ψq3)$
+ψd4 : Drift4U(z).ψd04$
+
+ψd : [ψd1,ψd2,ψd3,ψd4]$
+ψq : [ψq1,ψq2,ψq3]$
+ψd0 : [ψd01,ψd02,ψd03,ψd04]$
+ψq0 : [ψq01,ψq02,ψq03]$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Function to find local extrema in trajectory inside the magnets:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+locex(p0,θ0,δ,tp,mg,ax) :=
+    block(
+        K0 : subst(p0,p,K[tp,mg]),
+        K00 : abs(K0),
+        ρ : psubst([p=p0,θ=θ0,D1=δ],psubst(subslist1[tp],ψq0[mg][2*ax-1,1])),
+        ρp : psubst([p=p0,θ=θ0,D1=δ],psubst(subslist1[tp],ψq0[mg][2*ax,1])),
+        α : ρp/ρ,
+        if (ax=1 and imagpart(K0)=0) or (ax=2 and realpart(K0)=0) then (
+            Ray : psubst([p=p0,θ=θ0,D1=δ],psubst(subslist1[tp],ψq[mg][2*ax-1,1])),
+            N : entier(L[tp,mg]/(π/K00)),
+            Zext0 : atan(α/K00)/K00,
+            Zext : makelist(Zext0+n*π/K00,n,0,N),
+            ρext : [],
+            for zval in Zext do (
+                if zval>0 and zval<L[tp,mg] then (
+                    ρext : append(ρext,[subst(zval,z,Ray)])
+                )
+            )
+        )
+        elseif (ax=1 and realpart(K0)=0 and α<0) or (ax=2 and imagpart(K0)=0 and α<0) then (
+            Ray : psubst([p=p0,θ=θ0,D1=δ],psubst(subslist1[tp],ψq[mg][2*ax-1,1])),
+            Zext : [atanh(-α/K00)/K00],
+            ρext : subst(Zext,z,Ray)
+        )
+        else (
+            Zext : [],
+            ρext : []
+        )
+    )$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: comment start ]
+Obtaining the angular acceptance for different momentum values:
+   [wxMaxima: comment end   ] */
+
+
+/* [wxMaxima: input   start ] */
+ratprint : false$
+Θ : 15/1000$
+Δ : 1/10$
+θmaxplot: matrix(
+    [[],[]], 
+    [[],[]]
+)$
+θlazmax : [[],[]]$
+for P : 250 step 50 thru 1000 do (
+    for TP : 1 thru 2 do (
+        for AX : 1 thru 2 do (
+            θmax0 : [],
+            for MG : 1 thru 3 do (
+                locex(P,Θ,Δ,TP,MG,AX),
+                ρi : abs(float(ρ)),
+                ρf : abs(float(psubst([p=P,θ=Θ,D1=Δ],psubst(subslist1[TP],ψd0[MG+1][2*AX-1,1])))),
+                ρlist : append([ρi,ρf],abs(float(ρext))),
+                ρmax : lmax(float(ρlist)),
+                θmax0 : append(θmax0,[r[TP,MG]*Θ/ρmax])
+            ),
+            θmax : lmin(θmax0),
+            θmaxplot[TP,AX] : append(θmaxplot[TP,AX],[[P,θmax]])
+        ),
+        lq1 : float(r[TP,1]/(Δ+L[TP,1])),
+        lq2 : float(r[TP,2]/psubst([p=P,D1=Δ],Δ+L[TP,1]+Dtp[TP][1,2]+L[TP,2])),
+        lq3 : float(r[TP,3]/psubst([p=P,D1=Δ],Ltot[TP])),
+        lq : min(lq1,lq2,lq3),
+        θlaz : float(atan(lq)),
+        θlazmax[TP] : append(θlazmax[TP],[[P,θlaz]])
+    )
+)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxdraw2d(
+    title = "Angular Acceptance",
+    xlabel = "Momentum (MeV)",
+    ylabel = "Angular acceptance (rad)",
+    
+    key = "Tp1 X",
+    color = red,
+    points_joined = true,
+    points(θmaxplot[1,1]),
+    
+    key = "Tp1 Y",
+    color = blue,
+    points_joined = true,
+    points(θmaxplot[1,2]),
+    
+    key = "Tp2 X",
+    color = orange,
+    points_joined = true,
+    points(θmaxplot[2,1]),
+    
+    key = "Tp2 Y",
+    color = purple,
+    points_joined = true,
+    points(θmaxplot[2,2]),
+    
+    key = "Tp1 Lazer",
+    color = black,
+    points_joined = true,
+    points(θlazmax[1]),
+    
+    key = "Tp2 Lazer",
+    color = brown,
+    points_joined = true,
+    points(θlazmax[2])
+);
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: section start ]
+Ray Tracing
+   [wxMaxima: section end   ] */
+
+
+/* [wxMaxima: input   start ] */
+Pr : 500$
+Θr : 15/1000$
+Dr : 1/10$
+subsr : [p=Pr,θ=Θr,D1=Dr]$
+
+D1r : [1/10,1/10]$
+D2r : psubst(subsr,[Dtp[1][1,2],Dtp[2][1,2]])$
+D3r : psubst(subsr,[Dtp[1][1,3],Dtp[2][1,3]])$
+subsD : makelist(append(subst(Pr,p,subslist0[i]),subsr,[D2=D2r[i],D3=D3r[i]]),i,1,2)$
+
+Z1 : [Dr,Dr]$
+Z2 : Z1+[L[1,1],L[2,1]]$
+Z3 : Z2+D2r$
+Z4 : Z3+[L[1,2],L[2,2]]$
+Z5 : Z4+D3r$
+Z6 : Z5+[L[1,3],L[2,3]]$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+ψdr1 : psubst(subsD[1],ψd)$
+ψqr1 : psubst(subsD[1],ψq)$
+
+ψdr2 : psubst(subsD[2],ψd)$
+ψqr2 : psubst(subsD[2],ψq)$
+/* [wxMaxima: input   end   ] */
+
+
+/* [wxMaxima: input   start ] */
+wxdraw(
+    gr2d(
+        nticks = 1,
+        adapt_depth = 1,
+        
+        yrange = [-r[1,3],r[1,3]],
+        
+        title = "Triplet-1",
+        color = black,
+        fill_color = white,
+        polygon([[Z1[1],0], [Z2[1],0], [Z2[1],r[1,1]], [Z1[1],r[1,1]]]),
+        polygon([[Z3[1],0], [Z4[1],0], [Z4[1],-r[1,2]], [Z3[1],-r[1,2]]]),
+        polygon([[Z5[1],0], [Z6[1],0], [Z6[1],r[1,3]], [Z5[1],r[1,3]]]),
+    
+        color = red,
+        explicit(ψdr1[1][1,1],z,0,Z1[1]),
+        explicit(subst(z-Z1[1],z,ψqr1[1][1,1]),z,Z1[1],Z2[1]),
+        explicit(subst(z-Z2[1],z,ψdr1[2][1,1]),z,Z2[1],Z3[1]),
+        explicit(subst(z-Z3[1],z,ψqr1[2][1,1]),z,Z3[1],Z4[1]),
+        explicit(subst(z-Z4[1],z,ψdr1[3][1,1]),z,Z4[1],Z5[1]),
+        explicit(subst(z-Z5[1],z,ψqr1[3][1,1]),z,Z5[1],Z6[1]),
+        explicit(subst(z-Z6[1],z,ψdr1[4][1,1]),z,Z6[1],3/4),
+        
+        color = blue,
+        explicit(ψdr1[1][3,1],z,0,Z1[1]),
+        explicit(subst(z-Z1[1],z,ψqr1[1][3,1]),z,Z1[1],Z2[1]),
+        explicit(subst(z-Z2[1],z,ψdr1[2][3,1]),z,Z2[1],Z3[1]),
+        explicit(subst(z-Z3[1],z,ψqr1[2][3,1]),z,Z3[1],Z4[1]),
+        explicit(subst(z-Z4[1],z,ψdr1[3][3,1]),z,Z4[1],Z5[1]),
+        explicit(subst(z-Z5[1],z,ψqr1[3][3,1]),z,Z5[1],Z6[1]),
+        explicit(subst(z-Z6[1],z,ψdr1[4][3,1]),z,Z6[1],3/4) 
+    ),
+    gr2d(
+        nticks = 1,
+        adapt_depth = 1,
+        
+        yrange = [-r[1,3],r[1,3]],
+        
+        title = "Triplet-2",
+        color = black,
+        fill_color = white,
+        polygon([[Z1[2],0], [Z2[2],0], [Z2[2],r[1,1]], [Z1[2],r[1,1]]]),
+        polygon([[Z3[2],0], [Z4[2],0], [Z4[2],-r[1,2]], [Z3[2],-r[1,2]]]),
+        polygon([[Z5[2],0], [Z6[2],0], [Z6[2],r[1,3]], [Z5[2],r[1,3]]]),
+    
+        color = red,
+        explicit(ψdr2[1][1,1],z,0,Z1[2]),
+        explicit(subst(z-Z1[2],z,ψqr2[1][1,1]),z,Z1[2],Z2[2]),
+        explicit(subst(z-Z2[2],z,ψdr2[2][1,1]),z,Z2[2],Z3[2]),
+        explicit(subst(z-Z3[2],z,ψqr2[2][1,1]),z,Z3[2],Z4[2]),
+        explicit(subst(z-Z4[2],z,ψdr2[3][1,1]),z,Z4[2],Z5[2]),
+        explicit(subst(z-Z5[2],z,ψqr2[3][1,1]),z,Z5[2],Z6[2]),
+        explicit(subst(z-Z6[2],z,ψdr2[4][1,1]),z,Z6[2],3/4),
+        
+        color = blue,
+        explicit(ψdr2[1][3,1],z,0,Z1[2]),
+        explicit(subst(z-Z1[2],z,ψqr2[1][3,1]),z,Z1[2],Z2[2]),
+        explicit(subst(z-Z2[2],z,ψdr2[2][3,1]),z,Z2[2],Z3[2]),
+        explicit(subst(z-Z3[2],z,ψqr2[2][3,1]),z,Z3[2],Z4[2]),
+        explicit(subst(z-Z4[2],z,ψdr2[3][3,1]),z,Z4[2],Z5[2]),
+        explicit(subst(z-Z5[2],z,ψqr2[3][3,1]),z,Z5[2],Z6[2]),
+        explicit(subst(z-Z6[2],z,ψdr2[4][3,1]),z,Z6[2],3/4) 
+    ) 
+)$ 
+/* [wxMaxima: input   end   ] */
+
+
+
+/* Old versions of Maxima abort on loading files that end in a comment. */
+"Created with wxMaxima 20.12.1"$
