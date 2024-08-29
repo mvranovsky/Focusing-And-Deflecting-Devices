@@ -34,7 +34,7 @@
 &NEWRUN
  Head='Example of ASTRA users manual'
  RUN=1
- Distribution=test4.ini
+ Distribution=test0.ini
  Xoff=0.0
  Yoff=0.0
  Track_All=T
@@ -48,7 +48,7 @@
 
 &OUTPUT
  ZSTART=0.0
- ZSTOP=2
+ ZSTOP=4
  Zemit=500
  Zphase=1
  RefS=T
@@ -104,7 +104,7 @@
  Q_smooth(2)=0
  Q_bore(2)=0.018
  Q_bore(2)=1E-9
- Q_pos(2)=0.36000000000000004
+ Q_pos(2)=0.6914734207591431
  Q_xoff(2)=0
  Q_yoff(2)=0
  Q_xrot(2)=0
@@ -116,7 +116,7 @@
  Q_smooth(3)=0
  Q_bore(3)=0.03
  Q_bore(3)=1E-9
- Q_pos(3)=0.7500000000000001
+ Q_pos(3)=1.2132926377103985
  Q_xoff(3)=0
  Q_yoff(3)=0
  Q_xrot(3)=0
