@@ -3,7 +3,7 @@
                Astra - A space charge tracking algorithm 
                              Version 4.0              
                          DESY,  Hamburg 2022          
-                         29. 8.2024  17:40
+                         30. 8.2024  16:34
 
      Parameter file is:  parallelBeam.in                                   
      Example of ASTRA users manual                                                   
@@ -14,9 +14,9 @@
  --------------------------------------------------------------------------
  Quadrupole:
 
-     quadrupole no.:        1         at =   0.1180     m
-     quadrupole no.:        2         at =   0.3739     m
-     quadrupole no.:        3         at =   0.6716     m
+     quadrupole no.:        1         at =   0.2180     m
+     quadrupole no.:        2         at =   0.4400     m
+     quadrupole no.:        3         at =   0.7092     m
  --------------------------------------------------------------------------
        1 particles from file test4.ini                                         
 
@@ -73,9 +73,9 @@
                                        y =    0.000     mm
 
      final position                    x =    0.000     mm
-                                       y =   0.3913     mm
+                                       y =   0.5034     mm
      divergence                    px/pz =    0.000     mrad
-                                   py/pz =   1.4658E-11 mrad
+                                   py/pz =  -4.5850E-03 mrad
  --------------------------------------------------------------------------
  tracking of        1 particles:
      tracking will stop at             z =    4.000     m
@@ -132,7 +132,7 @@
      **********************************************************************
 
 
-     finished simulation  29. 8.2024     17:40
-     execution time:  0.10 sec                         
+     finished simulation  30. 8.2024     16:34
+     execution time:  0.12 sec                         
      Goodbye.
  --------------------------------------------------------------------------
