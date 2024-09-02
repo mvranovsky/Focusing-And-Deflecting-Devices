@@ -24,3 +24,10 @@ To visualize results from Astra simulation, one can use *PGPlot* software, which
 https://sites.google.com/fqa.ub.edu/robert-estalella-home-page/pgplot_gfortran
 
 
+explanation of Powell's method for finding function minimum:
+
+https://link.springer.com/referenceworkentry/10.1007/0-306-48332-7_393#:~:text=The%20Powell%20method%20in%20its,free%20%2C%20or%20gradient%20based%20procedures%20.
+
+https://empossible.net/wp-content/uploads/2020/08/Lecture-Powells-Method-1.pdf
+
+
