@@ -3,7 +3,7 @@
                Astra - A space charge tracking algorithm 
                              Version 4.0              
                          DESY,  Hamburg 2022          
-                          3. 9.2024  13:57
+                          3. 9.2024  16:47
 
      Parameter file is:  parallelBeam.in                                   
      Example of ASTRA users manual                                                   
@@ -14,11 +14,11 @@
  --------------------------------------------------------------------------
  Quadrupole:
 
-     quadrupole no.:        1         at =   0.1210     m
-     quadrupole no.:        2         at =   0.3758     m
-     quadrupole no.:        3         at =   0.6717     m
+     quadrupole no.:        1         at =   0.1180     m
+     quadrupole no.:        2         at =   0.3728     m
+     quadrupole no.:        3         at =   0.6687     m
  --------------------------------------------------------------------------
-       1 particles from file test3.ini                                         
+       1 particles from file test4.ini                                         
 
      Emittance calculation suppressed for N < 5
      Particles taken into account      N =          1
@@ -72,10 +72,10 @@
                                        x =    0.000     mm
                                        y =    0.000     mm
 
-     final position                    x =    1.235     mm
-                                       y =    0.000     mm
-     divergence                    px/pz =  -2.0527E-03 mrad
-                                   py/pz =    0.000     mrad
+     final position                    x =    0.000     mm
+                                       y =   0.3749     mm
+     divergence                    px/pz =    0.000     mrad
+                                   py/pz =  -4.7620E-03 mrad
  --------------------------------------------------------------------------
  tracking of        1 particles:
      tracking will stop at             z =    4.000     m
@@ -132,7 +132,7 @@
      **********************************************************************
 
 
-     finished simulation   3. 9.2024     13:57
-     execution time:  0.12 sec                         
+     finished simulation   3. 9.2024     16:47
+     execution time:  0.11 sec                         
      Goodbye.
  --------------------------------------------------------------------------
