@@ -3,7 +3,7 @@
                Astra - A space charge tracking algorithm 
                              Version 4.0              
                          DESY,  Hamburg 2022          
-                          2. 9.2024  11:24
+                          3. 9.2024  13:57
 
      Parameter file is:  parallelBeam.in                                   
      Example of ASTRA users manual                                                   
@@ -14,9 +14,9 @@
  --------------------------------------------------------------------------
  Quadrupole:
 
-     quadrupole no.:        1         at =   0.1180     m
-     quadrupole no.:        2         at =   0.2192     m
-     quadrupole no.:        3         at =   0.3839     m
+     quadrupole no.:        1         at =   0.1210     m
+     quadrupole no.:        2         at =   0.3758     m
+     quadrupole no.:        3         at =   0.6717     m
  --------------------------------------------------------------------------
        1 particles from file test3.ini                                         
 
@@ -51,23 +51,88 @@
      initial position                  z =    0.000     m
                                        x =    0.000     mm
                                        y =    0.000     mm
-     initial momentum                  p =    300.0     MeV/c
+     initial momentum                  p =    700.0     MeV/c
      global phase shift              phi =    0.000     deg
      time step for integration        dt =    1.000     ps
  --------------------------------------------------------------------------
  Online element settings:
 
-     focussing strength of quadrupole no.:   1     =    221.8     m^-2
-     focussing strength of quadrupole no.:   2     =   -93.93     m^-2
-     focussing strength of quadrupole no.:   3     =    56.96     m^-2
+     focussing strength of quadrupole no.:   1     =    95.08     m^-2
+     focussing strength of quadrupole no.:   2     =   -40.26     m^-2
+     focussing strength of quadrupole no.:   3     =    24.41     m^-2
  --------------------------------------------------------------------------
 
      particle reaches position         z =    4.000     m
      time of flight is                 t =    13.34     ns
-     final momentum                    p =    300.0     MeV/c
+     final momentum                    p =    700.0     MeV/c
      final phase (cavity 1)      phi_end =    0.000     deg
  --------------------------------------------------------------------------
  off axis tracking of the reference particle: 
      initial position                  z =    0.000     m
                                        x =    0.000     mm
                                        y =    0.000     mm
+
+     final position                    x =    1.235     mm
+                                       y =    0.000     mm
+     divergence                    px/pz =  -2.0527E-03 mrad
+                                   py/pz =    0.000     mrad
+ --------------------------------------------------------------------------
+ tracking of        1 particles:
+     tracking will stop at             z =    4.000     m
+
+
+     final checkpoint at               z =    4.000     m
+     total number of iteration steps:         26685
+
+     **********************************************************************
+
+     Emittance calculation suppressed for N < 5
+     Particles taken into account      N =          1
+     total charge                      Q =    -0.1000     nC
+     horizontal beam position          x =      0.000     mm
+     vertical beam position            y =      0.000     mm
+     longitudinal beam position        z =      0.000     m
+     horizontal beam size          sig x =      0.000     mm
+     vertical beam size            sig y =      0.000     mm
+     longitudinal beam size        sig z =      0.000     mm
+     average kinetic energy            E =      0.000     MeV
+     energy spread                    dE =      0.000     keV
+     average momentum                  P =      0.000     MeV/c
+     transverse beam emittance     eps x =      0.000     pi mrad mm
+     correlated divergence         cor x =      0.000     mrad 
+     transverse beam emittance     eps y =      0.000     pi mrad mm
+     correlated divergence         cor y =      0.000     mrad
+     longitudinal beam emittance   eps z =      0.000     pi keV mm
+     correlated energy spread      cor z =      0.000     keV
+     emittance ratio eps y/eps x         =      0.000    
+
+     Particle Statistics: 
+
+
+     Total number of particles on stack     =          1
+     Electrons (total)                      =          1
+     particles at the cathode               =          0
+     active particles                       =          1
+     passive particles (lost out of bunch)  =          0
+     probe particles                        =          0
+     backward traveling particles           =          0
+     particles lost with z<Zmin             =          0
+     particles lost due to cathode field    =          0
+     particles lost on aperture             =          0
+
+     **********************************************************************
+
+     Emittance information saved to file    : parallelBeam.Xemit.001        
+     Emittance information saved to file    : parallelBeam.Yemit.001        
+     Emittance information saved to file    : parallelBeam.Zemit.001        
+     Ref. part. information saved to file   : parallelBeam.ref.001          
+     Phase-space distributions logged in    : parallelBeam.Log.001          
+     Phase scan saved to file               : parallelBeam.PScan.001        
+
+     **********************************************************************
+
+
+     finished simulation   3. 9.2024     13:57
+     execution time:  0.12 sec                         
+     Goodbye.
+ --------------------------------------------------------------------------
