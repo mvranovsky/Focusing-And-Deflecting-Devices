@@ -3,7 +3,7 @@
                Astra - A space charge tracking algorithm 
                              Version 4.0              
                          DESY,  Hamburg 2022          
-                          3. 9.2024  16:47
+                          4. 9.2024  11:27
 
      Parameter file is:  parallelBeam.in                                   
      Example of ASTRA users manual                                                   
@@ -18,7 +18,7 @@
      quadrupole no.:        2         at =   0.3728     m
      quadrupole no.:        3         at =   0.6687     m
  --------------------------------------------------------------------------
-       1 particles from file test4.ini                                         
+       1 particles from file test2.ini                                         
 
      Emittance calculation suppressed for N < 5
      Particles taken into account      N =          1
@@ -49,8 +49,8 @@
  --------------------------------------------------------------------------
  on axis tracking of the reference particle:
      initial position                  z =    0.000     m
-                                       x =    0.000     mm
-                                       y =    0.000     mm
+                                       x =   1.0000E-06 mm
+                                       y =   0.5000     mm
      initial momentum                  p =    700.0     MeV/c
      global phase shift              phi =    0.000     deg
      time step for integration        dt =    1.000     ps
@@ -69,13 +69,13 @@
  --------------------------------------------------------------------------
  off axis tracking of the reference particle: 
      initial position                  z =    0.000     m
-                                       x =    0.000     mm
-                                       y =    0.000     mm
+                                       x =   1.0000E-06 mm
+                                       y =   0.5000     mm
 
-     final position                    x =    0.000     mm
-                                       y =   0.3749     mm
-     divergence                    px/pz =    0.000     mrad
-                                   py/pz =  -4.7620E-03 mrad
+     final position                    x =  -4.4172E-06 mm
+                                       y =   -5.492     mm
+     divergence                    px/pz =  -1.1491E-06 mrad
+                                   py/pz =   -1.836     mrad
  --------------------------------------------------------------------------
  tracking of        1 particles:
      tracking will stop at             z =    4.000     m
@@ -132,7 +132,7 @@
      **********************************************************************
 
 
-     finished simulation   3. 9.2024     16:47
-     execution time:  0.11 sec                         
+     finished simulation   4. 9.2024     11:27
+     execution time:  0.13 sec                         
      Goodbye.
  --------------------------------------------------------------------------
