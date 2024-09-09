@@ -6,7 +6,7 @@
  RUN     =           1,
  LOOP    = F,
  NLOOP   =           0,
- DISTRIBUTION    = test2.ini                                                                                                         
+ DISTRIBUTION    = parallelBeam.ini                                                                                                  
                                      ,
  N_RED   =           1,
  XOFF    =  0.000000000000000E+000,
@@ -1030,10 +1030,10 @@
  /
  &APERTURE
  LOOP    = F,
- LAPERT  = F,
- FILE_APERTURE   =                                                                                                                   
-                                                                                                                                     
-                                                                                                                                     
+ LAPERT  = T,
+ FILE_APERTURE   = aperture1.dat                                                                                                     
+                                     aperture2.dat                                                                                   
+                                                       aperture3.dat                                                                 
                                                                                                                                      
                                                                                                                                      
                                                                                                                                      
@@ -4920,7 +4920,7 @@
  Q_BORE  = 3*1.000000000000000E-009  , 497*3.500000000000000E-002  ,
  Q_RAD   = 500*1.00000000000000        ,
  Q_DIST  = 500*0.000000000000000E+000  ,
- Q_POS   =  0.118000000000000     ,  0.204016792684942     ,  0.314722126389239     , 497*0.000000000000000E+000  ,
+ Q_POS   =  2.800000000000000E-002,  0.132987904901487     ,  0.243081584733746     , 497*0.000000000000000E+000  ,
  Q_XOFF  = 500*0.000000000000000E+000  ,
  Q_YOFF  = 500*0.000000000000000E+000  ,
  Q_XROT  = 500*0.000000000000000E+000  ,
@@ -4996,9 +4996,4 @@
  STAT    = 188*F, T, F, T, F, T, F, T, F, T, F, T, F, T, F, T, F, 198*T
  /
  End of Input deck
-test2.ini                       0.0000D+00  0.0000D+00  F
-parallelBeam.0000.001           0.0000D+00  0.0000D+00  F
-
-     execution started:    4. 9.2024     15:58
-     execution finished:   4. 9.2024     15:58
-     execution time:  0.12 sec                         
+parallelBeam.ini                0.1028D-07  0.0000D+00  F
