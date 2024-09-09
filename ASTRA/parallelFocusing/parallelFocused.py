@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[12]:
+# In[288]:
 
 
 import pandas as pd
@@ -26,7 +26,7 @@ import math
 # For running beam simulations, one can define it's initial parameters like spread of transverse momenta, spread of longitudinal energy, spread of offsets in the x and y directions as well as in the longitudinal direction. Also number of initial particles, space charge, secondary particle emission or other parameters can be changed in file parallelBeam.in.
 # 
 
-# In[13]:
+# In[289]:
 
 
 fileName = "parallelBeam"
@@ -59,11 +59,14 @@ sig_z=0.1    #mm
 sig_Ekin=3E+3     #keV
 sig_x=2.0E-3    #mm
 sig_y=2.0E-3    #mm
-sig_px =3E+6    #eV
-sig_py =3E+6    #eV
+#sig_px =3E+6    #eV
+#sig_py =3E+6    #eV
+
+sig_xAngle = 1  #mrad
+sig_yAngle = 1  #mrad
 
 
-# In[14]:
+# In[290]:
 
 
 dataD1 = []
@@ -76,7 +79,7 @@ dataSum = []
 # ## Function to change input settings
 # Function changeInputData() is a function created to change input variables for ASTRA. The first argument is the name of the parameter that needs to be changed, the second is the value. After that is topHatShapedQuads() which changes settings between ideal or realistic quadrupoles. To change the momentum in the z direction, one can use changeMomZ(). Files test0.ini all the way to test4.ini are input data for 5 different runs. File test0.ini has 0. reference particle with 0 offset and 0 initial angle, 1 and 2 have offsets in the x and y directions respectively and the last 2 have predefined angles. All of them should be parallel in the end. Lastly, function update() should be run to double check that all parameters are set to the right values.
 
-# In[15]:
+# In[291]:
 
 
 def changeInputData(tag, newVar):
@@ -111,7 +114,7 @@ def changeInputData(tag, newVar):
     return
 
 
-# In[16]:
+# In[292]:
 
 
 def topHatShapedQuads(ideal):
@@ -133,11 +136,11 @@ def topHatShapedQuads(ideal):
     return       
 
 
-# In[17]:
+# In[293]:
 
 
-def changeMom(px, py, pz, xoff, yoff): 
-    nameOfFiles = ["test0.ini", "test1.ini", "test2.ini" , "test3.ini", "test4.ini"]
+def changeMom(xAngle, yAngle, pz, xoff, yoff): 
+    nameOfFiles = ["test0.ini", "test1.ini", "test2.ini", "test3.ini", "test4.ini"]
     try:
         testData = ""
 
@@ -147,26 +150,19 @@ def changeMom(px, py, pz, xoff, yoff):
                 line = file.readlines()[0].split()
 
             #offset update
-            if name == "test3.ini" and xoff != -1:
-                line[0] = str(xoff) 
-            if name == "test4.ini" and yoff != -1:
-                line[1] = str(yoff)
-            if name == "test1.ini" and yoff != -1:
+            if name == "test3.ini" and yoff != -1:
                 line[1] = str(yoff) 
-            if name == "test2.ini" and xoff != -1:
+            if name == "test4.ini" and xoff != -1:
                 line[0] = str(xoff)
 
 
             
             #momentum update
-            if name == "test3.ini" and px != -1:
-                line[3] = str(px)
-            if name == "test4.ini" and py != -1:
-                line[4] = str(py)
-            if name == "test1.ini" and px != -1:
-                line[3] = str(px)
-            if name == "test2.ini" and py != -1:
-                line[4] = str(py)
+            if name == "test1.ini" and xAngle != -1:
+                line[3] = str(xAngle*pz*1e-3)
+            if name == "test2.ini" and yAngle != -1:
+                line[4] = str(yAngle*pz*1e-3)
+
             
             line[5] = str(pz)
 
@@ -197,30 +193,37 @@ def changeMom(px, py, pz, xoff, yoff):
     
 
 
-# In[18]:
+# In[294]:
+
+
+def changePositions(D1,D2,D3):
+
+    Q1pos = D1 + lengthQ1/2
+    Q2pos = D1 + lengthQ1 + D2 + lengthQ2/2
+    Q3pos = D1 + lengthQ1 + D2 + lengthQ2 + D3 + lengthQ3/2
+    
+    changeInputData("Q_pos(1)",str(Q1pos) )
+    changeInputData("Q_pos(2)",str(Q2pos) )
+    changeInputData("Q_pos(3)",str(Q3pos) )
+
+    #changing the positions of apertures
+    ap1 = str(Q1pos - lengthQ1/2) + " " + str(boreQ1*1E+3/2) + "\n" + str(Q1pos + lengthQ1/2) + " " + str(boreQ1*1E+3/2)
+    with open("aperture1.dat", "w") as file:
+        file.write(ap1)
+    ap2 = str(Q2pos - lengthQ2/2) + " " + str(boreQ2*1E+3/2) + "\n" + str(Q2pos + lengthQ2/2) + " " + str(boreQ2*1E+3/2)
+    with open("aperture2.dat", "w") as file:
+        file.write(ap2)
+    ap3 = str(Q3pos - lengthQ3/2) + " " + str(boreQ3*1E+3/2) + "\n" + str(Q3pos + lengthQ3/2) + " " + str(boreQ3*1E+3/2)
+    with open("aperture3.dat", "w") as file:
+        file.write(ap3)
+    return
+
+
+# In[295]:
 
 
 def update():
-    '''
-    inputData = "  " + xoffset + "  0.0000E+00  0.0000E+00  0.0000E+00  0.0000E+00  5.0000E+08  0.0000E+00 -1.0000E-01   1   5"
-    with open("test1.ini", "w") as file:
-        file.write(inputData)
 
-    inputData = "  0.0000E+00  " + yoffset + "  0.0000E+00  0.0000E+00  0.0000E+00  5.0000E+08  0.0000E+00 -1.0000E-01   1   5"
-    with open("test2.ini", "w") as file:
-        file.write(inputData)
-
-    inputData = "  0.0000E+00  0.0000E+00  0.0000E+00 " + xmom + " 0.0000E+00  5.0000E+08  0.0000E+00 -1.0000E-01   1   5"
-    with open("test3.ini", "w") as file:
-        file.write(inputData)
-
-    inputData = "  0.0000E+00  0.0000E+00  0.0000E+00  0.0000E+00 " + ymom + " 5.0000E+08  0.0000E+00 -1.0000E-01   1   5"
-    with open("test4.ini", "w") as file:
-        file.write(inputData)   
-
-    #change input energy
-    changeInputData("Ref_Ekin", str(float(longitudalEnergy)/1E+6)) #input in MeV
-    '''
     changeInputData("ZSTOP", str(setupLength) )
 
     #change properties of magnets
@@ -230,14 +233,14 @@ def update():
     
     #change parameters of the beam
     changeInputData("IPart", str(nParticles))
-
+    '''
     changeInputData("sig_z",str(sig_z))
     changeInputData("sig_Ekin", str(sig_Ekin))
     changeInputData("sig_x", str(sig_x))
     changeInputData("sig_y", str(sig_y))
     changeInputData("sig_px", str(sig_px))
     changeInputData("sig_py", str(sig_py))
-
+    '''
     dataD1.clear()
     dataD2.clear()
     dataD3.clear()
@@ -251,39 +254,34 @@ def update():
 # ## Functions that make life easier
 # Here below are some one-liners or almost one-liners that run several times and return some specific values used in bigger algorithms implemented for example in refParticles().
 
-# In[19]:
+# In[296]:
 
 
-def checkCavity(Q1pos, Q2pos, Q3pos):
-    #this function checks if a reference particle touches wall of a cavity 
-    #so far not calculating with offsets of quadrupoles
-    
-    data = loadDataRef("ref")
+def setupSize(D1, D2, D3):
 
+    size = D1 + lengthQ1 + D2 + lengthQ2 + D3 + lengthQ3 
+    return size
+
+
+# In[297]:
+
+
+def activeParticles():
+    #function which returns the number of particles that stayed in the beam w.r.t. original number of particles in the beam
+    data = loadDataRef(setupLengthStr)
+
+    lost = 0
     for line in data:
-        #check if it does not go beyond the cavity 1 limit
-        if line[0] > (Q1pos - lengthQ1/2) and line[0] < (Q1pos+ lengthQ1/2): #m
-            if line[5] > boreQ1*1e+3/2 or line[6] > boreQ1*1e+3/2: #mm
-                print(f"Reference particle hit the cavity wall of Q1. Leaving...")
-                return False
+        if line[2] == setupLength:
+            continue
+        zpos = math.fabs(line[2])
+        if zpos > 0.05: #if particle more than 5 cm from the reference particle, it is considered lost
+            lost += 1
 
-        #check if it does not go beyond the cavity 2 limit
-        if line[0] > (Q2pos - lengthQ2/2) and line[0] < (Q2pos + lengthQ2/2): 
-            if line[5] > boreQ2*1e+3/2 or line[6] > boreQ2*1e+3/2:
-                print(f"Reference particle hit the cavity wall of Q2. Leaving...")
-                return False
-            
-        #check if it does not go beyond the cavity 3 limit
-        if line[0] > (Q3pos - lengthQ3/2) and line[0] < (Q3pos + lengthQ3/2): 
-            if line[5] > boreQ3*1e+3/2 or line[6] > boreQ3*1e+3/2:
-                print(f"Reference particle hit the cavity wall of Q3. Leaving...")
-                return False
+    return (str(len(data) - lost)+"/" + str(len(data)))
 
 
-    return True
-
-
-# In[20]:
+# In[298]:
 
 
 def isRef0Straight(px, py):
@@ -294,7 +292,7 @@ def isRef0Straight(px, py):
         return False
 
 
-# In[21]:
+# In[299]:
 
 
 def differLine(line):
@@ -304,7 +302,7 @@ def differLine(line):
     return [float(num) for num in lineSplitted]    
 
 
-# In[22]:
+# In[300]:
 
 
 def loadDataRef(arg):
@@ -321,7 +319,7 @@ def loadDataRef(arg):
     
 
 
-# In[23]:
+# In[301]:
 
 
 def fill4DGraph(D1, D2,D3,mom,sum):
@@ -335,27 +333,17 @@ def fill4DGraph(D1, D2,D3,mom,sum):
     return
 
 
-# In[24]:
+# In[302]:
 
 
 def angleCalculation(data):
     #calculate sum of transverse momenta in final state in mrad
     
-    sum =  math.sqrt((data[1][3]/data[1][5])**2 + (data[1][4]/data[1][5])**2 + (data[2][4]/data[2][5])**2 + (data[2][3]/data[2][5])**2)*1e+3
+    sum =  math.sqrt((data[1][3]/data[1][5])**2 + (data[2][4]/data[2][5])**2 )*1e+3
     return sum
 
 
-# In[25]:
-
-
-def angleCalculationInverse(data):
-    #calculate sum of transverse momenta in final state in mrad
-    
-    sum =  math.sqrt((data[3][3]/data[3][5])**2 + (data[3][4]/data[3][5])**2 + (data[4][4]/data[4][5])**2 + (data[4][3]/data[4][5])**2 )*1e+3
-    return sum
-
-
-# In[26]:
+# In[303]:
 
 
 def angleCalculationX(data):
@@ -364,7 +352,7 @@ def angleCalculationX(data):
     return sum
 
 
-# In[27]:
+# In[304]:
 
 
 def angleCalculationY(data):
@@ -374,44 +362,70 @@ def angleCalculationY(data):
     return sum
 
 
-# In[28]:
+# In[305]:
 
 
-def giveRange(rangeVar, nInt):
-    #function to determine whether a variable will be varied or not, if yes then determine the range
-    output = []
-    if rangeVar[0] != rangeVar[1]:
-        interval =(rangeVar[1] - rangeVar[0])/nInt      
-        for i in range(nInt):
-            output.append(rangeVar[0] + i*interval)
-    else:
-        output.append(rangeVar[0])
+def checkAngleAcceptance(D1,D2,D3, momZ):
+    #goes from the larger values, if a reference particle gets lost, it's last z position is not setup length
+    
+    #print(f"Varying initial angle in x and y direction in range from 10 mrad to 0.01 mrad")
+    difAngle = [1e-1, 5e-2, 4e-2, 3e-2,2.5e-2, 2e-2,1.5e-2, 1e-2,9e-3, 8e-3, 7e-3, 6e-3, 5e-3, 4e-3,3e-3,2e-3, 1e-3, 5e-4, 3e-4, 1e-4, 5e-5, 3e-5, 1e-5] 
 
-    return output
+    resultAng = []
+    for dif in difAngle:
+        #print(f"Running '{dif*1000}' mrad")
+    
+        changeMom(dif, -1, momZ, -1, -1)
+        changeInputData("Distribution", "test1.ini" )
+        result = subprocess.run("source /opt/intel/oneapi/setvars.sh > out.txt && ./Astra " + fileName + " > output.txt",capture_output=True, text=True, shell=True,check=True,executable='/bin/bash' )
+
+        data = loadDataRef("ref")[-1]
+        distFromEnd = math.fabs( data[0] - setupLength )
+        if distFromEnd > 1e-3:
+            continue
+        else:
+            resultAng.append(dif)
+            resultAng.append(data[5])
+            break
+
+    
+    for dif in difAngle:
+        #print(f"Running '{dif*1000}' mrad")
+    
+        changeMom(-1, dif, momZ, -1, -1)
+        changeInputData("Distribution", "test2.ini" )
+        result = subprocess.run("source /opt/intel/oneapi/setvars.sh > out.txt && ./Astra " + fileName + " > output.txt",capture_output=True, text=True, shell=True,check=True,executable='/bin/bash' )
+    
+        data = loadDataRef("ref")[-1]
+        distFromEnd = math.fabs( data[0] - setupLength )
+        if distFromEnd > 1e-3:
+            continue
+        else:
+            resultAng.append(dif)
+            resultAng.append(data[6])
+            break
+
+    changeMom(sig_xAngle, sig_yAngle, momZ, -1, -1)
+    return resultAng
 
 
 # # Function RunRef()
 # Function runRef() is the function that does most of the work. The arguments are the specific D1, D2, D3 and longitudinal momentum that is of interest. It is created for 3 reference particles: 0 angle, x angle, y angle. It changes the variables in the input file for Astra, runs the program for each reference particle separately, loads the output of the program. If argument moreData is set to True, it returns the entire trajectories of the particles, if it is false only information at the end of setup. 
 
-# In[29]:
+# In[306]:
 
 
+'''
 def runRef(D1, D2, D3,momZ, moreData):
     #this function runs Astra with 5 different reference particles for specific D1,D2,D3
 
-    Q1pos = D1 + lengthQ1/2
-    Q2pos = D1 + lengthQ1 + D2 + lengthQ2/2
-    Q3pos = D1 + lengthQ1 + D2 + lengthQ2 + D3 + lengthQ3/2
-    
-    changeInputData("Q_pos(1)",str(Q1pos))
-    changeInputData("Q_pos(2)",str(Q2pos) )
-    changeInputData("Q_pos(3)",str(Q3pos) )
+    changePositions(D1,D2,D3)
     changeMom(-1, -1, momZ, -1, -1)
 
 
     #if moreData, then provide tracking for each of the reference particles and return it for plotting
     if moreData:
-        inputDataName = ["test0.ini", "test3.ini", "test4.ini", "test1.ini", "test2.ini"]
+        inputDataName = ["test0.ini", "test1.ini", "test2.ini", "test3.ini", "test4.ini"]
         outputMoreData = []
         for i in range(len(inputDataName)):
             changeInputData("Distribution", inputDataName[i] )
@@ -421,8 +435,6 @@ def runRef(D1, D2, D3,momZ, moreData):
                 print(f"Astra returned an error '{subprocess.CalledProcessError.stderr}'. ")
                 return 1
             
-            if not checkCavity(Q1pos, Q2pos, Q3pos):
-                return 1
             currentData = loadDataRef("ref")
             
             #condition for 0. ref particle-> it cannot move
@@ -441,8 +453,47 @@ def runRef(D1, D2, D3,momZ, moreData):
         return outputMoreData
         
     else:
-        inputDataName = ["test0.ini", "test3.ini", "test4.ini", "test1.ini", "test2.ini"]
-        outputData = []
+        #inputDataName = ["test0.ini", "test3.ini", "test4.ini", "test1.ini", "test2.ini"]
+        #outputData = []
+        changeInputData("Distribution", "test.ini" )
+        result = subprocess.run("source /opt/intel/oneapi/setvars.sh > out.txt && ./Astra " + fileName + " > output.txt",capture_output=True, text=True, shell=True,check=True,executable='/bin/bash' )
+
+        if result.returncode != 0:
+            print(f"Astra returned an error '{subprocess.CalledProcessError.stderr}'. ")
+            return 1
+
+        currentData = loadDataRef(setupLengthStr)
+     
+        #condition for 0. ref particle-> it cannot move
+        if not isRef0Straight(currentData[0][3], currentData[0][4]):
+            print(f"Reference 0 particle with 0 offset and 0 angle moved in setup with D1 = '{D1}', D2 = '{D2}' and D3 = '{D3}'.")
+            return 1
+        
+        #condition to check if the particle came all the way to the end
+        for line in currentData:
+            distFromEnd = math.fabs(line[2])
+            if distFromEnd > 0.1 and distFromEnd != 4:
+                print(f"One of particles did not reach the end in setup with D1 = '{D1}', D2 = '{D2}' and D3 = '{D3}'. ")
+                return 1
+
+        return currentData
+'''
+
+
+# In[307]:
+
+
+def runRef(D1, D2, D3,momZ, moreData):
+    #this function runs Astra with 5 different reference particles for specific D1,D2,D3
+
+    changePositions(D1,D2,D3)
+    changeMom(-1, -1, momZ, -1, -1)
+
+
+    #if moreData, then provide tracking for each of the reference particles and return it for plotting
+    if moreData:
+        inputDataName = ["test0.ini", "test1.ini", "test2.ini", "test3.ini", "test4.ini"]
+        outputMoreData = []
         for i in range(len(inputDataName)):
             changeInputData("Distribution", inputDataName[i] )
             result = subprocess.run("source /opt/intel/oneapi/setvars.sh > out.txt && ./Astra " + fileName + " > output.txt",capture_output=True, text=True, shell=True,check=True,executable='/bin/bash' )
@@ -450,101 +501,57 @@ def runRef(D1, D2, D3,momZ, moreData):
             if result.returncode != 0:
                 print(f"Astra returned an error '{subprocess.CalledProcessError.stderr}'. ")
                 return 1
-                
-            if not checkCavity(Q1pos, Q2pos, Q3pos):
-                return 1 
-                
-            currentData = loadDataRef("ref")[-1]
+            
+            currentData = loadDataRef("ref")
             
             #condition for 0. ref particle-> it cannot move
-            if i == 0 and not isRef0Straight(currentData[7], currentData[8]):
+            if i == 0 and not isRef0Straight(currentData[-1][7], currentData[-1][8]):
                 print(f"Reference 0 particle with 0 offset and 0 angle moved in setup with D1 = '{D1}', D2 = '{D2}' and D3 = '{D3}'.")
                 return 1
-            
+                
             #condition to check if the particle came all the way to the end
-            distFromEnd = math.fabs(currentData[0] - setupLength)
+            distFromEnd = math.fabs(currentData[-1][0] - setupLength)
             if distFromEnd > 0.1:
                 print(f"Reference particle '{i}' did not get to the end in setup with D1 = '{D1}', D2 = '{D2}' and D3 = '{D3}'. ")
                 return 1
-
-            #return data in format of input = [x,y,z,px, py, pz, t]
             
-            currentData = [currentData[5]/1000, currentData[6]/1000, currentData[0], currentData[7], currentData[8], currentData[2]*1E+6, currentData[1] ]
-            outputData.append(currentData)
-        return outputData
+            outputMoreData.append(currentData)
 
+        return outputMoreData
+        
+    else:
+        inputDataName = ["test0.ini", "test1.ini", "test2.ini"]
+        outputMoreData = []
+        for i in range(len(inputDataName)):
+            changeInputData("Distribution", inputDataName[i] )
+            result = subprocess.run("source /opt/intel/oneapi/setvars.sh > out.txt && ./Astra " + fileName + " > output.txt",capture_output=True, text=True, shell=True,check=True,executable='/bin/bash' )
 
-# ## Function equidistantInt()
-# Simple algorithm which can go over 4 different parameters but does not have to, it depends on ranges of the variables. It very simply divides the ranges into nInt equidistant intervals and for each runs setup runs runRef(). Computationally heavy and not very precise.
+            if result.returncode != 0:
+                print(f"Astra returned an error '{subprocess.CalledProcessError.stderr}'. ")
+                return 1
+            
+            currentData = loadDataRef("ref")
+            
+            #condition for 0. ref particle-> it cannot move
+            if i == 0 and not isRef0Straight(currentData[-1][7], currentData[-1][8]):
+                print(f"Reference 0 particle with 0 offset and 0 angle moved in setup with D1 = '{D1}', D2 = '{D2}' and D3 = '{D3}'.")
+                return 1
+                
+            #condition to check if the particle came all the way to the end
+            distFromEnd = math.fabs(currentData[-1][0] - setupLength)
+            if distFromEnd > 0.1:
+                print(f"Reference particle {i} did not get to the end in setup with D1 = {D1}, D2 = {D2} and D3 = {D3}. ")
+                return 1
+            outputMoreData.append( [currentData[-1][5]*1e-3, currentData[-1][6]*1e-3, currentData[-1][0], currentData[-1][7], currentData[-1][8], currentData[-1][2]*1e+6] )
 
-# In[30]:
-
-
-def equidistantInt(D1_range, D2_range, D3_range, mom_range, nInt):
-
-    update()
-    
-    D1 = giveRange(D1_range, nInt)
-    D2 = giveRange(D2_range, nInt)
-    D3 = giveRange(D3_range, nInt)
-    mom = giveRange(mom_range, nInt)
-
-    #test.ini file contains 5 reference particles
-    changeInputData("Distribution", "test.ini" )
-
-
-    bestSetupX = [0.5, 0.5, 0.5, 3E+8] 
-    minSumX = 1e+9 #initial guess of sum of angles in x,y directions
-    bestSetupY = [0.5, 0.5, 0.5, 3E+8] 
-    minSumY = 1e+9 #initial guess of sum of angles in x,y directions
-    
-    #3 cycles which run through all ranges of D1, D2, D3
-    for D1_current in D1:
-        print(f"Running D1 = '{D1_current}'... ")
-        for D2_current in D2:
-            print(f"Running D2 = '{D2_current}'... ")
-            for D3_current in D3:
-                for mom_current in mom:
-                    dataCurrent = runRef(D1_current, D2_current, D3_current, mom_current, False)
-                    if dataCurrent == 1 or dataCurrent == None:
-                         continue
-                    
-                    sumX = angleCalculationX(dataCurrent)
-                    sumY = angleCalculationY(dataCurrent)
-                    fill4DGraph(D1_current, D2_current, D3_current, mom_current, sumX, sumY)
-                            
-                    print(f"Angle sumX: '{sumX}', Angle sumY: '{sumY}' with D3 = '{D3_current}'.")
-
-                    if math.fabs(sumX) <= minSumX:
-                        minSumX = math.fabs(sumX)
-                        bestSetupX = [D1_current, D2_current, D3_current, mom_current]
-                    
-                    if math.fabs(sumY) <= minSumY:
-                        minSumY = math.fabs(sumY)
-                        bestSetupY = [D1_current, D2_current, D3_current, mom_current]
-
-                    #in case of finding the exact solution
-                    if sumX == 0:
-                        print(f"Found a solution for X!! Sum equals 0.")
-                        bestSetupX = [D1_current, D2_current, D3_current, mom_current]
-                        return bestSetupX, bestSetupY
-                        
-                    if sumY == 0:
-                        print(f"Found a solution for Y!! Sum equals 0.")
-                        bestSetupY = [D1_current, D2_current, D3_current, mom_current]
-                        return bestSetupX, bestSetupY
-                           
-        print(f"finished it")
-    
-    print(f"Finished loop")   
-
-    return bestSetupX, bestSetupY
+        
+        return outputMoreData
 
 
 # ## Plotting functions
 # Several functions to plot output from reference particles.
 
-# In[31]:
+# In[308]:
 
 
 def separateDataXYZ(data):
@@ -565,7 +572,7 @@ def separateDataXYZ(data):
     return XYZ
 
 
-# In[32]:
+# In[309]:
 
 
 def plotRefXY(D1, D2, D3, mom):
@@ -613,7 +620,7 @@ def plotRefXY(D1, D2, D3, mom):
     return
 
 
-# In[33]:
+# In[310]:
 
 
 def plotRefXY1(D1, D2, D3, mom,title):
@@ -643,7 +650,7 @@ def plotRefXY1(D1, D2, D3, mom,title):
     return
 
 
-# In[34]:
+# In[311]:
 
 
 def plotRefXY2(D1, D2, D3, mom,title):
@@ -687,90 +694,7 @@ def plotRefXY2(D1, D2, D3, mom,title):
     return
 
 
-# In[35]:
-
-
-def plot_4d_data(XorY):
-    '''
-    dataSum = []
-    if XorY == "X":
-        dataSum = dataSumX
-    else:
-        dataSum = dataSumY
-    
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    
-    # Scatter plot
-    scatter = ax.scatter(dataD1, dataD2, dataD3, c=dataSum, cmap='viridis')
-    
-    # Add color bar to indicate the values of the 4th dimension
-    color_bar = plt.colorbar(scatter, ax=ax, pad=0.1)
-    color_bar.set_label('4th Dimension')
-    
-    # Labels and plot title
-    ax.set_xlabel('D1 [m]')
-    ax.set_ylabel('D2 [m]')
-    ax.set_zlabel('D3 [m]')
-    plt.title('function of angle sum for ' + XorY + ' focusing')
-    
-    plt.show()
-    '''
-    dataSum = []
-    if XorY == "X":
-        dataSum = dataSumX
-    else:
-        dataSum = dataSumY
-    
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='2d')
-    
-    # Scatter plot
-    scatter = ax.scatter(dataD2, dataD3, c=dataSum, cmap='viridis')
-    
-    # Add color bar to indicate the values of the 4th dimension
-    color_bar = plt.colorbar(scatter, ax=ax, pad=0.1)
-    color_bar.set_label('3rd Dimension')
-    
-    # Labels and plot title
-    ax.set_xlabel('D1 [m]')
-    ax.set_ylabel('D2 [m]')
-    ax.set_zlabel("angle sum " + XorY)
-    plt.title('function of angle sum for ' + XorY + ' focusing')
-    
-    plt.show()
-    return
-
-
-# In[36]:
-
-
-def plotDSum(whichData):
-
-    dataD = []
-    if whichData == "D1":
-        dataD = dataD1
-    elif whichData == "D2":
-        dataD = dataD2
-    elif whichData == "D3":
-        dataD = dataD3
-    else:
-        dataD = dataMom
-    
-    plt.plot(dataD, dataSumX, label="X data direction", color='blue')
-    plt.plot(dataD, dataSumY, label="y data direction", color='red')
-
-    plt.legend()
-    plt.xlabel(whichData + " [m]")
-    plt.ylabel("sum [mrad]")
-    plt.title(f"Function of varying '{whichData}'")
-    plt.show()
-
-    return
-    
-
-
-# In[37]:
+# In[312]:
 
 
 def plotSumData(XorY):
@@ -798,44 +722,17 @@ def plotSumData(XorY):
 
 # This is the code where one can run the equidistant intervals algorithm, I put it into a function so it does not do anything when I am running the entire notebook. One sets manually the ranges for each parameter/variable and the number of intervals. If the lower and upper limits are equal, then the variable is constant. Remember, the number of iterations is nInt to the number of non-constant variables times 3.
 
-# In[38]:
-
-
-def RunEquidistantIntervals():
-
-    D1_range = [0.1,0.1]
-    D2_range = [0.,0.5] 
-    D3_range = [0.,0.5]
-    mom_range = [7.0E+8, 7.0E+8]
-    nIntervals = 50
-    
-    topHatShapedQuads(True)
-    
-    bestX, bestY = equidistantInt(D1_range,D2_range, D3_range, mom_range, nIntervals)
-    
-    print(f"Best setup for focusing in the x direction: '{bestX}'. ")
-    print(f"Best setup for focusing in the y direction: '{bestY}'. ")
-    
-    plotRefXY(*bestX) 
-    plotRefXY(*bestY) 
-    return
-
-
-# ## The best minimizing function
-# These several functions below are for comparing different minimizing algorithms implemented in the scipy library. Each one is based on some different algorithm like Newton or BFGS. They have different run times and different precision, the most precise as well as the longest was the Powell method which actually found the solution. The solution was obtained from analytical calculation and it is in the section below. Methods GC, TNC, SLSQP were completely off, L-BFGS-B was not too far out, but did not find the solution.
-
-# In[39]:
+# In[313]:
 
 
 def func(D, D1, mom):
     
     dataCurrent = runRef(D1, D[0], D[1], mom, False)
-    sumX = angleCalculation(dataCurrent)
+    sum = angleCalculation(dataCurrent)
+    return sum
 
-    return sumX
 
-
-# In[40]:
+# In[314]:
 
 
 def func3(D, mom):
@@ -846,7 +743,7 @@ def func3(D, mom):
     return sumX
 
 
-# In[41]:
+# In[315]:
 
 
 def ResultsTable(results, methodNames):
@@ -882,101 +779,10 @@ def ResultsTable(results, methodNames):
     return df
 
 
-# In[42]:
-
-
-def compareMinimizers(): 
-
-    update()
-    
-    #initial guess 
-    Dguess = [0.15, 0.15]
-
-    #parameters
-    D1 = 0.1
-    mom = 7E+8
-    
-    #boundaries for D2, D3    
-    Dmin = [0.0,0.0]
-    Dmax = [0.5,0.5]
-    bounds = [(low, high) for low, high in zip(Dmin, Dmax)]
-
-    minimizer_kwargs = dict(method="L-BFGS-B", bounds=bounds,tol=1e-5, args=(D1, mom))
-    results = []
-    res1 = sc.optimize.basinhopping(func, Dguess, minimizer_kwargs=minimizer_kwargs)
-    plotRefXY(D1, *res1.x, mom)
-    
-    methodNames = ["CG", "TNC", "SLSQP", "Powell"]
-    #loop over different scipy methods
-    for one_method in methodNames:
-        res = sc.optimize.minimize(func, (0.1, 0.2),method=one_method, bounds=bounds,tol=1e-8, args=(D1, mom))
-        plotRefXY(D1, *res.x, mom)
-        print(f"Finished method '{one_method}'.")
-        results.append(res)
-
-    methodNames.append("L-BFGS-B")
-    results.append(res1)
-    resTable = ResultsTable(results, methodNames)
-    resTable
-
-
-    return
-
-
-# # comparisonFFanalytic()
-# This function takes in analytically counted setups from file and runs them 2 different ways: the first one is with top hat shaped fields. This should already be focused point-point to parallel-parallel. The second run is more interesting- the fringe fields are turned on. In the end, one can see how much the realistic fringe fields can change the focusing.
-
-# In[43]:
-
-
-def comparisonFFanalytic(setupFileName):
-
-    update()
-    
-    with open("../../MAXIMA/" + setupFileName, "r") as file:
-        stringdata = file.readlines()
-        
-    analyticData = []
-    for line in stringdata:
-        line = line.replace("\n","")
-        line = line.split(" ")  
-        analyticData.append(line)
-
-    resultsTable = {
-        "" : ["D1 [m]", "D2 [m]", "D3 [m]", "Pz [eV]", "F_off [keV**2]", "F_on [keV**2]", "Delta px [keV]", "Delta py [keV]"]
-    }
-
-    df = pd.DataFrame(resultsTable)
-    i = 1
-    for row in analyticData:
-        #first run the analytical solution and show plots
-        topHatShapedQuads(True)
-        runTrue = runRef(float(row[0]),float(row[1]), float(row[2]), float(row[3]), False)
-        sumOff = angleCalculation(runTrue)
-        plotRefXY1(float(row[0]),float(row[1]), float(row[2]), float(row[3]), f"Analytic solution, '{row}', top hat shaped fields")
-        
-        topHatShapedQuads(False)
-        runFalse = runRef(float(row[0]),float(row[1]), float(row[2]), float(row[3]), False)
-        sumOn = angleCalculation(runFalse)
-        plotRefXY1(float(row[0]),float(row[1]), float(row[2]), float(row[3]), f"Analytic solution, '{row}', fringe fields")
-        row.append(sumOff)
-        row.append(sumOn)
-        row.append(math.fabs(angleCalculationX(runTrue) - angleCalculationX(runFalse)))
-        row.append(math.fabs(angleCalculationY(runTrue) - angleCalculationY(runFalse)))
-        
-        
-        df['setup ' + str(i)] = row
-        
-        i += 1
-        
-    
-    return df
-
-
 # ## ComparisonAnaNum()
 # For this comparison, the fringe fields stay off. The first run is with analytical solution, the second run is with found numerical solution. The 2 results can be compared in a table below. The differences in D2,D3 are in Delta D2 and Delta D3. Parameters of runs are also there.
 
-# In[44]:
+# In[316]:
 
 
 def comparisonAnaNum(setupFileName):
@@ -998,27 +804,45 @@ def comparisonAnaNum(setupFileName):
         analyticData.append(line)
 
     
-    
     resultsTable = {
-        "" : ["D1 [m]", "D2 [m]", "D3 [m]", "Pz [eV]", "F_ana [keV**2]", "F_num [keV**2]", "Delta D2 [mm]" , "Delta D3 [mm]"]
+        "" : ["D1 [m]", "D2 [m]", "D3 [m]", "Pz [eV]", 
+              "F_ana [keV**2]", "F_num [keV**2]", 
+              "Delta D2 [mm]" , "Delta D3 [mm]",
+              "setup length [m]", 
+              "Angle accept. x [mrad]", "Angle accept. y [mrad]",
+              "beam size x [mm]", "beam size y [mm]"            
+             ]
     }
 
     df = pd.DataFrame(resultsTable)
     i = 1
     for row in analyticData:
         #first run the analytical solution and show plots
+        print(f"Running {row}")
         topHatShapedQuads(True)
-        sumOff = angleCalculation(runRef(float(row[0]),float(row[1]), float(row[2]), float(row[3]), False))
+        changeMom(sig_xAngle, sig_yAngle, float(row[3]), -1, -1)
+        
+        sumAna = angleCalculation(runRef(float(row[0]),float(row[1]), float(row[2]), float(row[3]), False))
         plotRefXY1(float(row[0]),float(row[1]), float(row[2]), float(row[3]), f"Analytic results, '{row}', top hat fields")
         
         res = sc.optimize.minimize(func, (0.15, 0.15),method="Powell", bounds=bounds,tol=1e-8, args=(float(row[0]), float(row[3])))
-        sumOn = angleCalculation(runRef(float(row[0]),*res.x , float(row[3]), False))
+        sumNum = angleCalculation(runRef(float(row[0]),*res.x , float(row[3]), False))
         plotRefXY1(float(row[0]),*res.x, float(row[3]), f"Numerical results, ['{row[0]}', '{res.x[0]}', '{res.x[1]}', '{row[3]}'], top hat fields")
         
-        row.append(sumOn)
-        row.append(sumOff)
-        row.append(math.fabs(float(row[1]) - res.x[0])*1000 )
-        row.append(math.fabs(float(row[2]) - res.x[1])*1000 )
+        row.append(sumAna)
+        row.append(sumNum)
+        
+        DeltaD2 = math.fabs(float(row[1]) - res.x[0])*1000 
+        DeltaD3 = math.fabs(float(row[2]) - res.x[1])*1000
+        row.append( DeltaD2 )
+        row.append( DeltaD3 )
+        
+        row.append( setupSize(float(row[0]), *res.x ))
+        angleAcceptance = checkAngleAcceptance(float(row[0]), *res.x, float(row[3]))
+        row.append(angleAcceptance[0])
+        row.append(angleAcceptance[2])
+        row.append(angleAcceptance[1])
+        row.append(angleAcceptance[3])
         
         df['setup ' + str(i)] = row
         
@@ -1028,10 +852,16 @@ def comparisonAnaNum(setupFileName):
     return df
 
 
-# In[45]:
+# In[ ]:
 
 
-def comparison(setupFileName):
+df = comparisonAnaNum("analyticalResultsP.txt")
+
+
+# In[274]:
+
+
+def getResults(setupFileName):
     #this a function which compares analytical solution with numerical solution and with regards to fringe fields
 
     update()
@@ -1077,10 +907,10 @@ def comparison(setupFileName):
     
 
 
-# In[46]:
+# In[275]:
 
 
-#df = comparison("results.txt")
+#df = getResults("results.txt")
 #df.to_csv('resFigs/table.csv', index=False)
 
 
@@ -1088,7 +918,7 @@ def comparison(setupFileName):
 # The following functions are implemented with a goal to study how sensitive or stable a solution is when some parameters or variables are being alternated. runAna() studies variability in D1, D2, D3, Pz and initial Px, Py. The input of the function is a solution- a functioning setup. For each variable function prints a graph with logarithmic x axis representing change in the variable, the logarithmic y axis returns relative change in the function (angleCalculation() ). 
 # Below that is another function which studies the initial x and y offset. 
 
-# In[47]:
+# In[276]:
 
 
 #analytic: 0.10 0.1767908617405159 0.1859304244423013 700000000
@@ -1244,7 +1074,7 @@ def runAna(D1,D2, D3, momZ, switch):
     return
 
 
-# In[48]:
+# In[277]:
 
 
 def runAnaOffset(D1,D2, D3, momZ):
@@ -1303,65 +1133,7 @@ def runAnaOffset(D1,D2, D3, momZ):
 
 
 
-# In[49]:
-
-
-def runAnaOffset(D1,D2, D3, momZ):
-    #this function varies initial offset 
-    
-    topHatShapedQuads(True)
-    update()
-    
-    input = [D1, D2, D3, momZ]
-
-    difs = [0.01,0.005,0.003, 0.001, 0.0005,0.0003, 0.0001,0.00005 ,0.00003, 0.00001, 5.0E-6, 3.0E-6,1.0E-6, ]
-    #difs = [5.0E-7, 3.0E-7, 1.0E-7, 1E-8, 1E-9, 1E-10 ]
-
-    graphDataMX = []
-    graphDataMY = []
-    graphDataPX = []
-    graphDataPY = []
-    
-    #--------------------------------------------------------------------------------------------------------------------------
-    print(f"Varying offset in x and y direction of quadrupole 1 in range from 1 cm to 1 mikrometer")
-    
-    for dif in difs:
-        print(f"Running '{dif*1000}' mm")
-        changeMom(1E+4,1E+4,momZ,0, 0)
-        dataControl = runRef(D1,D2,D3,momZ, False)
-        changeMom(xmom,ymom, momZ, dif, dif)
-        dataTestP = runRef(D1,D2,D3, momZ, False)
-
-        if dataControl == 1:
-            print("Something is wrong with control data")
-            return
-        
-        if dataTestP == 1:
-            relChangeP = 1000
-            relChangeM = 1000
-        else:
-            relChangeP = math.fabs(angleCalculation(dataControl)-angleCalculation(dataTestP))*100/angleCalculation(dataControl)
-            relChangeM = math.fabs(angleCalculation(dataControl)-angleCalculationInverse(dataTestP))*100/angleCalculation(dataControl)
-            plotRefXY2(D1,D2,D3,momZ,f"offset '{dif*1000}' mm")
-
-        
-        graphDataPX.append(dif*1e+3)
-        graphDataPY.append(relChangeP)        
-        graphDataMX.append(dif*1e+3)
-        graphDataMY.append(relChangeM)   
-    
-    plt.scatter(graphDataPX, graphDataPY, color='blue', label='x offset in px != 0...')
-    plt.scatter(graphDataMX, graphDataMY, color='red', label='y offset in px != 0...')
-    plt.xscale('log')  # Set x-axis to logarithmic scale
-    plt.yscale('log')
-    plt.xlabel('change [mm]')
-    plt.ylabel('rel. change in angle sum [%]')
-    plt.title(f"varying Px and Py with input '{input}'")
-    plt.legend()
-    plt.show()
-
-
-# In[51]:
+# In[278]:
 
 
 #study of sensitivity w.r.t. varying to D1, D2, D3
@@ -1372,51 +1144,7 @@ def runAnaOffset(D1,D2, D3, momZ):
 # # Beam analytics
 # Here are functions that do not run only on 3 reference particles, but run the whole beam. The beam has it's energy/momentum spread whether it is in the magnitude of longitudinal momentum or in transverse direction.
 
-# In[52]:
-
-
-def activeParticles():
-
-    data = loadDataRef(setupLengthStr)
-
-    lost = 0
-    for line in data:
-        if line[2] == setupLength:
-            continue
-        zpos = math.fabs(line[2])
-        if zpos > 0.05: #if particle more than 5 cm from the reference particle, it is considered lost
-            lost += 1
-
-    return (str(len(data) - lost)+"/" + str(len(data)))
-
-
-# In[53]:
-
-
-def changePositions(D1,D2,D3):
-
-    Q1pos = D1 + lengthQ1/2
-    Q2pos = D1 + lengthQ1 + D2 + lengthQ2/2
-    Q3pos = D1 + lengthQ1 + D2 + lengthQ2 + D3 + lengthQ3/2
-    
-    changeInputData("Q_pos(1)",str(Q1pos) )
-    changeInputData("Q_pos(2)",str(Q2pos) )
-    changeInputData("Q_pos(3)",str(Q3pos) )
-
-    #changing the positions of apertures
-    ap1 = str(Q1pos - lengthQ1/2) + " " + str(boreQ1*1E+3/2) + "\n" + str(Q1pos + lengthQ1/2) + " " + str(boreQ1*1E+3/2)
-    with open("aperture1.dat", "w") as file:
-        file.write(ap1)
-    ap2 = str(Q2pos - lengthQ2/2) + " " + str(boreQ2*1E+3/2) + "\n" + str(Q2pos + lengthQ2/2) + " " + str(boreQ2*1E+3/2)
-    with open("aperture2.dat", "w") as file:
-        file.write(ap2)
-    ap3 = str(Q3pos - lengthQ3/2) + " " + str(boreQ3*1E+3/2) + "\n" + str(Q3pos + lengthQ3/2) + " " + str(boreQ3*1E+3/2)
-    with open("aperture3.dat", "w") as file:
-        file.write(ap3)
-    return
-
-
-# In[54]:
+# In[279]:
 
 
 def updateBeam(x_off, sig_x, sig_px, y_off, sig_y, sig_py, sig_z, sig_pz , pz):
@@ -1449,7 +1177,7 @@ def updateBeam(x_off, sig_x, sig_px, y_off, sig_y, sig_py, sig_z, sig_pz , pz):
     return    
 
 
-# In[55]:
+# In[280]:
 
 
 def runBeam(D1,D2,D3, momZ, px_sig, py_sig, moreData):
@@ -1477,7 +1205,7 @@ def runBeam(D1,D2,D3, momZ, px_sig, py_sig, moreData):
     
     dataX = loadDataRef("Xemit")
     dataY = loadDataRef("Yemit")
-
+    
     if moreData:
         return [dataX, dataY]
     else:
@@ -1485,26 +1213,33 @@ def runBeam(D1,D2,D3, momZ, px_sig, py_sig, moreData):
         
 
 
-# In[56]:
+# In[281]:
 
 
-def divergence(data):
+def divergence(dataX, dataY):
+
+    data = loadDataRef(setupLengthStr)
+
+    p = 0
+    for line in data:
+        p += (line[3]/line[5])**2 + (line[4]/line[5])**2
         
-    return math.sqrt((data[0][4])**2 + (data[1][4])**2)         
+    
+    return math.sqrt(p)         
 
 
-# In[57]:
+# In[282]:
 
 
-def funcBeam(D, D1, mom, sig_px, sig_py):
+def funcBeam(D,D1, mom, sig_px, sig_py):
 
     data = runBeam( D1, D[0], D[1], mom, sig_px, sig_py, False)
-    divSum = divergence(data)
+    divSum = divergence(*data)
 
     return divSum
 
 
-# In[74]:
+# In[283]:
 
 
 def Beam():
@@ -1514,14 +1249,14 @@ def Beam():
     #boundaries for D2, D3    
     Dmin = [0.0,0.0]
     Dmax = [0.3,0.3]
+    
     bounds = [(low, high) for low, high in zip(Dmin, Dmax)]
 
+    Pz = []
     D1 = []
-    Pz = []    
     for i in range(1,10):
+        Pz.append(1.5E+8 + 5E+7*i)
         D1.append(0.01*i)
-    for i in range(0,15)
-        Pz.append(2E+8 + 5E+7*i)
     
     results = ""
     resultsTable = {
@@ -1530,26 +1265,26 @@ def Beam():
 
     df = pd.DataFrame(resultsTable)
     i = 1
-    for d1 in D1:   #first run the analytical solution and show plots
-        for pz in Pz:
+    for pz in Pz:
+        for d1 in D1:
             topHatShapedQuads(True)
-            res = sc.optimize.minimize(funcBeam, (0.15, 0.15),method="Powell", bounds=bounds,tol=1e-7, args=(d1, pz, sig_px, sig_py))
+            res = sc.optimize.minimize(funcBeam, (0.15, 0.15),method="Powell", bounds=bounds,tol=1e-8, args=(d1, pz, sig_px, sig_py))
             if not res.success:
                 results += str(d1) + " " + str(0) + " " + str(0) + " " + str(pz) + "\n"
                 continue
             
-            sumNum = divergence(runBeam(d1,*res.x , pz, sig_px, sig_py,False ))
-            plotBeam(d1, res.x[0], res.x[1], pz, sig_px, sig_py, f"Numerical solution, ['d1', '{res.x[0]}', '{res.x[1]}', 'pz'], top hat fields")
+            sumNum = divergence(*runBeam(d1, *res.x , pz, sig_px, sig_py,False ))
+            plotBeam(d1,res.x[0], res.x[1], pz, sig_px, sig_py, f"Numerical solution, [{d1}, {res.x}, {pz}], top hat fields")
             
-            results += str(d1) + " " + str(res.x[0]) + " " + str(res.x[1]) + " " + str(pz) + "\n"
-            row = [d1, res.x[0], res.x[1], pz, sumNum, sig_px, sig_py, activeParticles()]
+            results += str(d1) + " " + str(res.x[0]) + " " + str(res.x[1]) + " "  + str(pz) + "\n"
+            row = [d1, *res.x, pz, sumNum, sig_px, sig_py, activeParticles()]
             
             df['setup ' + str(i)] = row
             
-        i += 1
+    i += 1
 
 
-    with open("resFigs/results1-2.txt","w") as file:
+    with open("resFigs/results.txt","w") as file:
         file.write(results)
     
         
@@ -1558,14 +1293,14 @@ def Beam():
     
 
 
-# In[ ]:
+# In[284]:
 
 
-df = Beam()
-df.to_csv('resFigs/table.csv', index=False)
+#df = Beam()
+#df.to_csv('resFigs/table.csv', index=False)
 
 
-# In[ ]:
+# In[285]:
 
 
 def plotBeam(D1, D2, D3, momZ, px_sig, py_sig, title):
@@ -1581,7 +1316,7 @@ def plotBeam(D1, D2, D3, momZ, px_sig, py_sig, title):
     yz = []
     for line in dataX:
         xz.append(line[0])
-        x.append(line[3])res.X[1]
+        x.append(line[3])
         x_avr.append(line[2])
         
     for line in dataY:
@@ -1589,13 +1324,14 @@ def plotBeam(D1, D2, D3, momZ, px_sig, py_sig, title):
         y.append(line[3])   
         y_avr.append(line[2])
 
-    plt.plot(yz, y, label="y' rms [mm]", color='red')
-    plt.plot(yz, y_avr,label='y avr [mm]', color='yellow')
-    plt.plot(xz, x, label="x' rms [mm]", color='blue')
-    plt.plot(xz, x_avr, label='y avr [mm]', color='green')
+    plt.plot(yz, y, label="y rms", color='red')
+    #plt.plot(yz, y_avr,label='y avr [mm]', color='yellow')
+    plt.plot(xz, x, label="x rms", color='blue')
+    #plt.plot(xz, x_avr, label='x avr [mm]', color='green')
     
     plt.xlabel('z [m]')
-    plt.ylabel('offset [mm]')
+    plt.ylabel('offset rms [mm]')
+    plt.legend()
     plt.title(title)
 
     plt.show()
@@ -1603,26 +1339,38 @@ def plotBeam(D1, D2, D3, momZ, px_sig, py_sig, title):
     return   
 
 
-# In[9]:
+# In[286]:
 
 
-def comparisonAnaBeam(setupFileName):
-
+def comparisonAnaBeam(setupFilePath):
+    #this function takes in solutions from analytical and numerical calculations 
+    
     update()
     #boundaries for D2, D3    
-    Dmin = [0.0,0.0]
-    Dmax = [0.3,0.3]
-    bounds = [(low, high) for low, high in zip(Dmin, Dmax)]
 
     
-    with open("../../MAXIMA/" + setupFileName, "r") as file:
+    
+    with open(setupFilePath + "/resultsAna.txt", "r") as file:
         stringdata = file.readlines()
-        
+    
     analyticData = []
     for line in stringdata:
         line = line.replace("\n","")
         line = line.split(" ")  
         analyticData.append(line)
+
+    with open(setupFilePath + "/resultsBeam.txt","r") as file:
+        stringdata = file.readlines()
+
+    beamData = []
+    for line in stringdata:
+        line = line.replace("\n","")
+        line = line.split(" ")  
+        beamData.append(line)        
+    
+    if len(beamData) != len(analyticData):
+        print(f"Length of beamData({len(beamData)}) is not equal to analyticData({len(analyticData)})")
+        return
 
     
     DeltaD2 = []
@@ -1633,40 +1381,42 @@ def comparisonAnaBeam(setupFileName):
     }
 
     df = pd.DataFrame(resultsTable)
-    i = 1
-    for row in analyticData:
-        #first run the analytical solution and show plots
+
+    for i in range(1,9):
+        if i == 0:
+            continue
+        #first run the analytical solution and show how it looks in Astra
         topHatShapedQuads(True)
-        sumAna = divergence(runBeam(float(row[0]),float(row[1]), float(row[2]), float(row[3]), sig_px, sig_py, False))
-        plotBeam(float(row[0]),float(row[1]), float(row[2]), float(row[3]), sig_px, sig_py, f"Analytic results, '{row}', top hat fields")
+        sumAna = divergence(*runBeam(float(analyticData[i][0]),float(analyticData[i][1]), float(analyticData[i][2]), float(analyticData[i][3]), sig_px, sig_py, False))
+        plotBeam(float(analyticData[i][0]),float(analyticData[i][1]), float(analyticData[i][2]), float(analyticData[i][3]), sig_px, sig_py, f"Analytic results, {analyticData[i]} top hat fields")
 
         #res = sc.optimize.minimize(funcBeam, (0.15, 0.15),method="Powell", bounds=bounds,tol=1e-5, args=(float(row[0]), float(row[3]), sig_px, sig_py))
-        res = sc.optimize.minimize(funcBeam, (0.15, 0.15), method="Powell", bounds=bounds, options={'ftol': 1e-6}, args=(float(row[0]), float(row[3]), sig_px, sig_py))
+        #res = sc.optimize.minimize(funcBeam, (0.15, 0.15), method="Powell", bounds=bounds, options={'ftol': 1e-6}, args=(float(row[0]), float(row[3]), sig_px, sig_py))
 
-        sumNum = divergence(runBeam(float(row[0]),math.ceil(res.x[0]*1E+5)*1E-5,math.ceil(res.x[1]*1E+5)*1E-5, float(row[3]), sig_px, sig_py, False))
-        plotBeam(float(row[0]),math.ceil(res.x[0]*1E+5)*1E-5,math.ceil(res.x[1]*1E+5)*1E-5, float(row[3]), sig_px, sig_py, f"Numerical results, [{row[0]}, {math.ceil(res.x[0]*1E+5)*1E-5}, {math.ceil(res.x[1]*1E+5)*1E-5}, {row[3]}], top hat fields")
+        sumNum = divergence(*runBeam(float(beamData[i][0]),math.ceil(float(beamData[i][1])*1E+5)*1E-5,math.ceil(float(beamData[i][2])*1E+5)*1E-5, float(beamData[i][3]), sig_px, sig_py, False))
+        plotBeam(float(beamData[i][0]),math.ceil(float(beamData[i][1])*1E+5)*1E-5,math.ceil(float(beamData[i][2])*1E+5)*1E-5, float(beamData[i][3]), sig_px, sig_py, f"Numerical results, {beamData[i]} top hat fields")
         
-        row.append(sumAna)
-        row.append(sumNum)
-        row.append(math.fabs(float(row[1]) - res.x[0])*1000 )
-        row.append(math.fabs(float(row[2]) - res.x[1])*1000 )
-        row.append(sig_px/float(row[3]))
-        row.append(sig_py/float(row[3]))
-        row.append(activeParticles())
+        analyticData[i].append(sumAna)
+        analyticData[i].append(sumNum)
+        analyticData[i].append(math.fabs(float(analyticData[i][1]) - float(beamData[i][1]) )*1000 )
+        analyticData[i].append(math.fabs(float(analyticData[i][2]) - float(beamData[i][2]))*1000 )
+        analyticData[i].append(sig_px/float(beamData[i][3]))
+        analyticData[i].append(sig_py/float(beamData[i][3]))
+        analyticData[i].append(activeParticles())
 
-        D1.append(row[0]*100)
-        DeltaD2.append(math.fabs(float(row[1]) - math.ceil(res.x[0]*1E+5)*1E-5 )*1000)
-        DeltaD3.append(math.fabs(float(row[2]) - math.ceil(res.x[1]*1E+5)*1E-5)*1000)
+        D1.append(analyticData[i][0]*100)
+        DeltaD2.append(math.fabs(float(analyticData[i][1]) - float(beamData[i][1]))*1000 )
+        DeltaD3.append(math.fabs(float(analyticData[i][2]) - float(beamData[i][2]))*1000 )
         
-        df['setup ' + str(i)] = row
+        df['setup ' + str(i)] = analyticData[i]
         
-        i += 1
 
     plt.scatter(D1, DeltaD2, label='Delta D2', color='blue')
     plt.scatter(D1, DeltaD3, label='Delta D3', color='red')
 
     plt.xlabel('D1 [cm]')
     plt.ylabel('delta [mm]')
+    plt.yscale('log')
     plt.title(f"Plot of differences between Astra and Maxima")
     plt.legend()
     plt.show()        
@@ -1674,18 +1424,12 @@ def comparisonAnaBeam(setupFileName):
     return df
 
 
-# In[168]:
+# In[287]:
 
 
-#df = comparisonAnaBeam("analyticalResultsD1.txt")
+#df = comparisonAnaBeam("results/0-1")
 #df
 #data = runBeam(0.1,0.17679, 0.18593, 7E+8, False)
 #print(divergence(data))
-
-
-
-# In[ ]:
-
-
 
 
