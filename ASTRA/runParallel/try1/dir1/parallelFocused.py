@@ -862,7 +862,7 @@ def comparisonAnaNum(setupFileName, minimalFunVal):
     
     resultsTable = {
         "" : ["D1 [m]", "D2 [m]", "D3 [m]", "Pz [eV]", 
-              "F_ana [mrad]", "F_num [mrad]", 
+              "F_ana [keV**2]", "F_num [keV**2]", 
               "Delta D2 [mm]" , "Delta D3 [mm]",
               "setup length [m]", 
               "Angle accept. x [mrad]", "Angle accept. y [mrad]",
@@ -913,6 +913,8 @@ def comparisonAnaNum(setupFileName, minimalFunVal):
         
         i += 1
 
+    print(resultSetups)
+    print(errors.txt)
     if resultSetups != "":
         with open("results.txt", "w") as file:
             file.write(resultSetups)
@@ -924,14 +926,17 @@ def comparisonAnaNum(setupFileName, minimalFunVal):
     return df
 
 
+# In[ ]:
+
 args = sys.argv
 args.pop(0)
 if len(args) != 1:
     print(f"more than 1 argument")
 
+print(args)
 
 dataFileName = str(args[0])
-df = comparisonAnaNum(dataFileName, 1)
+df = comparisonAnaNum(dataFileName, 100)
 df.to_csv('table.csv', index=False)
 
 
@@ -983,6 +988,20 @@ def getResults(setupFileName):
     
     return df
     
+
+
+# In[275]:
+
+
+#df = getResults("results.txt")
+#df.to_csv('resFigs/table.csv', index=False)
+
+
+# ## Functions to study sensitivity
+# The following functions are implemented with a goal to study how sensitive or stable a solution is when some parameters or variables are being alternated. runAna() studies variability in D1, D2, D3, Pz and initial Px, Py. The input of the function is a solution- a functioning setup. For each variable function prints a graph with logarithmic x axis representing change in the variable, the logarithmic y axis returns relative change in the function (angleCalculation() ). 
+# Below that is another function which studies the initial x and y offset. 
+
+# In[276]:
 
 
 #analytic: 0.10 0.1767908617405159 0.1859304244423013 700000000

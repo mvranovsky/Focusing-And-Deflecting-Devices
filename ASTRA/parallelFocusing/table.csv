@@ -1,0 +1,15 @@
+,setup 1
+D1 [m],0.1
+D2 [m],0.037078
+D3 [m],0.019073
+Pz [eV],3.0E+8
+F_ana [keV**2],0.0027772933974565153
+F_num [keV**2],0.007590648047286725
+Delta D2 [mm],0.45402877484331666
+Delta D3 [mm],0.5127883516366956
+setup length [m],0.4122097595767934
+Angle accept. x [mrad],0.1
+Angle accept. y [mrad],0.1
+beam size x [mm],0.035287
+beam size y [mm],0.021721
+number of func. evaluations [-],445

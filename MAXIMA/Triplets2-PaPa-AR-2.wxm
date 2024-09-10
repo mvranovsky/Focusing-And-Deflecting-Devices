@@ -275,42 +275,50 @@ close(file)$
 
 /* [wxMaxima: input   start ] */
 /* List of input arguments (x values from 0.1 to 0.2) with y constant (let's assume y = 1) */
-inputsP: [
-    [0.1, 300],
-    [0.1, 350],
-    [0.1, 400],
-    [0.1, 450],
-    [0.1, 500],
-    [0.1, 550],
-    [0.1, 600],
-    [0.1, 650],
-    [0.1, 700],
-    [0.1, 750],
-    [0.1, 800],
-    [0.1, 850],
-    [0.1, 900],
-    [0.1, 950],
-    [0.1, 1000]
-]$
+/* Initialize empty lists */
+inputs_D1: [];
+inputs_Pz: [];
+
+/* Populate the inputs_D1 and inputs_Pz lists */
+for i:1 thru 10 do (
+    inputs_D1: append(inputs_D1, [0.01*i])
+)$
+
+for i:1 thru 17 do (
+    inputs_Pz: append(inputs_Pz, [150 + i*50])
+)$
 
 /* Open a file for writing */
 file: openw("analyticalResultsP.txt");
 
 
-for i:1 thru length(inputsP) do (
-    D1val: inputsP[i][1],
-    momval : inputsP[i][2],
-    value1_subst: subst([p = momval, D1 = D1val], Dtp[1][1,2]),
-    D2val: ev(value1_subst, float),
-    
-    value2_subst: subst([p =momval, D1 = D1val], Dtp[1][1,3]),
-    D3val: ev(value2_subst, float),
-    
-    print(D1val," ",D2val," ",D3val," ", momval*1000000),
-    fprintf(file, "%.2f %.5f %.5f %d \n", D1val, D2val, D3val, momval*1000000)
+for pz in inputs_Pz do (
+    for d1 in inputs_D1 do (
+        /* Substitution and evaluation */
+        value1_subst: subst([p = pz, D1 = d1], Dtp[1][1,2]),
+        value2_subst: subst([p = pz, D1 = d1], Dtp[1][1,3]),
+        
+        /* Try to evaluate and print intermediate results */
+        /*print("d1 = ", d1, "pz = ", pz),  Debugging output */
+        
+        d2: ev(value1_subst, float),
+        d3: ev(value2_subst, float),
+        
+        /* Check if d2 and d3 are numbers before printing */
+        if numberp(d2) and numberp(d3) then (
+            /* Format string using printf with proper formatting */
+            printf(file, "~f ~f ~f ~e~%", d1, round(d2*10^6)/10^6, round(d3*10^6)/10^6, pz*1E+6)
+        )
+        else (
+            /* Debugging output in case of an issue */
+            print("Error: d2 or d3 is not a number: d2 = ", d2, " d3 = ", d3)
+        )
+    )
 )$
 
+/* Close the file */
 close(file)$
+
 /* [wxMaxima: input   end   ] */
 
 

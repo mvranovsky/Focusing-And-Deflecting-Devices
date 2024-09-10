@@ -9,7 +9,7 @@
   Cathode=F
   Q_total=1.0E0
   Ref_zpos=0.0E0
- Ref_Ekin=300000000.0
+ Ref_Ekin=700000000.0
   Dist_z='gauss'
  sig_z=0.1
   Dist_pz='g'
@@ -34,7 +34,7 @@
 &NEWRUN
  Head='Example of ASTRA users manual'
  RUN=1
- Distribution=test2.ini
+ Distribution=test1.ini
  Xoff=0.0
  Yoff=0.0
  Track_All=T
@@ -105,7 +105,7 @@
  Q_length(2)=0.12
  Q_smooth(2)=0
  Q_bore(2)=1E-9
- Q_pos(2)=0.23262397122515668
+ Q_pos(2)=0.3842364516003162
  Q_xoff(2)=0
  Q_yoff(2)=0
  Q_xrot(2)=0
@@ -116,7 +116,7 @@
  Q_length(3)=0.1
  Q_smooth(3)=0
  Q_bore(3)=1E-9
- Q_pos(3)=0.3622097595767934
+ Q_pos(3)=0.6088262549753478
  Q_xoff(3)=0
  Q_yoff(3)=0
  Q_xrot(3)=0

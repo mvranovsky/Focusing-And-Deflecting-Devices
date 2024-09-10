@@ -3,7 +3,7 @@
                Astra - A space charge tracking algorithm 
                              Version 4.0              
                          DESY,  Hamburg 2022          
-                         10. 9.2024  18:34
+                         10. 9.2024  18:20
 
      Parameter file is:  parallelBeam.in                                   
      Example of ASTRA users manual                                                   
@@ -21,10 +21,10 @@
  Quadrupole:
 
      quadrupole no.:        1         at =   0.1180     m
-     quadrupole no.:        2         at =   0.2326     m
-     quadrupole no.:        3         at =   0.3622     m
+     quadrupole no.:        2         at =   0.3842     m
+     quadrupole no.:        3         at =   0.6088     m
  --------------------------------------------------------------------------
-       1 particles from file test2.ini                                         
+       1 particles from file test1.ini                                         
 
      Emittance calculation suppressed for N < 5
      Particles taken into account      N =          1
@@ -57,20 +57,20 @@
      initial position                  z =    0.000     m
                                        x =    0.000     mm
                                        y =    0.000     mm
-     initial momentum                  p =    300.0     MeV/c
+     initial momentum                  p =    700.0     MeV/c
      global phase shift              phi =    0.000     deg
      time step for integration        dt =    1.000     ps
  --------------------------------------------------------------------------
  Online element settings:
 
-     focussing strength of quadrupole no.:   1     =    221.8     m^-2
-     focussing strength of quadrupole no.:   2     =   -93.93     m^-2
-     focussing strength of quadrupole no.:   3     =    56.96     m^-2
+     focussing strength of quadrupole no.:   1     =    95.08     m^-2
+     focussing strength of quadrupole no.:   2     =   -40.26     m^-2
+     focussing strength of quadrupole no.:   3     =    24.41     m^-2
  --------------------------------------------------------------------------
 
      particle reaches position         z =    4.000     m
      time of flight is                 t =    13.34     ns
-     final momentum                    p =    300.0     MeV/c
+     final momentum                    p =    700.0     MeV/c
      final phase (cavity 1)      phi_end =    0.000     deg
  --------------------------------------------------------------------------
  off axis tracking of the reference particle: 
@@ -78,10 +78,10 @@
                                        x =    0.000     mm
                                        y =    0.000     mm
 
-     final position                    x =    0.000     mm
-                                       y =   2.1721E-02 mm
-     divergence                    px/pz =    0.000     mrad
-                                   py/pz =   5.9936E-04 mrad
+     final position                    x =    1.898     mm
+                                       y =    0.000     mm
+     divergence                    px/pz =   0.3413     mrad
+                                   py/pz =    0.000     mrad
  --------------------------------------------------------------------------
  tracking of        1 particles:
      tracking will stop at             z =    4.000     m
@@ -138,7 +138,7 @@
      **********************************************************************
 
 
-     finished simulation  10. 9.2024     18:34
+     finished simulation  10. 9.2024     18:20
      execution time:  0.13 sec                         
      Goodbye.
  --------------------------------------------------------------------------
