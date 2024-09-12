@@ -81,6 +81,7 @@ if [ "$#" -ne 3 ]; then
     exit 1
 fi
 
+
 # Read arguments
 BASE_DIR=$1
 NUM_EXECUTIONS=$2
@@ -91,6 +92,13 @@ if [ ! -f "$INPUT_FILE" ]; then
     echo "Error: Input file $INPUT_FILE does not exist."
     exit 1
 fi
+
+
+echo "Beginning submitting parallel processes."
+echo "Base directory:                      $BASE_DIR"
+echo "Number of parallel executions:       $NUM_EXECUTIONS"
+echo "Running input file:                  $INPUT_FILE"
+
 
 # Create the base directory if it does not exist
 mkdir -p "$BASE_DIR"
@@ -131,10 +139,19 @@ for ((i=1; i<=NUM_EXECUTIONS; i++)); do
         cd "$DIR" || exit
         echo "Running script in $DIR"
         python3 parallelFocused.py "inputData$i.txt" 
+        #echo "0.1 2 3 80" >> "results.txt"
+        #echo "0.2 5 6 90" >> "results.txt"
+        #cp "/home/michal/Desktop/RPIT/ASTRA/parallelFocusing/table.csv" "."
     ) &
 done
 
 # Wait for all background processes to finish
 wait
 
-echo "All executions are complete."
+echo "All executions are complete. Now moving on to finish up."
+
+python3 MergeAndSort.py "$BASE_DIR"
+
+wait
+
+echo "Data merged and saved to $BASE_DIR. Leaving."

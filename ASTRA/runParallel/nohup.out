@@ -1,4 +1,27 @@
+Beginning submitting parallel processes.
+Base directory:                      Run2
+Number of parallel executions:       3
+Running input file:                  /home/michal/Desktop/RPIT/MAXIMA/analyticalResultsP.txt
 Succesfully created directories for each execution and moved files inside.
-Running script in try1/dir1
+Running script in Run2/dir1
+Running script in Run2/dir2
+Running script in Run2/dir3
 Terminated
-All executions are complete.
+Terminated
+Terminated
+All executions are complete. Now moving on to finish up.
+Traceback (most recent call last):
+  File "/home/michal/Desktop/RPIT/ASTRA/runParallel/MergeAndSort.py", line 38, in <module>
+    df = pd.read_csv(loc + "/table.csv")
+  File "/home/michal/.local/lib/python3.10/site-packages/pandas/io/parsers/readers.py", line 948, in read_csv
+    return _read(filepath_or_buffer, kwds)
+  File "/home/michal/.local/lib/python3.10/site-packages/pandas/io/parsers/readers.py", line 611, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+  File "/home/michal/.local/lib/python3.10/site-packages/pandas/io/parsers/readers.py", line 1448, in __init__
+    self._engine = self._make_engine(f, self.engine)
+  File "/home/michal/.local/lib/python3.10/site-packages/pandas/io/parsers/readers.py", line 1705, in _make_engine
+    self.handles = get_handle(
+  File "/home/michal/.local/lib/python3.10/site-packages/pandas/io/common.py", line 863, in get_handle
+    handle = open(
+FileNotFoundError: [Errno 2] No such file or directory: '/home/michal/Desktop/RPIT/ASTRA/runParallel/Run2/dir2/table.csv'
+Data merged and saved to Run2. Leaving.

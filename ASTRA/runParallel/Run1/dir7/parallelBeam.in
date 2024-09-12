@@ -1,0 +1,158 @@
+&INPUT
+  FNAME = 'parallelBeam.ini'
+  Add=FALSE
+  N_add=0
+ IPart=500
+  Species='electrons'
+  Probe=False
+  Noise_reduc=F
+  Cathode=F
+  Q_total=1.0E0
+  Ref_zpos=0.0E0
+ Ref_Ekin=800000000.0
+  Dist_z='gauss'
+ sig_z=0.1
+  Dist_pz='g'
+ sig_Ekin=3000.0
+  cor_Ekin=0.0E0
+  Dist_x='gauss'
+ sig_x=0.002
+ x_off=0.0
+  Dist_px='gauss'
+ sig_px=3000000.0
+ ! Nemit_x=1.0E0
+  cor_px=0.0E0
+  Dist_y='g'
+ sig_y=0.002
+  Dist_py='g'
+ sig_py=3000000.0
+!  Nemit_y=1.0E0
+  cor_py=0.0E0
+ /
+
+
+&NEWRUN
+ Head='Example of ASTRA users manual'
+ RUN=1
+ Distribution=test2.ini
+ Xoff=0.0
+ Yoff=0.0
+ Track_All=T
+ Auto_phase=T
+ check_ref_part=T
+ PHASE_SCAN=T
+ H_max=0.001
+ H_min=0.00
+/
+
+
+&OUTPUT
+ ZSTART=0.0
+ ZSTOP=4
+ Zemit=500
+ Zphase=1
+ RefS=T
+ EmitS=T
+ TrackS=T
+ PhaseS=T
+/
+
+
+&CHARGE
+ LSPCH=F
+ Nrad=10
+ Cell_var=2.0
+ Nlong_in=10
+ min_grid=0.0
+ Max_Scale=0.05
+/
+
+
+&APERTURE
+ LApert=T,
+
+! Ap_Z1(1)=0.00
+! Ap_Z2(1)=0.036
+ File_Aperture(1)='aperture1.dat',
+
+! Ap_Z1(2)=0
+! Ap_Z2(2)=0.12
+ File_Aperture(2)='aperture2.dat',
+
+
+! Ap_Z1(3)=0
+! Ap_Z2(3)=0.1
+ File_Aperture(3)='aperture3.dat'
+
+
+/
+
+
+&QUADRUPOLE
+ Lquad=T
+ Q_grad(1)=222
+ Q_length(1)=0.036
+ Q_smooth(1)=0
+ Q_bore(1)=1E-9
+ Q_pos(1)=0.038
+ Q_xoff(1)=0
+ Q_yoff(1)=0
+ Q_xrot(1)=0
+ Q_yrot(1)=0
+ Q_zrot(1)=0
+
+ Q_grad(2)=-94
+ Q_length(2)=0.12
+ Q_smooth(2)=0
+ Q_bore(2)=1E-9
+ Q_pos(2)=0.38148249290197195
+ Q_xoff(2)=0
+ Q_yoff(2)=0
+ Q_xrot(2)=0
+ Q_yrot(2)=0
+ Q_zrot(2)=0
+
+ Q_grad(3)=57
+ Q_length(3)=0.1
+ Q_smooth(3)=0
+ Q_bore(3)=1E-9
+ Q_pos(3)=0.7291492905455139
+ Q_xoff(3)=0
+ Q_yoff(3)=0
+ Q_xrot(3)=0
+ Q_yrot(3)=0
+ Q_zrot(3)=0
+
+/
+
+@MODULE
+ LModule=t
+
+ Module(1,1)='quadrupole(1)'
+ Module(1,2)='cavity(1)'
+
+ Module(2,1)='quadrupole(2)'
+ Module(2,2)='cavity(2)'
+
+ Module(3,1)='quadrupole(3)'
+ Module(3,2)='cavity(3)'
+
+
+/
+
+&CAVITY
+ LEField=F,
+ File_Efield(1)='3_cell_L-Band.dat'
+ C_pos(1)=0.3
+ Nue(1)=1.3
+ MaxE(1)=40.0
+ Phi(1)=0.0,
+/
+ 
+&SOLENOID
+ LBField=F,
+ File_Bfield(1)='Solenoid.dat'
+ S_pos(1)=1.2
+ MaxB(1)=0.35
+ S_smooth(1)=10
+/
