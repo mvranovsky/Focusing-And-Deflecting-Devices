@@ -9,7 +9,7 @@
   Cathode=F
   Q_total=1.0E0
   Ref_zpos=0.0E0
- Ref_Ekin=300000000
+ Ref_Ekin=250000000
   Dist_z='gauss'
  sig_z=0.1
   Dist_pz='g'
@@ -95,7 +95,7 @@
  Q_length(1)=0.036
  Q_smooth(1)=0
  Q_bore(1)=1E-9
- Q_pos(1)=0.048
+ Q_pos(1)=0.078
  Q_xoff(1)=0
  Q_yoff(1)=0
  Q_xrot(1)=0
@@ -106,7 +106,7 @@
  Q_length(2)=0.12
  Q_smooth(2)=0
  Q_bore(2)=1E-9
- Q_pos(2)=0.183126
+ Q_pos(2)=0.184817762374166
  Q_xoff(2)=0
  Q_yoff(2)=0
  Q_xrot(2)=0
@@ -117,7 +117,7 @@
  Q_length(3)=0.1
  Q_smooth(3)=0
  Q_bore(3)=1E-9
- Q_pos(3)=0.326888
+ Q_pos(3)=0.3035842757070759
  Q_xoff(3)=0
  Q_yoff(3)=0
  Q_xrot(3)=0

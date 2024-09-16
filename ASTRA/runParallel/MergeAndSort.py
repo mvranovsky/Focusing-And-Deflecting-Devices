@@ -38,7 +38,7 @@ if __name__ == "__main__":
 		df = pd.read_csv(loc + "/table.csv")
 		table += df.values.tolist()
 
-	print(table)
+	#print(table)
 	sortPz = pd.DataFrame( sorted(table, key=lambda row: row[2]) )
 	sortD1 = pd.DataFrame( sorted(table, key=lambda row: row[0]) )
 

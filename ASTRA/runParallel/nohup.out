@@ -1,12 +1,10 @@
 Beginning submitting parallel processes.
-Base directory:                      Run2
-Number of parallel executions:       3
+Base directory:                      Run3
+Number of parallel executions:       2
 Running input file:                  /home/michal/Desktop/RPIT/MAXIMA/analyticalResultsP.txt
 Succesfully created directories for each execution and moved files inside.
-Running script in Run2/dir1
-Running script in Run2/dir2
-Running script in Run2/dir3
-Terminated
+Running script in Run3/dir1
+Running script in Run3/dir2
 Terminated
 Terminated
 All executions are complete. Now moving on to finish up.
@@ -23,5 +21,5 @@ Traceback (most recent call last):
     self.handles = get_handle(
   File "/home/michal/.local/lib/python3.10/site-packages/pandas/io/common.py", line 863, in get_handle
     handle = open(
-FileNotFoundError: [Errno 2] No such file or directory: '/home/michal/Desktop/RPIT/ASTRA/runParallel/Run2/dir2/table.csv'
-Data merged and saved to Run2. Leaving.
+FileNotFoundError: [Errno 2] No such file or directory: '/home/michal/Desktop/RPIT/ASTRA/runParallel/Run3/dir2/table.csv'
+Data merged and saved to Run3. Leaving.

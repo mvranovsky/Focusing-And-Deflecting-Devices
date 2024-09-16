@@ -6,7 +6,7 @@
  RUN     =           1,
  LOOP    = F,
  NLOOP   =           0,
- DISTRIBUTION    = test1.ini                                                                                                         
+ DISTRIBUTION    = test4.ini                                                                                                         
                                      ,
  N_RED   =           1,
  XOFF    =  0.000000000000000E+000,
@@ -4920,7 +4920,7 @@
  Q_BORE  = 3*1.000000000000000E-009  , 497*3.500000000000000E-002  ,
  Q_RAD   = 500*1.00000000000000        ,
  Q_DIST  = 500*0.000000000000000E+000  ,
- Q_POS   =  8.800000000000001E-002,  0.393844636581970     ,  0.653844636581970     , 497*0.000000000000000E+000  ,
+ Q_POS   =  9.800000000000000E-002,  0.266926864341347     ,  0.463657630532644     , 497*0.000000000000000E+000  ,
  Q_XOFF  = 500*0.000000000000000E+000  ,
  Q_YOFF  = 500*0.000000000000000E+000  ,
  Q_XROT  = 500*0.000000000000000E+000  ,
@@ -4996,9 +4996,9 @@
  STAT    = 188*F, T, F, T, F, T, F, T, F, T, F, T, F, T, F, T, F, 198*T
  /
  End of Input deck
-test1.ini                       0.0000D+00  0.0000D+00  F
+test4.ini                       0.0000D+00  0.0000D+00  F
 parallelBeam.0000.001           0.0000D+00  0.0000D+00  F
 
-     execution started:   11. 9.2024     17:51
-     execution finished:  11. 9.2024     17:51
-     execution time:  0.18 sec                         
+     execution started:   11. 9.2024     22:46
+     execution finished:  11. 9.2024     22:46
+     execution time:  0.08 sec                         

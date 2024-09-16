@@ -642,11 +642,6 @@ def plotRefXY2(D1, D2, D3, mom,title, tag):
     return
 
 
-# This is the code where one can run the equidistant intervals algorithm, I put it into a function so it does not do anything when I am running the entire notebook. One sets manually the ranges for each parameter/variable and the number of intervals. If the lower and upper limits are equal, then the variable is constant. Remember, the number of iterations is nInt to the number of non-constant variables times 3.
-
-# In[215]:
-
-
 def func(D, D1, mom):
     
     dataCurrent = runRef(D1, D[0], D[1], mom, False)
@@ -664,8 +659,6 @@ def func3(D, mom):
 
     return sumX
 
-
-# In[217]:
 
 
 def merge_and_sort_csv(basedirpath, sort_by_column):
