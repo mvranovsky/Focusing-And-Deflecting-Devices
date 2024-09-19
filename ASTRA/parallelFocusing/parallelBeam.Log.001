@@ -1030,10 +1030,10 @@
  /
  &APERTURE
  LOOP    = F,
- LAPERT  = T,
- FILE_APERTURE   = aperture1.dat                                                                                                     
-                                     aperture2.dat                                                                                   
-                                                       aperture3.dat                                                                 
+ LAPERT  = F,
+ FILE_APERTURE   = aperture/aperture1.dat                                                                                            
+                                     aperture/aperture2.dat                                                                          
+                                                                                                                                     
                                                                                                                                      
                                                                                                                                      
                                                                                                                                      
@@ -2936,9 +2936,9 @@
  &CAVITY
  LOOP    = F,
  LEFIELD = F,
- FILE_EFIELD     = 3_cell_L-Band.dat                                                                                                 
-                                                                                                                                     
-                                                                                                                                     
+ FILE_EFIELD     = cavity/3Dcavity1                                                                                                  
+                                     cavity/3Dcavity2                                                                                
+                                                       cavity/3Dcavity3                                                              
                                                                                                                                      
                                                                                                                                      
                                                                                                                                      
@@ -3509,7 +3509,7 @@
  C_NOSCALE       = 500*F,
  C_SMOOTH        = 500*0,
  C_HIGHER_ORDER  = 500*F,
- COM_GRID        =                                                                                                                   
+ COM_GRID        = all     all     all                                                                                               
                                                                                                                                      
                                                                                                                                      
                                                                                                                                      
@@ -3540,18 +3540,18 @@
                                                                                                                                      
                                                                                                                                      
                                                            ,
- NUE     =   1.30000000000000     , 499*0.000000000000000E+000  ,
+ NUE     = 500*0.000000000000000E+000  ,
  K_WAVE  = 500*0.000000000000000E+000  ,
  MODE    = 500*0,
- BX_STAT = 500*F,
- BY_STAT = 500*F,
- BZ_STAT = 500*F,
+ BX_STAT = 3*T, 497*F,
+ BY_STAT = 3*T, 497*F,
+ BZ_STAT = 3*T, 497*F,
  EX_STAT = 500*F,
  EY_STAT = 500*F,
- MAXE    =   40.0000000000000     , 499*0.000000000000000E+000  ,
+ MAXE    =   1.00000000000000     , 2*1.000000000000000E-003  , 497*0.000000000000000E+000  ,
  FLATNESS        = 500*0.000000000000000E+000  ,
  PHI     = 501*0.000000000000000E+000  ,
- C_POS   =  0.300000000000000     , 499*0.000000000000000E+000  ,
+ C_POS   =  0.100000000000000     ,  0.220185126317937     ,  0.421671499822493     , 497*0.000000000000000E+000  ,
  C_NUMB  = 500*1,
  MODE    = 500*0,
  T_DEPENDENCE    = constantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantco
@@ -4341,9 +4341,9 @@
  &QUADRUPOLE
  LOOP    = F,
  LQUAD   = T,
- Q_TYPE  =                                                                                                                           
-                                                                                                                                     
-                                                                                                                                     
+ Q_TYPE  = cavity/3Dcavity1gradient.dat                                                                                              
+                             cavity/3Dcavity2gradient.dat                                                                            
+                                               cavity/3Dcavity3gradient.dat                                                          
                                                                                                                                      
                                                                                                                                      
                                                                                                                                      
@@ -4912,15 +4912,15 @@
                                    ,
  Q_NOSCALE       = 500*F,
  Q_SMOOTH        = 500*0,
- Q_GRAD  =   222.000000000000     ,  -94.0000000000000     ,   57.0000000000000     , 497*0.000000000000000E+000  ,
+ Q_GRAD  =   1000.00000000000     ,  -1000.00000000000     ,   1000.00000000000     , 497*0.000000000000000E+000  ,
  Q_K     = 500*0.000000000000000E+000  ,
  Q_MULT_A        = 3000*0.000000000000000E+000  ,
  Q_MULT_B        = 3000*0.000000000000000E+000  ,
  Q_LENGTH        =  3.600000000000000E-002,  0.120000000000000     ,  0.100000000000000     , 497*0.000000000000000E+000  ,
- Q_BORE  = 3*1.000000000000000E-009  , 497*3.500000000000000E-002  ,
+ Q_BORE  =  7.000000000000000E-003,  1.800000000000000E-002,  3.000000000000000E-002, 497*3.500000000000000E-002  ,
  Q_RAD   = 500*1.00000000000000        ,
  Q_DIST  = 500*0.000000000000000E+000  ,
- Q_POS   =  7.800000000000000E-002,  0.184817762374166     ,  0.303584275707076     , 497*0.000000000000000E+000  ,
+ Q_POS   =  0.117500000000000     ,  0.280185126317937     ,  0.474171499822493     , 497*0.000000000000000E+000  ,
  Q_XOFF  = 500*0.000000000000000E+000  ,
  Q_YOFF  = 500*0.000000000000000E+000  ,
  Q_XROT  = 500*0.000000000000000E+000  ,
@@ -4999,6 +4999,6 @@
 test4.ini                       0.0000D+00  0.0000D+00  F
 parallelBeam.0000.001           0.0000D+00  0.0000D+00  F
 
-     execution started:   16. 9.2024     13:24
-     execution finished:  16. 9.2024     13:24
+     execution started:   19. 9.2024     19:00
+     execution finished:  19. 9.2024     19:00
      execution time:  0.06 sec                         
