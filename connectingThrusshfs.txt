@@ -1,0 +1,5 @@
+ssh-add -L
+ssh llrui01
+ssh-add -L
+mkdir mnt
+sshfs -d -o sshfs_debug -o LOGLEVEL=DEBUG3 llrui01: testmnt

@@ -30,7 +30,7 @@
  TRACK_ALL       = T,
  TRACK_ON_AXIS   = F,
  AUTO_PHASE      = T,
- PHASE_SCAN      = T,
+ PHASE_SCAN      = F,
  CHECK_REF_PART  = T,
  L_RM_BACK       = F,
  LMONITOR        = F,
@@ -2935,7 +2935,7 @@
  /
  &CAVITY
  LOOP    = F,
- LEFIELD = F,
+ LEFIELD = T,
  FILE_EFIELD     = 3_cell_L-Band.dat                                                                                                 
                                                                                                                                      
                                                                                                                                      
@@ -4999,6 +4999,6 @@
 test.ini                        0.0000D+00  0.0000D+00  F
 Example.0150.001                1.5000D+00  0.0000D+00  F
 
-     execution started:   26. 8.2024     11:14
-     execution finished:  26. 8.2024     11:14
-     execution time:  0.14 sec                         
+     execution started:   20. 9.2024     13:19
+     execution finished:  20. 9.2024     13:19
+     execution time:  0.11 sec                         

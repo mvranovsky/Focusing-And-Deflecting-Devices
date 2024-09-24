@@ -1,30 +1,32 @@
 &INPUT
-  FNAME = 'Example.ini'
+  FNAME = 'parallelBeam.ini'
   Add=FALSE
   N_add=0
-  IPart=10
+ IPart=500
   Species='electrons'
-  Probe=F
+  Probe=False
   Noise_reduc=F
   Cathode=F
   Q_total=1.0E0
   Ref_zpos=0.0E0
-  Ref_Ekin=5.0E+08
+ Ref_Ekin=450000000
   Dist_z='gauss'
-  sig_z=1.0E0
-  C_sig_z=2.0
+ sig_z=0.1
   Dist_pz='g'
-  sig_Ekin=1.5
+ sig_Ekin=3000.0
   cor_Ekin=0.0E0
   Dist_x='gauss'
-  sig_x=0.75E0
-  Dist_px='g'
-  Nemit_x=1.0E0
+ sig_x=0.002
+ x_off=0.0
+  Dist_px='gauss'
+ sig_px=300000.0
+ ! Nemit_x=1.0E0
   cor_px=0.0E0
   Dist_y='g'
-  sig_y=0.75E0
+ sig_y=0.002
   Dist_py='g'
-  Nemit_y=1.0E0
+ sig_py=300000.0
+!  Nemit_y=1.0E0
   cor_py=0.0E0
  /
 
@@ -32,15 +34,16 @@
 &NEWRUN
  Head='Example of ASTRA users manual'
  RUN=1
-Distribution=test.ini
+ Distribution=test4.ini
  Xoff=0.0
  Yoff=0.0
- TRACK_ALL=T
- Zphase=5
+ Track_All=T
  Auto_phase=T
  check_ref_part=T
+ PHASE_SCAN=T
  H_max=0.001
  H_min=0.00
+ Max_step=1E+9
 /
 
 
@@ -66,55 +69,98 @@ Distribution=test.ini
 /
 
 
-&CAVITY
- LEField=F,
- File_Efield(1)='3_cell_L-Band.dat'
- C_pos(1)=0.3
- Nue(1)=1.3
- MaxE(1)=40.0
- Phi(1)=0.0,
-/
- 
-&SOLENOID
- LBField=F,
- File_Bfield(1)='Solenoid.dat'
- S_pos(1)=1.2
- MaxB(1)=0.35
- S_smooth(1)=10
+&APERTURE
+ LApert=F
+
+! Ap_Z1(1)=0.00
+! Ap_Z2(1)=0.036
+ File_Aperture(1)='aperture/aperture1.dat',
+
+! Ap_Z1(2)=0
+! Ap_Z2(2)=0.12
+ File_Aperture(2)='aperture/aperture2.dat',
+
+
+! Ap_Z1(3)=0
+! Ap_Z2(3)=0.1
+! File_Aperture(3)='aperture/aperture3.dat'
+
+
 /
 
+
 &QUADRUPOLE
- Lquad=T,
- Q_grad(1)=222
- Q_length(1)=0.036
+ Lquad=F
+  Q_Type(1)='cavity/3Dcavity1gradient.dat'
+! Q_grad(1)=1000
+! Q_length(1)=0.036
  Q_smooth(1)=0
- Q_bore(1)=0.0035
- Q_pos(1)=0.2
+ Q_bore(1)=0.007
+ Q_pos(1)=0.11750000000000001
  Q_xoff(1)=0
  Q_yoff(1)=0
  Q_xrot(1)=0
  Q_yrot(1)=0
  Q_zrot(1)=0
 
-  Q_grad(2)=-94
- Q_length(2)=0.12
+ Q_Type(2)='cavity/3Dcavity2gradient.dat'
+! Q_grad(2)=-94
+! Q_length(2)=0.12
  Q_smooth(2)=0
- Q_bore(2)=0.009
- Q_pos(2)=0.35
+ Q_bore(2)=0.018
+ Q_pos(2)=0.28018512631793724
  Q_xoff(2)=0
  Q_yoff(2)=0
  Q_xrot(2)=0
  Q_yrot(2)=0
  Q_zrot(2)=0
 
- Q_grad(3)=57
- Q_length(3)=0.12
+ Q_Type(3)='cavity/3Dcavity3gradient.dat'
+! Q_grad(3)=1000
+! Q_length(3)=0.1
  Q_smooth(3)=0
- Q_bore(3)=0.009
- Q_pos(3)=0.8
+ Q_bore(3)=0.03
+ Q_pos(3)=0.4741714998224927
  Q_xoff(3)=0
  Q_yoff(3)=0
  Q_xrot(3)=0
  Q_yrot(3)=0
  Q_zrot(3)=0
+
+/
+
+
+&CAVITY
+ LEField=F
+ Bx_stat(1)=True
+ By_stat(1)=True
+ Bz_stat(1)=True
+ File_Efield(1)='cavity/3Dcavity1'
+ MaxE(1)=1
+ Com_grid(1)=all
+ C_pos(1)=0.1
+
+ File_Efield(2)='cavity/3Dcavity2'
+ Com_grid(2)=all
+ C_pos(2)=0.22018512631793724
+ MaxE(2)=0.001
+ Bx_stat(2)=True
+ By_stat(2)=True
+ Bz_stat(2)=True
+
+ File_Efield(3)='cavity/3Dcavity3'
+ Com_grid(3)=all
+ MaxE(3)=0.001
+ C_pos(3)=0.4216714998224927
+ Bx_stat(3)=True
+ By_stat(3)=True
+ Bz_stat(3)=True
+/
+ 
+&SOLENOID
+ LBField=T,
+ File_Bfield(1)='Solenoid.dat'
+ S_pos(1)=1.2
+ MaxB(1)=0.35
+ S_smooth(1)=10
 /

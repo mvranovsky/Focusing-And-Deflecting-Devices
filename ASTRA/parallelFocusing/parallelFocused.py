@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[71]:
+# In[70]:
 
 
 import pandas as pd
@@ -27,7 +27,7 @@ import glob
 # For running beam simulations, one can define it's initial parameters like spread of transverse momenta, spread of longitudinal energy, spread of offsets in the x and y directions as well as in the longitudinal direction. Also number of initial particles, space charge, secondary particle emission or other parameters can be changed in file parallelBeam.in.
 # 
 
-# In[72]:
+# In[71]:
 
 
 fileName = "parallelBeam"
@@ -44,15 +44,29 @@ ymom = "1.0E+6" #eV
 
 
 #parameters of magnets 
-lengthQ1 = 0.036  #m
-lengthQ2 = 0.12  #m
-lengthQ3 = 0.1  #m
+#all methods are equivalent in integrated gradient along z
 
+#lengths of magnets with top hat shaped fields
+lengthQ1 = 0.03619  #m
+lengthQ2 = 0.12429  #m
+lengthQ3 = 0.09596  #m
+
+#lengths of magnets with turned on fringe fields, the length of a magnet is along the plateau
+FFlengthQ1 = 0.03234 #m
+FFlengthQ2 = 0.11440 #m
+FFlengthQ3 = 0.07948 #m
+
+#lengths of magnets for field profiles. Here it is at FWHM. These are the same as for the field maps in cavity namelist
+FPlengthQ1 = 0.035
+FPlengthQ2 = 0.120
+FPlengthQ3 = 0.105
+
+
+#----------------------------------------------
 #diameters of bores
 boreQ1 = 0.007
 boreQ2 = 0.018
 boreQ3 = 0.030
-topHatField = True
 
 #input parameters of the beam
 nParticles = "500"
@@ -67,7 +81,7 @@ sig_xAngle = 1  #mrad
 sig_yAngle = 1  #mrad
 
 
-# In[73]:
+# In[72]:
 
 
 dataD1 = []
@@ -80,7 +94,7 @@ dataSum = []
 # ## Function to change input settings
 # Function changeInputData() is a function created to change input variables for ASTRA. The first argument is the name of the parameter that needs to be changed, the second is the value. After that is topHatShapedQuads() which changes settings between ideal or realistic quadrupoles. To change the momentum in the z direction, one can use changeMomZ(). Files test0.ini all the way to test4.ini are input data for 5 different runs. File test0.ini has 0. reference particle with 0 offset and 0 initial angle, 1 and 2 have offsets in the x and y directions respectively and the last 2 have predefined angles. All of them should be parallel in the end. Lastly, function update() should be run to double check that all parameters are set to the right values.
 
-# In[74]:
+# In[73]:
 
 
 def changeInputData(tag, newVar):
@@ -115,29 +129,175 @@ def changeInputData(tag, newVar):
     return
 
 
+# In[74]:
+
+
+def enable(tag):
+    try:
+        # Open the file for reading
+        with open(fileName + ".in", 'r') as file:
+            lines = file.readlines()
+
+        # Prepare the replacement string
+
+        # Iterate over the lines to find and replace the target line
+        for i, line in enumerate(lines):
+            if tag in line:
+                lines[i] = lines[i].replace("!","")
+                break  # Assuming there's only one occurrence to replace
+
+        # Write the modified lines back to the file
+        with open(fileName + ".in", 'w') as file:
+            file.writelines(lines)
+
+        #print(f"Replaced '{tag}' with '{replacement.strip()}'.")
+
+    except FileNotFoundError:
+        print("The file " + fileName + ".in was not found.")
+    except Exception as e:
+        print(f"An error occurred when trying to change '{tag}' to variable '{newVar}': {e}")
+
+    return
+
+
 # In[75]:
 
 
-def topHatShapedQuads(ideal):
+def readOption(tag):
+    try:
+        # Open the file for reading
+        with open(fileName + ".in", 'r') as file:
+            lines = file.readlines()
+
+        # Prepare the replacement string
+
+        # Iterate over the lines to find and replace the target line
+        setting = ''
+        for i, line in enumerate(lines):
+            if tag in line:
+                setting = line.split("=")
+                break  # Assuming there's only one occurrence to replace
+        return setting[-1]
+
+    except FileNotFoundError:
+        print("The file " + fileName + ".in was not found.")
+        return -1
+    except Exception as e:
+        print(f"An error occurred when trying to change '{tag}' to variable '{newVar}': {e}")
+        return -1
+    
+
+
+# In[76]:
+
+
+def disable(tag):
+    try:
+        # Open the file for reading
+        with open(fileName + ".in", 'r') as file:
+            lines = file.readlines()
+
+        # Prepare the replacement string
+
+        # Iterate over the lines to find and replace the target line
+        for i, line in enumerate(lines):
+            if tag in line:
+                if "!" in line:
+                    break
+                else:
+                    lines[i] = "!" + lines[i]
+                break  # Assuming there's only one occurrence to replace
+
+        # Write the modified lines back to the file
+        with open(fileName + ".in", 'w') as file:
+            file.writelines(lines)
+
+        #print(f"Replaced '{tag}' with '{replacement.strip()}'.")
+
+    except FileNotFoundError:
+        print("The file " + fileName + ".in was not found.")
+    except Exception as e:
+        print(f"An error occurred when trying to change '{tag}' to variable '{newVar}': {e}")
+
+    return
+
+
+# In[77]:
+
+
+def topHatShapedQuads(switcher):
     #switcher between idealised quadrupoles without fringe fields or not
-
-    global topHatField 
-    topHatField = ideal
-
-    if ideal:
+    
+    if switcher == 0:  #top hat shaped quads from namelist quadrupole
+        changeInputData("Lquad", "T")
+        changeInputData("LEField", "F") 
         changeInputData("Q_bore(1)", "1E-9")
         changeInputData("Q_bore(2)", "1E-9")
         changeInputData("Q_bore(3)", "1E-9")
-    else: 
+        changeInputData("Q_length(1)",str(lengthQ1))
+        changeInputData("Q_length(2)",str(lengthQ2))
+        changeInputData("Q_length(3)",str(lengthQ3))        
+        disable("Q_type(1)")
+        disable("Q_type(2)")
+        disable("Q_type(3)")
+        enable("Q_grad(1)")
+        enable("Q_grad(2)")
+        enable("Q_grad(3)")
+    elif switcher == 1:  #quadrupole fields with ideal gradients
+        changeInputData("Lquad", "T")
+        changeInputData("LEField", "F") 
         changeInputData("Q_bore(1)", str(boreQ1))
         changeInputData("Q_bore(2)", str(boreQ2))
         changeInputData("Q_bore(3)", str(boreQ3))
-
+        changeInputData("Q_length(1)",str(FFlengthQ1))
+        changeInputData("Q_length(2)",str(FFlengthQ2))
+        changeInputData("Q_length(3)",str(FFlengthQ3))    
+        disable("Q_type(1)")
+        disable("Q_type(2)")
+        disable("Q_type(3)")
+        enable("Q_grad(1)")
+        enable("Q_grad(2)")
+        enable("Q_grad(3)")
+    elif switcher == 2:  #quadrupole fields with custom gradients
+        changeInputData("Lquad", "T")
+        changeInputData("LEField", "F") 
+        changeInputData("Q_bore(1)", str(boreQ1))
+        changeInputData("Q_bore(2)", str(boreQ2))
+        changeInputData("Q_bore(3)", str(boreQ3))
+        changeInputData("Q_type(1)", "'3Dcavity1data.dat'")
+        changeInputData("Q_type(2)", "'3Dcavity2data.dat'")
+        changeInputData("Q_type(3)", "'3Dcavity3data.dat'")
+        disable("Q_grad(1)")
+        disable("Q_grad(2)")
+        disable("Q_grad(3)")
+        changeInputData("Q_length(1)",str(FPlengthQ1))
+        changeInputData("Q_length(2)",str(FPlengthQ2))
+        changeInputData("Q_length(3)",str(FPlengthQ3))   
+        disable("Q_length(1)")
+        disable("Q_length(2)")
+        disable("Q_length(3)")
+    elif switcher == 3: #field maps in cavities
+        changeInputData("Lquad", "F")
+        changeInputData("LEField", "T")
+    else:
+        print("Wrong input, only 0 through 3: 0 = top hat shaped fields, 1 = Astra generated quadrupole magnets with fringe fields, 2 = field profiles of gradient for measured quadrupoles, 3 = field maps of the measured magnets.")
     
     return       
 
 
-# In[76]:
+# In[78]:
+
+
+def aperture(yes):
+
+    if yes:
+        changeInputData("LApert", "T")
+    else:
+        changeInputData("LApert","F")    
+        
+
+
+# In[79]:
 
 
 def changeMom(xAngle, yAngle, pz, xoff, yoff): 
@@ -194,33 +354,53 @@ def changeMom(xAngle, yAngle, pz, xoff, yoff):
     
 
 
-# In[77]:
+# In[80]:
 
 
 def changePositions(D1,D2,D3):
 
-    Q1pos = D1 + lengthQ1/2
-    Q2pos = D1 + lengthQ1 + D2 + lengthQ2/2
-    Q3pos = D1 + lengthQ1 + D2 + lengthQ2 + D3 + lengthQ3/2
+    Q1L, Q2L, Q3L = 0,0,0
+    if readOption('LEField') == readOption('Lquad'):
+        print(f"Something is wrong, quadrupole namelist and cavity namelist are both {readOption('Lquad')}. Leaving.")
+        return 1
+    elif readOption('LEField') == 'T':
+        Q1L = FPlengthQ1
+        Q2L = FPlengthQ2
+        Q3L = FPlengthQ3
+    else:
+        Q1L = float(readOption("Q_length(1)"))
+        Q2L = float(readOption("Q_length(2)"))
+        Q3L = float(readOption("Q_length(3)"))
+        
+    
+    Q1pos = D1 + Q1L/2
+    Q2pos = D1 + Q1L + D2 + Q2L/2
+    Q3pos = D1 + Q1L + D2 + Q2L + D3 + Q3L/2
     
     changeInputData("Q_pos(1)",str(Q1pos) )
     changeInputData("Q_pos(2)",str(Q2pos) )
     changeInputData("Q_pos(3)",str(Q3pos) )
 
+    #changing the positions of cavities
+    changeInputData("C_pos(1)",str(Q1pos-lengthQ1/2))
+    changeInputData("C_pos(2)", str(Q2pos-lengthQ2/2))
+    changeInputData("C_pos(3)", str(Q3pos - lengthQ3/2))    
+
+    
     #changing the positions of apertures
-    ap1 = str(Q1pos - lengthQ1/2) + " " + str(boreQ1*1E+3/2) + "\n" + str(Q1pos + lengthQ1/2) + " " + str(boreQ1*1E+3/2)
+    ap1 = str(Q1pos - Q1L/2) + " " + str(boreQ1*1E+3/2) + "\n" + str(Q1pos + Q1L/2) + " " + str(boreQ1*1E+3/2)
     with open("aperture1.dat", "w") as file:
         file.write(ap1)
-    ap2 = str(Q2pos - lengthQ2/2) + " " + str(boreQ2*1E+3/2) + "\n" + str(Q2pos + lengthQ2/2) + " " + str(boreQ2*1E+3/2)
+    ap2 = str(Q2pos - Q2L/2) + " " + str(boreQ2*1E+3/2) + "\n" + str(Q2pos + Q2L/2) + " " + str(boreQ2*1E+3/2)
     with open("aperture2.dat", "w") as file:
         file.write(ap2)
-    ap3 = str(Q3pos - lengthQ3/2) + " " + str(boreQ3*1E+3/2) + "\n" + str(Q3pos + lengthQ3/2) + " " + str(boreQ3*1E+3/2)
+    ap3 = str(Q3pos - Q3L/2) + " " + str(boreQ3*1E+3/2) + "\n" + str(Q3pos + Q3L/2) + " " + str(boreQ3*1E+3/2)
     with open("aperture3.dat", "w") as file:
         file.write(ap3)
     return [Q1pos, Q2pos, Q3pos]
 
 
-# In[78]:
+# In[81]:
 
 
 def update():
@@ -255,7 +435,7 @@ def update():
 # ## Functions that make life easier
 # Here below are some one-liners or almost one-liners that run several times and return some specific values used in bigger algorithms implemented for example in refParticles().
 
-# In[79]:
+# In[82]:
 
 
 def setupSize(D1, D2, D3):
@@ -264,7 +444,7 @@ def setupSize(D1, D2, D3):
     return size
 
 
-# In[80]:
+# In[83]:
 
 
 def activeParticles():
@@ -282,7 +462,7 @@ def activeParticles():
     return (str(len(data) - lost)+"/" + str(len(data)))
 
 
-# In[81]:
+# In[84]:
 
 
 def isRef0Straight(px, py):
@@ -293,7 +473,7 @@ def isRef0Straight(px, py):
         return False
 
 
-# In[82]:
+# In[85]:
 
 
 def differLine(line):
@@ -303,7 +483,7 @@ def differLine(line):
     return [float(num) for num in lineSplitted]    
 
 
-# In[83]:
+# In[86]:
 
 
 def loadDataRef(arg):
@@ -320,7 +500,7 @@ def loadDataRef(arg):
     
 
 
-# In[84]:
+# In[87]:
 
 
 def fill4DGraph(D1, D2,D3,mom,sum):
@@ -334,7 +514,7 @@ def fill4DGraph(D1, D2,D3,mom,sum):
     return
 
 
-# In[85]:
+# In[88]:
 
 
 def angleCalculation(data):
@@ -344,7 +524,7 @@ def angleCalculation(data):
     return sum
 
 
-# In[86]:
+# In[89]:
 
 
 def angleCalculationX(data):
@@ -353,7 +533,7 @@ def angleCalculationX(data):
     return sum
 
 
-# In[87]:
+# In[90]:
 
 
 def angleCalculationY(data):
@@ -363,7 +543,7 @@ def angleCalculationY(data):
     return sum
 
 
-# In[88]:
+# In[91]:
 
 
 def calculatePercentage(acceptance, xAng_sig , yAng_sig ):
@@ -381,7 +561,7 @@ def calculatePercentage(acceptance, xAng_sig , yAng_sig ):
     return passed    
 
 
-# In[89]:
+# In[92]:
 
 
 def recalculateAcceptance(Max, zMax, off ):
@@ -389,7 +569,7 @@ def recalculateAcceptance(Max, zMax, off ):
     return angle
 
 
-# In[90]:
+# In[93]:
 
 
 def checkAngleAcceptance(D1,D2,D3, momZ, xAng = sig_xAngle, yAng = sig_yAngle):
@@ -488,13 +668,13 @@ def checkAngleAcceptance(D1,D2,D3, momZ, xAng = sig_xAngle, yAng = sig_yAngle):
     yBeamSize = data[2][-1][6]
 
     
-    return [xAngAccept, yAngAccept, xBeamSize, yBeamSize, percentagePassed]
+    return [xAngAccept, yAngAccept, xAng, yAng, xBeamSize, yBeamSize, percentagePassed]
 
 
 # # Function RunRef()
 # Function runRef() is the function that does most of the work. The arguments are the specific D1, D2, D3 and longitudinal momentum that is of interest. It is created for 3 reference particles: 0 angle, x angle, y angle. It changes the variables in the input file for Astra, runs the program for each reference particle separately, loads the output of the program. If argument moreData is set to True, it returns the entire trajectories of the particles, if it is false only information at the end of setup. 
 
-# In[91]:
+# In[94]:
 
 
 def runRef(D1, D2, D3,momZ, moreData):
@@ -517,7 +697,7 @@ def runRef(D1, D2, D3,momZ, moreData):
                 return 1
             
             currentData = loadDataRef("ref")
-            '''
+            
             #condition for 0. ref particle-> it cannot move
             if i == 0 and not isRef0Straight(currentData[-1][7], currentData[-1][8]):
                 print(f"Reference 0 particle with 0 offset and 0 angle moved in setup with D1 = '{D1}', D2 = '{D2}' and D3 = '{D3}'.")
@@ -527,7 +707,7 @@ def runRef(D1, D2, D3,momZ, moreData):
             if distFromEnd > 0.1:
                 print(f"Reference particle '{i}' did not get to the end in setup with D1 = '{D1}', D2 = '{D2}' and D3 = '{D3}'. ")
                 return 1
-            ''' 
+            
 
             outputMoreData.append(currentData)
 
@@ -545,7 +725,7 @@ def runRef(D1, D2, D3,momZ, moreData):
                 return 1
             
             currentData = loadDataRef("ref")
-            '''
+            
             #condition for 0. ref particle-> it cannot move
             if i == 0 and not isRef0Straight(currentData[-1][7], currentData[-1][8]):
                 print(f"Reference 0 particle with 0 offset and 0 angle moved in setup with D1 = '{D1}', D2 = '{D2}' and D3 = '{D3}'.")
@@ -556,7 +736,7 @@ def runRef(D1, D2, D3,momZ, moreData):
             if distFromEnd > 0.1:
                 print(f"Reference particle {i} did not get to the end in setup with D1 = {D1}, D2 = {D2} and D3 = {D3}. ")
                 return 1
-            '''
+            
             outputMoreData.append( [currentData[-1][5]*1e-3, currentData[-1][6]*1e-3, currentData[-1][0], currentData[-1][7], currentData[-1][8], currentData[-1][2]*1e+6] )
 
         
@@ -566,7 +746,7 @@ def runRef(D1, D2, D3,momZ, moreData):
 # ## Plotting functions
 # Several functions to plot output from reference particles.
 
-# In[92]:
+# In[95]:
 
 
 def separateDataXYZ(data):
@@ -587,7 +767,7 @@ def separateDataXYZ(data):
     return XYZ
 
 
-# In[93]:
+# In[96]:
 
 
 def plotRefXY(D1, D2, D3, mom):
@@ -616,7 +796,7 @@ def plotRefXY(D1, D2, D3, mom):
     return
 
 
-# In[94]:
+# In[97]:
 
 
 def plotRefXY1(D1, D2, D3, mom,title):
@@ -650,7 +830,7 @@ def plotRefXY1(D1, D2, D3, mom,title):
     return
 
 
-# In[95]:
+# In[98]:
 
 
 def plotRefXY2(D1, D2, D3, mom,title, tag):
@@ -686,17 +866,19 @@ def plotRefXY2(D1, D2, D3, mom,title, tag):
 
 # This is the code where one can run the equidistant intervals algorithm, I put it into a function so it does not do anything when I am running the entire notebook. One sets manually the ranges for each parameter/variable and the number of intervals. If the lower and upper limits are equal, then the variable is constant. Remember, the number of iterations is nInt to the number of non-constant variables times 3.
 
-# In[96]:
+# In[99]:
 
 
 def func(D, D1, mom):
     
     dataCurrent = runRef(D1, D[0], D[1], mom, False)
+    if dataCurrent == 1:
+        return 1E+9
     sum = angleCalculation(dataCurrent)
     return sum
 
 
-# In[97]:
+# In[100]:
 
 
 def func3(D, mom):
@@ -710,13 +892,21 @@ def func3(D, mom):
 # ## ComparisonAnaNum()
 # For this comparison, the fringe fields stay off. The first run is with analytical solution, the second run is with found numerical solution. The 2 results can be compared in a table below. The differences in D2,D3 are in Delta D2 and Delta D3. Parameters of runs are also there.
 
-# In[112]:
+# In[124]:
 
 
-def sigmaStudy(inputFile):
+def study(inputFile):
 
+    update()
+
+    #boundaries for D2, D3    
+    Dmin = [0.0,0.0]
+    Dmax = [0.4,0.4]
+    bounds = [(low, high) for low, high in zip(Dmin, Dmax)]
+
+    
     '''
-    results = D1, D2, D3, momZ, xAccept, yAccept, beam size X, beam size Y, ratio, setup size
+    results = D1, D2, D3, momZ,f_MAXIMA, f_topHat_found, f_fringeFields, f_fringeFields_found, f_fieldProfile, f_fieldProfile_found
     '''
     
     with open(inputFile, "r") as file:
@@ -730,45 +920,55 @@ def sigmaStudy(inputFile):
         setup.append(line)
 
 
-    angles = [50, 45, 40, 35, 30, 25, 20, 15, 10,9,8,7,6,5,4,3,2,1 ]
+    #angles = [50, 45, 40, 35, 30, 25, 20, 15, 10,9,8,7,6,5,4,3,2,1 ]
     results = []
-    sigInAccept = ""
-    sigOutAccept = ""
+    #sigInAccept = ""
+    #sigOutAccept = ""
 
-    print(setup)
-    
     for line in setup:
         current_res = []
-        for ang in angles:
-            current_res.clear()
-            current_res.extend(line)
-            acceptance = checkAngleAcceptance(float(line[0]), float(line[1]), float(line[2]), float(line[3]), ang, ang)
-            current_res += acceptance
+        current_res.extend(line)
+        topHatShapedQuads(0)
+        current_res.append(angleCalculation(runRef(float(line[0]), float(line[1]), float(line[2]), float(line[3]), False)))
+        plotRefXY2(float(line[0]), float(line[1]), float(line[2]), float(line[3]), f"MAXIMA solution for top hat field, setup: {line}, f={current_res[-1]} keV", f"MAXtopHat{line}")
+        
+        res = sc.optimize.minimize(func, (0.15, 0.15),method="Powell", bounds=bounds,tol=1e-7, args=(float(line[0]), float(line[3])))
+        current_res.append(angleCalculation(runRef(float(line[0]),*res.x , float(line[3]), False)))
+        plotRefXY2(float(line[0]), *res.x, float(line[3]), f"Numerical solution for top hat field, setup: {res.x} with f={current_res[-1]} keV", f"NUMtopHat{line}")
 
-            if ang < acceptance[0] and ang < acceptance[1]:
-                sigInAccept += line[0] + " " + line[1] + " " + line[2] + " " + line[3] + str(ang) + " " + str(ang) + " " + str(acceptance[0]) + " " + str(acceptance[1]) + "\n"
-            else:
-                sigOutAccept += line[0] + " " + line[1] + " " + line[2] + " " + line[3] + str(ang) + " " + str(ang) + " " + str(acceptance[0]) + " " + str(acceptance[1]) + "\n"
-            
-            current_res.append(setupSize(float(line[0]), float(line[1]), float(line[2])))
-            results.append(current_res)
+        topHatShapedQuads(1)
+        current_res.append(angleCalculation(runRef(float(line[0]), float(line[1]), float(line[2]), float(line[3]), False)))
+        plotRefXY2(float(line[0]), float(line[1]), float(line[2]), float(line[3]), f"MAXIMA solution Astra fringe fields, setup: {line}, f={current_res[-1]} keV", f"MAXFF{line}")
+        
+        res = sc.optimize.minimize(func, (0.15, 0.15),method="Powell", bounds=bounds,tol=1e-7, args=(float(line[0]), float(line[3] )))
+        current_res.append(angleCalculation(runRef(float(line[0]),*res.x , float(line[3]), False)))
+        plotRefXY2(float(line[0]), *res.x, float(line[3]), f"Numerical solution for Astra fringe fields, setup: {res.x} with f={current_res[-1]} keV",f"NUMFF{line}")
 
-            
+        topHatShapedQuads(2)
+        current_res.append(angleCalculation(runRef(float(line[0]), float(line[1]), float(line[2]), float(line[3]), False)))
+        plotRefXY2(float(line[0]), float(line[1]), float(line[2]), float(line[3]), f"MAXIMA solution field profile, setup: {line}, f={current_res[-1]} keV", f"MAXFP{line}")
+        
+        res = sc.optimize.minimize(func, (0.15, 0.15),method="Powell", bounds=bounds,tol=1e-7, args=(float(line[0]), float(line[3] )))
+        current_res.append(angleCalculation(runRef(float(line[0]),*res.x , float(line[3]), False)))
+        plotRefXY2(float(line[0]), *res.x, float(line[3]), f"Numerical solution for field profile, setup: {res.x} with f={current_res[-1]} keV", f"NUMFP{line}")
+
+        #current_res.extend(checkAngleAcceptance()[0:2])
+        results.append(current_res)
+
 
     df = pd.DataFrame(results)
     df.to_csv("table.csv",index=False)
 
-    with open("results.txt" , "w") as file:
-        file.write(sigInAccept)
-    with open("errors.txt" , "w") as file:
-        file.write(sigOutAccept)
+    #with open("results.txt" , "w") as file:
+    #    file.write(sigInAccept)
+    #with open("errors.txt" , "w") as file:
+    #   file.write(sigOutAccept)
     
 
     return df
 
 
-# In[113]:
-
+# In[122]:
 
 
 args = sys.argv
@@ -776,10 +976,13 @@ args.pop(0)
 if len(args) != 1:
     print(f"more than 1 argument")
 file = args[0]
-sigmaStudy(file)
+
+#file = "../../MAXIMA/numericalResultsP_1.txt"
+study(file)
 
 
-# In[33]:
+
+# In[103]:
 
 
 def comparisonAnaNum(setupFileName, minimalFunVal):
@@ -873,7 +1076,101 @@ def comparisonAnaNum(setupFileName, minimalFunVal):
     return finalTable
 
 
-# In[34]:
+# In[104]:
+
+
+def plotResultsAcceptance(file, file2):
+
+    df = pd.read_csv(file)
+    list = df.values.tolist()
+
+    data = []
+    for i in range(160):
+        data.append(list[i*18])
+
+    
+    for i in range(10):
+        D1 = [value[0] for value in data[i*16:(i+1)*16]]        
+        Pz = [value[3]*1e-6 for value in data[i*16:(i+1)*16]]
+        acceptX = [value[4] for value in data[i*16:(i+1)*16]]
+        acceptY = [value[5] for value in data[i*16:(i+1)*16]]
+
+        plt.scatter(Pz, acceptX, color='blue', label='acceptance X')
+        plt.scatter(Pz, acceptY, color='red', label='acceptance Y')
+        plt.legend()
+        plt.xlabel("Pz [MeV]")
+        plt.ylabel("acceptance [mrad]")
+        plt.title(f"Plot of acceptances w.r.t. momentum for D1 = {i +1} cm")
+        plt.show()
+
+    
+    df = pd.read_csv(file2)
+    list = df.values.tolist()
+
+    data = []
+    for i in range(160):
+        data.append(list[i*18])
+
+    for i in range(16):
+        D1 = [value[0]*1e+2 for value in data[i*10:(i+1)*10]]
+        Pz = [value[3]*1e-6 for value in data[i*10:(i+1)*10]]
+        acceptX = [value[4] for value in data[i*10:(i+1)*10]]
+        acceptY = [value[5] for value in data[i*10:(i+1)*10]]
+
+        plt.scatter(D1, acceptX, color='blue', label='acceptance X')
+        plt.scatter(D1, acceptY, color='red', label='acceptance Y')
+        plt.legend()
+        plt.xlabel("D1 [cm]")
+        plt.ylabel("acceptance [mrad]")
+        plt.title(f"Plot of acceptances w.r.t. D1 for Pz = {250 + i*50} MeV")
+        plt.show()
+
+    
+
+
+
+# In[105]:
+
+
+def plotResultsSigmaSpread(file):
+
+
+    df = pd.read_csv(file)
+    data = df.values.tolist()
+
+    #results = D1, D2, D3, momZ, xAccept, yAccept,xAng_sig, yAng_sig, beam size X, beam size Y, percentagePassed,
+
+
+    for i in range(1):
+        #D1 = [value[0] for value in data[i*18:(i+1)*18]]        
+        #Pz = [value[3]*1e-6 for value in data[i*18:(i+1)*18]]
+        #acceptance
+        angleSig = [value[6] for value in data]
+        beamX = [value[8] for value in data]
+        beamY = [value[9] for value in data]
+        perPassed = [value[10] for value in data]
+
+        plt.scatter(angleSig, perPassed, color='blue', label='percentage of passed particles')
+        #plt.legend()
+        plt.xlabel("initial sigma spread [mrad]")
+        plt.ylabel("particles passed [%]")
+        plt.title(f"Plot of particles passed w.r.t. initial sigma angle spread for setup with acceptance {data[0][4]}, {data[0][5]}")
+        plt.show()  
+        
+        plt.scatter(angleSig, beamX, color='blue', label='beam size X')
+        plt.scatter(angleSig, beamY, color='red', label='beam size Y')
+        plt.legend()
+        plt.xlabel("initial sigma spread [mrad]")
+        plt.ylabel("beam size [mm]")
+        plt.title(f"Plot of beam sizes w.r.t. to initial angle spread  for setup with acceptance {data[0][4]}, {data[0][5]}")
+        plt.show()
+        
+
+
+        
+
+
+# In[106]:
 
 
 def plotResultsD1(data):
@@ -931,7 +1228,7 @@ def plotResultsD1(data):
     return
 
 
-# In[35]:
+# In[107]:
 
 
 def plotResultsPz(data):
@@ -990,7 +1287,7 @@ def plotResultsPz(data):
     return
 
 
-# In[ ]:
+# In[108]:
 
 
 '''
@@ -1019,7 +1316,7 @@ plotResultsPz(list_of_lists)
 '''
 
 
-# In[32]:
+# In[109]:
 
 
 def getResults(setupFileName):
@@ -1068,7 +1365,7 @@ def getResults(setupFileName):
     
 
 
-# In[33]:
+# In[110]:
 
 
 #df = getResults("results.txt")
@@ -1079,7 +1376,7 @@ def getResults(setupFileName):
 # The following functions are implemented with a goal to study how sensitive or stable a solution is when some parameters or variables are being alternated. runAna() studies variability in D1, D2, D3, Pz and initial Px, Py. The input of the function is a solution- a functioning setup. For each variable function prints a graph with logarithmic x axis representing change in the variable, the logarithmic y axis returns relative change in the function (angleCalculation() ). 
 # Below that is another function which studies the initial x and y offset. 
 
-# In[34]:
+# In[111]:
 
 
 #analytic: 0.10 0.1767908617405159 0.1859304244423013 700000000
@@ -1235,7 +1532,7 @@ def runAna(D1,D2, D3, momZ, switch):
     return
 
 
-# In[35]:
+# In[112]:
 
 
 def runAnaOffset(D1,D2, D3, momZ):
@@ -1294,7 +1591,7 @@ def runAnaOffset(D1,D2, D3, momZ):
 
 
 
-# In[36]:
+# In[113]:
 
 
 #study of sensitivity w.r.t. varying to D1, D2, D3
@@ -1305,7 +1602,7 @@ def runAnaOffset(D1,D2, D3, momZ):
 # # Beam analytics
 # Here are functions that do not run only on 3 reference particles, but run the whole beam. The beam has it's energy/momentum spread whether it is in the magnitude of longitudinal momentum or in transverse direction.
 
-# In[37]:
+# In[114]:
 
 
 def updateBeam(x_off, sig_x, sig_px, y_off, sig_y, sig_py, sig_z, sig_pz , pz):
@@ -1338,7 +1635,7 @@ def updateBeam(x_off, sig_x, sig_px, y_off, sig_y, sig_py, sig_z, sig_pz , pz):
     return    
 
 
-# In[38]:
+# In[115]:
 
 
 def runBeam(D1,D2,D3, momZ, px_sig, py_sig, moreData):
@@ -1374,7 +1671,7 @@ def runBeam(D1,D2,D3, momZ, px_sig, py_sig, moreData):
         
 
 
-# In[39]:
+# In[116]:
 
 
 def divergence(dataX, dataY):
@@ -1389,7 +1686,7 @@ def divergence(dataX, dataY):
     return math.sqrt(p)         
 
 
-# In[40]:
+# In[117]:
 
 
 def funcBeam(D,D1, mom, sig_px, sig_py):
@@ -1400,7 +1697,7 @@ def funcBeam(D,D1, mom, sig_px, sig_py):
     return divSum
 
 
-# In[41]:
+# In[118]:
 
 
 def Beam():
@@ -1454,14 +1751,14 @@ def Beam():
     
 
 
-# In[42]:
+# In[119]:
 
 
 #df = Beam()
 #df.to_csv('resFigs/table.csv', index=False)
 
 
-# In[43]:
+# In[120]:
 
 
 def plotBeam(D1, D2, D3, momZ, px_sig, py_sig, title):
@@ -1500,7 +1797,7 @@ def plotBeam(D1, D2, D3, momZ, px_sig, py_sig, title):
     return   
 
 
-# In[44]:
+# In[121]:
 
 
 def comparisonAnaBeam(setupFilePath):
