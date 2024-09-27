@@ -46,8 +46,9 @@ if __name__ == "__main__":
 	sortPz.to_csv(BASE_DIR + "/tablePz.csv", index=False)
 	sortD1.to_csv(BASE_DIR + "/tableD1.csv", index=False)
 
-	with open(BASE_DIR + "/results.txt", "w") as file:
-		file.write(results)
+	if results != "":
+		with open(BASE_DIR + "/results.txt", "w") as file:
+			file.write(results)
 
 	if errors != "":
 		with open(BASE_DIR + "/errors.txt", "w") as file:

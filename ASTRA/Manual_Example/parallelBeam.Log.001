@@ -34,15 +34,15 @@
  CHECK_REF_PART  = T,
  L_RM_BACK       = F,
  LMONITOR        = F,
- H_MAX   =  1.000000000000000E-003,
+ H_MAX   =  1.000000000000000E-004,
  H_MIN   =  0.000000000000000E+000,
  DEBUNCH =  0.000000000000000E+000,
- MAX_STEP        =      100000,
+ MAX_STEP        =  1000000000,
  Z_MIN   =  1.000000000000000E+015,
  Z_CATHODE       =  1.000000000000000E+015,
  LPROMPT = T,
  ZSTART  =  0.000000000000000E+000,
- ZSTOP   =   4.00000000000000     ,
+ ZSTOP   =   1.50000000000000     ,
  ZEMIT   =         500,
  ZPHASE  =           1,
  SCREEN  = 500*-1.000000000000000E+015 ,
@@ -75,7 +75,7 @@
  /
  &OUTPUT
  ZSTART  =  0.000000000000000E+000,
- ZSTOP   =   4.00000000000000     ,
+ ZSTOP   =   1.50000000000000     ,
  ZEMIT   =         500,
  ZPHASE  =           1,
  SCREEN  = 500*-1.000000000000000E+015 ,
@@ -1030,10 +1030,10 @@
  /
  &APERTURE
  LOOP    = F,
- LAPERT  = T,
- FILE_APERTURE   = aperture1.dat                                                                                                     
-                                     aperture2.dat                                                                                   
-                                                       aperture3.dat                                                                 
+ LAPERT  = F,
+ FILE_APERTURE   = aperture/aperture1.dat                                                                                            
+                                     aperture/aperture2.dat                                                                          
+                                                                                                                                     
                                                                                                                                      
                                                                                                                                      
                                                                                                                                      
@@ -2936,9 +2936,9 @@
  &CAVITY
  LOOP    = F,
  LEFIELD = F,
- FILE_EFIELD     = 3_cell_L-Band.dat                                                                                                 
-                                                                                                                                     
-                                                                                                                                     
+ FILE_EFIELD     = cavity/3Dcavity1                                                                                                  
+                                     cavity/3Dcavity2                                                                                
+                                                       cavity/3Dcavity3                                                              
                                                                                                                                      
                                                                                                                                      
                                                                                                                                      
@@ -3506,10 +3506,10 @@
                                                                                                                                      
                                                                                                                                      
                                                              ,
- C_NOSCALE       = 500*F,
+ C_NOSCALE       = 3*T, 497*F,
  C_SMOOTH        = 500*0,
  C_HIGHER_ORDER  = 500*F,
- COM_GRID        =                                                                                                                   
+ COM_GRID        = all     all     all                                                                                               
                                                                                                                                      
                                                                                                                                      
                                                                                                                                      
@@ -3540,18 +3540,18 @@
                                                                                                                                      
                                                                                                                                      
                                                            ,
- NUE     =   1.30000000000000     , 499*0.000000000000000E+000  ,
+ NUE     = 500*0.000000000000000E+000  ,
  K_WAVE  = 500*0.000000000000000E+000  ,
  MODE    = 500*0,
- BX_STAT = 500*F,
- BY_STAT = 500*F,
- BZ_STAT = 500*F,
+ BX_STAT = 3*T, 497*F,
+ BY_STAT = 3*T, 497*F,
+ BZ_STAT = 2*F, T, 497*F,
  EX_STAT = 500*F,
  EY_STAT = 500*F,
- MAXE    =   40.0000000000000     , 499*0.000000000000000E+000  ,
+ MAXE    = 500*0.000000000000000E+000  ,
  FLATNESS        = 500*0.000000000000000E+000  ,
  PHI     = 501*0.000000000000000E+000  ,
- C_POS   =  0.300000000000000     , 499*0.000000000000000E+000  ,
+ C_POS   =  8.074999999999999E-003,  0.148925000000000     ,  0.370755000000000     , 497*0.000000000000000E+000  ,
  C_NUMB  = 500*1,
  MODE    = 500*0,
  T_DEPENDENCE    = constantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantco
@@ -4247,7 +4247,7 @@
  &SOLENOID
  LOOP    = F,
  LBFIELD = F,
- FILE_BFIELD     = Solenoid.dat                                                                                                      
+ FILE_BFIELD     = ../Manual_Example/Solenoid.dat                                                                                    
                                                                                                                                      
                                                                                                                                      
                                                                                                                                      
@@ -4910,17 +4910,17 @@
                                                                                                                                      
                                                                                                                                      
                                    ,
- Q_NOSCALE       = 500*F,
+ Q_NOSCALE       = 3*T, 497*F,
  Q_SMOOTH        = 500*0,
- Q_GRAD  =   222.000000000000     ,  -94.0000000000000     ,   57.0000000000000     , 497*0.000000000000000E+000  ,
+ Q_GRAD  =   222.000000000000     , 499*0.000000000000000E+000  ,
  Q_K     = 500*0.000000000000000E+000  ,
  Q_MULT_A        = 3000*0.000000000000000E+000  ,
  Q_MULT_B        = 3000*0.000000000000000E+000  ,
- Q_LENGTH        =  3.600000000000000E-002,  0.120000000000000     ,  0.100000000000000     , 497*0.000000000000000E+000  ,
- Q_BORE  = 3*1.000000000000000E-009  , 497*3.500000000000000E-002  ,
+ Q_LENGTH        =  0.200000000000000     ,  0.114400000000000     ,  7.948000000000000E-002, 497*0.000000000000000E+000  ,
+ Q_BORE  =  1.000000000000000E-009,  1.800000000000000E-002,  3.000000000000000E-002, 497*3.500000000000000E-002  ,
  Q_RAD   = 500*1.00000000000000        ,
  Q_DIST  = 500*0.000000000000000E+000  ,
- Q_POS   =  0.118000000000000     ,  0.260000000000000     ,  0.450000000000000     , 497*0.000000000000000E+000  ,
+ Q_POS   =  0.200000000000000     ,  0.211070000000000     ,  0.418735000000000     , 497*0.000000000000000E+000  ,
  Q_XOFF  = 500*0.000000000000000E+000  ,
  Q_YOFF  = 500*0.000000000000000E+000  ,
  Q_XROT  = 500*0.000000000000000E+000  ,
@@ -4996,9 +4996,9 @@
  STAT    = 188*F, T, F, T, F, T, F, T, F, T, F, T, F, T, F, T, F, 198*T
  /
  End of Input deck
-parallelBeam.ini                0.6492D-08  0.0000D+00  F
-parallelBeam.0400.001           4.0000D+00  0.0000D+00  F
+parallelBeam.ini                0.1169D-09  0.0000D+00  F
+parallelBeam.0150.001           1.5000D+00  0.0000D+00  F
 
-     execution started:    6. 9.2024     13:29
-     execution finished:   6. 9.2024     13:29
-     execution time:  0.77 sec                         
+     execution started:   26. 9.2024     17:10
+     execution finished:  26. 9.2024     17:10
+     execution time:  5.27 sec                         

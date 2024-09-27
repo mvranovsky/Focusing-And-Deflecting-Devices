@@ -9,7 +9,7 @@
   Cathode=F
   Q_total=1.0E0
   Ref_zpos=0.0E0
- Ref_Ekin=700.0
+ Ref_Ekin=450000000.0
   Dist_z='gauss'
  sig_z=0.1
   Dist_pz='g'
@@ -19,13 +19,13 @@
  sig_x=0.002
  x_off=0.0
   Dist_px='gauss'
- sig_px=30000000.0
+ sig_px=300000.0
  ! Nemit_x=1.0E0
   cor_px=0.0E0
   Dist_y='g'
  sig_y=0.002
   Dist_py='g'
- sig_py=3000000.0
+ sig_py=300000.0
 !  Nemit_y=1.0E0
   cor_py=0.0E0
  /
@@ -41,14 +41,15 @@
  Auto_phase=T
  check_ref_part=T
  PHASE_SCAN=T
- H_max=0.001
+ H_max=0.0001
  H_min=0.00
+ Max_step=1E+9
 /
 
 
 &OUTPUT
  ZSTART=0.0
- ZSTOP=4
+ ZSTOP=1.5
  Zemit=500
  Zphase=1
  RefS=T
@@ -68,39 +69,21 @@
 /
 
 
-@MODULE
- LModule=T
-
- Module(1,1)='quadrupole(1)'
- Module(1,2)='cavity(1)'
- Mod_Zpos(1)=0.7
-
- Module(2,1)='quadrupole(2)'
- Module(2,2)='cavity(2)'
- Mod_Zpos(2)=0.39157
-
- Module(3,1)='quadrupole(3)'
- Module(3,2)='cavity(3)'
- Mod_Zpos(2)=0.6773633979326318
-
-
-/
-
 &APERTURE
- LApert=T,
+ LApert=F
 
 ! Ap_Z1(1)=0.00
 ! Ap_Z2(1)=0.036
- File_Aperture(1)='aperture1.dat',
+ File_Aperture(1)='aperture/aperture1.dat',
 
 ! Ap_Z1(2)=0
 ! Ap_Z2(2)=0.12
- File_Aperture(2)='aperture2.dat',
+ File_Aperture(2)='aperture/aperture2.dat',
 
 
 ! Ap_Z1(3)=0
 ! Ap_Z2(3)=0.1
- File_Aperture(3)='aperture3.dat',
+! File_Aperture(3)='aperture/aperture3.dat'
 
 
 /
@@ -109,32 +92,38 @@
 &QUADRUPOLE
  Lquad=T
  Q_grad(1)=222
- Q_length(1)=0.036
+ Q_length(1)=0.2
  Q_smooth(1)=0
- Q_bore(1)=1E-9
- Q_pos(1)=0.118
+ Q_bore(1)=1.0E-9
+ Q_pos(1)=0.2
+! Q_type(1)='3Dcavity1data.dat'
+ Q_noscale(1)=True
  Q_xoff(1)=0
  Q_yoff(1)=0
  Q_xrot(1)=0
  Q_yrot(1)=0
  Q_zrot(1)=0
 
- Q_grad(2)=-94
- Q_length(2)=0.12
+! Q_type(2)='3Dcavity2data.dat'
+ Q_noscale(2)=True
+ Q_grad(2)=0
+ Q_length(2)=0.1144
  Q_smooth(2)=0
- Q_bore(2)=1E-9
- Q_pos(2)=0.26
+ Q_bore(2)=0.018
+ Q_pos(2)=0.21107
  Q_xoff(2)=0
  Q_yoff(2)=0
  Q_xrot(2)=0
  Q_yrot(2)=0
  Q_zrot(2)=0
 
- Q_grad(3)=57
- Q_length(3)=0.1
+! Q_type(3)='3Dcavity3data.dat'
+ Q_noscale(3)=True
+ Q_grad(3)=0
+ Q_length(3)=0.07948
  Q_smooth(3)=0
- Q_bore(3)=1E-9
- Q_pos(3)=0.45
+ Q_bore(3)=0.03
+ Q_pos(3)=0.418735
  Q_xoff(3)=0
  Q_yoff(3)=0
  Q_xrot(3)=0
@@ -143,18 +132,37 @@
 
 /
 
+
 &CAVITY
- LEField=F,
- File_Efield(1)='3_cell_L-Band.dat'
- C_pos(1)=0.3
- Nue(1)=1.3
- MaxE(1)=40.0
- Phi(1)=0.0,
+ LEField=F
+ Bx_stat(1)=True
+ By_stat(1)=True
+ File_Efield(1)='cavity/3Dcavity1'
+ !MaxE(1)=1
+ Com_grid(1)=all
+ C_pos(1)=0.008074999999999999
+ C_noscale(1)=True
+
+ File_Efield(2)='cavity/3Dcavity2'
+ Com_grid(2)=all
+ C_pos(2)=0.148925
+ Bx_stat(2)=True
+ By_stat(2)=True
+ C_noscale(2)=True
+
+ File_Efield(3)='cavity/3Dcavity3'
+ Com_grid(3)=all
+ C_pos(3)=0.370755
+ Bx_stat(3)=True
+ By_stat(3)=True
+ Bz_stat(3)=True
+ C_noscale(3)=True
+
 /
  
 &SOLENOID
  LBField=F,
- File_Bfield(1)='Solenoid.dat'
+ File_Bfield(1)='../Manual_Example/Solenoid.dat'
  S_pos(1)=1.2
  MaxB(1)=0.35
  S_smooth(1)=10

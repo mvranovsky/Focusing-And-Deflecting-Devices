@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[70]:
+# In[37]:
 
 
 import pandas as pd
@@ -15,6 +15,8 @@ import sys
 import subprocess
 import math
 import glob
+import time
+import random
 
 
 # # Parallel focusing 
@@ -27,7 +29,7 @@ import glob
 # For running beam simulations, one can define it's initial parameters like spread of transverse momenta, spread of longitudinal energy, spread of offsets in the x and y directions as well as in the longitudinal direction. Also number of initial particles, space charge, secondary particle emission or other parameters can be changed in file parallelBeam.in.
 # 
 
-# In[71]:
+# In[38]:
 
 
 fileName = "parallelBeam"
@@ -81,7 +83,7 @@ sig_xAngle = 1  #mrad
 sig_yAngle = 1  #mrad
 
 
-# In[72]:
+# In[39]:
 
 
 dataD1 = []
@@ -94,7 +96,7 @@ dataSum = []
 # ## Function to change input settings
 # Function changeInputData() is a function created to change input variables for ASTRA. The first argument is the name of the parameter that needs to be changed, the second is the value. After that is topHatShapedQuads() which changes settings between ideal or realistic quadrupoles. To change the momentum in the z direction, one can use changeMomZ(). Files test0.ini all the way to test4.ini are input data for 5 different runs. File test0.ini has 0. reference particle with 0 offset and 0 initial angle, 1 and 2 have offsets in the x and y directions respectively and the last 2 have predefined angles. All of them should be parallel in the end. Lastly, function update() should be run to double check that all parameters are set to the right values.
 
-# In[73]:
+# In[40]:
 
 
 def changeInputData(tag, newVar):
@@ -129,7 +131,7 @@ def changeInputData(tag, newVar):
     return
 
 
-# In[74]:
+# In[41]:
 
 
 def enable(tag):
@@ -160,7 +162,7 @@ def enable(tag):
     return
 
 
-# In[75]:
+# In[42]:
 
 
 def readOption(tag):
@@ -188,7 +190,7 @@ def readOption(tag):
     
 
 
-# In[76]:
+# In[43]:
 
 
 def disable(tag):
@@ -222,7 +224,7 @@ def disable(tag):
     return
 
 
-# In[77]:
+# In[44]:
 
 
 def topHatShapedQuads(switcher):
@@ -285,7 +287,7 @@ def topHatShapedQuads(switcher):
     return       
 
 
-# In[78]:
+# In[45]:
 
 
 def aperture(yes):
@@ -297,7 +299,7 @@ def aperture(yes):
         
 
 
-# In[79]:
+# In[46]:
 
 
 def changeMom(xAngle, yAngle, pz, xoff, yoff): 
@@ -354,7 +356,7 @@ def changeMom(xAngle, yAngle, pz, xoff, yoff):
     
 
 
-# In[80]:
+# In[47]:
 
 
 def changePositions(D1,D2,D3):
@@ -400,7 +402,7 @@ def changePositions(D1,D2,D3):
     return [Q1pos, Q2pos, Q3pos]
 
 
-# In[81]:
+# In[48]:
 
 
 def update():
@@ -435,7 +437,7 @@ def update():
 # ## Functions that make life easier
 # Here below are some one-liners or almost one-liners that run several times and return some specific values used in bigger algorithms implemented for example in refParticles().
 
-# In[82]:
+# In[49]:
 
 
 def setupSize(D1, D2, D3):
@@ -444,7 +446,7 @@ def setupSize(D1, D2, D3):
     return size
 
 
-# In[83]:
+# In[50]:
 
 
 def activeParticles():
@@ -462,7 +464,7 @@ def activeParticles():
     return (str(len(data) - lost)+"/" + str(len(data)))
 
 
-# In[84]:
+# In[51]:
 
 
 def isRef0Straight(px, py):
@@ -473,7 +475,7 @@ def isRef0Straight(px, py):
         return False
 
 
-# In[85]:
+# In[52]:
 
 
 def differLine(line):
@@ -483,7 +485,7 @@ def differLine(line):
     return [float(num) for num in lineSplitted]    
 
 
-# In[86]:
+# In[53]:
 
 
 def loadDataRef(arg):
@@ -500,7 +502,7 @@ def loadDataRef(arg):
     
 
 
-# In[87]:
+# In[54]:
 
 
 def fill4DGraph(D1, D2,D3,mom,sum):
@@ -514,7 +516,7 @@ def fill4DGraph(D1, D2,D3,mom,sum):
     return
 
 
-# In[88]:
+# In[55]:
 
 
 def angleCalculation(data):
@@ -524,7 +526,7 @@ def angleCalculation(data):
     return sum
 
 
-# In[89]:
+# In[56]:
 
 
 def angleCalculationX(data):
@@ -533,7 +535,7 @@ def angleCalculationX(data):
     return sum
 
 
-# In[90]:
+# In[57]:
 
 
 def angleCalculationY(data):
@@ -543,7 +545,7 @@ def angleCalculationY(data):
     return sum
 
 
-# In[91]:
+# In[58]:
 
 
 def calculatePercentage(acceptance, xAng_sig , yAng_sig ):
@@ -561,7 +563,7 @@ def calculatePercentage(acceptance, xAng_sig , yAng_sig ):
     return passed    
 
 
-# In[92]:
+# In[59]:
 
 
 def recalculateAcceptance(Max, zMax, off ):
@@ -569,7 +571,7 @@ def recalculateAcceptance(Max, zMax, off ):
     return angle
 
 
-# In[93]:
+# In[60]:
 
 
 def checkAngleAcceptance(D1,D2,D3, momZ, xAng = sig_xAngle, yAng = sig_yAngle):
@@ -674,7 +676,7 @@ def checkAngleAcceptance(D1,D2,D3, momZ, xAng = sig_xAngle, yAng = sig_yAngle):
 # # Function RunRef()
 # Function runRef() is the function that does most of the work. The arguments are the specific D1, D2, D3 and longitudinal momentum that is of interest. It is created for 3 reference particles: 0 angle, x angle, y angle. It changes the variables in the input file for Astra, runs the program for each reference particle separately, loads the output of the program. If argument moreData is set to True, it returns the entire trajectories of the particles, if it is false only information at the end of setup. 
 
-# In[94]:
+# In[61]:
 
 
 def runRef(D1, D2, D3,momZ, moreData):
@@ -746,7 +748,7 @@ def runRef(D1, D2, D3,momZ, moreData):
 # ## Plotting functions
 # Several functions to plot output from reference particles.
 
-# In[95]:
+# In[62]:
 
 
 def separateDataXYZ(data):
@@ -767,7 +769,7 @@ def separateDataXYZ(data):
     return XYZ
 
 
-# In[96]:
+# In[63]:
 
 
 def plotRefXY(D1, D2, D3, mom):
@@ -796,7 +798,7 @@ def plotRefXY(D1, D2, D3, mom):
     return
 
 
-# In[97]:
+# In[64]:
 
 
 def plotRefXY1(D1, D2, D3, mom,title):
@@ -830,7 +832,7 @@ def plotRefXY1(D1, D2, D3, mom,title):
     return
 
 
-# In[98]:
+# In[65]:
 
 
 def plotRefXY2(D1, D2, D3, mom,title, tag):
@@ -866,7 +868,7 @@ def plotRefXY2(D1, D2, D3, mom,title, tag):
 
 # This is the code where one can run the equidistant intervals algorithm, I put it into a function so it does not do anything when I am running the entire notebook. One sets manually the ranges for each parameter/variable and the number of intervals. If the lower and upper limits are equal, then the variable is constant. Remember, the number of iterations is nInt to the number of non-constant variables times 3.
 
-# In[99]:
+# In[66]:
 
 
 def func(D, D1, mom):
@@ -878,7 +880,7 @@ def func(D, D1, mom):
     return sum
 
 
-# In[100]:
+# In[67]:
 
 
 def func3(D, mom):
@@ -892,7 +894,132 @@ def func3(D, mom):
 # ## ComparisonAnaNum()
 # For this comparison, the fringe fields stay off. The first run is with analytical solution, the second run is with found numerical solution. The 2 results can be compared in a table below. The differences in D2,D3 are in Delta D2 and Delta D3. Parameters of runs are also there.
 
-# In[124]:
+# In[36]:
+
+
+args = sys.argv
+args.pop(0)
+if len(args) != 1:
+    print(f"more than 1 argument")
+tolerance = float(args[0])
+
+topHatShapedQuads(0)
+update()
+#boundaries for D2, D3    
+Dmin = [0.0, 0.0]
+Dmax = [0.4, 0.4]
+bounds = [(low, high) for low, high in zip(Dmin, Dmax)]
+
+D1 = [0.1]
+#for i in range(1,21):
+#    D1.append(i/100)
+
+D2P1, D2P2, D2NM1, D2NM2, D2C1,D2C2 = [], [], [],[], [], []
+D3P1, D3P2, D3NM1, D3NM2, D3C1,D3C2 = [], [], [],[], [], []
+funkValP1, funkValP2, funkValNM1, funkValNM2, funkValC1, funkValC2 = [], [], [],[] ,[],[]
+timeP1, timeP2, timeNM1, timeNM2, timeC1, timeC2 = [], [], [], [], [], []
+
+for d1 in D1:    
+    time1 = time.time()
+    res = sc.optimize.minimize(func, (0.1, 0.1),method="Powell", bounds=bounds,tol=tolerance, args=( d1, 4.5E+8 ))
+    time2 = time.time()
+    D2P1.append(res.x[0])
+    D3P1.append(res.x[1])
+    funkValP1.append(angleCalculation(runRef(d1, *res.x, 4.5E+8, False)))
+    timeP1.append(time2 -time1)
+    
+    time1 = time.time()
+    bounds2 = [(res.x[0]-0.05, res.x[0]+0.05),(res.x[1]-0.05, res.x[1]+0.05)]
+    res = sc.optimize.minimize(func, (random.uniform(res.x[0]-0.05, res.x[0]+0.05), random.uniform(res.x[1]-0.05, res.x[1]+0.05)),method="Powell", bounds=bounds2,tol=tolerance, args=( d1, 4.5E+8 ))
+    time2 = time.time()
+    D2P2.append(res.x[0])
+    D3P2.append(res.x[1])
+    funkValP2.append(angleCalculation(runRef(d1, *res.x, 4.5E+8, False)))
+    timeP2.append(time2 -time1)
+    #------------------------------------------------------------------
+    time1 = time.time()
+    res = sc.optimize.minimize(func, (0.1, 0.1),method="Nelder-Mead", bounds=bounds,tol=tolerance, args=( d1, 4.5E+8 ))
+    time2 = time.time()
+    D2NM1.append(res.x[0])
+    D3NM1.append(res.x[1])
+    funkValNM1.append(angleCalculation(runRef(d1, *res.x, 4.5E+8, False)))
+    timeNM1.append(time2 -time1)
+    
+    time1 = time.time()
+    bounds2 = [(res.x[0]-0.05, res.x[0]+0.05),(res.x[1]-0.05, res.x[1]+0.05)]
+    res = sc.optimize.minimize(func, (random.uniform(res.x[0]-0.05, res.x[0]+0.05), random.uniform(res.x[1]-0.05, res.x[1]+0.05)),method="Nelder-Mead", bounds=bounds2,tol=tolerance, args=( d1, 4.5E+8 ))
+    time2 = time.time()
+    D2NM2.append(res.x[0])
+    D3NM2.append(res.x[1])
+    funkValNM2.append(angleCalculation(runRef(d1, *res.x, 4.5E+8, False)))
+    timeNM2.append(time2 -time1)
+    #------------------------------------------------------------------
+    
+    time1 = time.time()
+    res = sc.optimize.minimize(func, (0.1, 0.1),method="COBYLA", bounds=bounds,tol=tolerance, args=( d1, 4.5E+8 ))
+    time2 = time.time()
+    D2C1.append(res.x[0])
+    D3C1.append(res.x[1])
+    funkValC1.append(angleCalculation(runRef(d1, *res.x, 4.5E+8, False)))
+    timeC1.append(time2 -time1)
+    
+    time1 = time.time()
+    bounds2 = [(res.x[0]-0.05, res.x[0]+0.05),(res.x[1]-0.05, res.x[1]+0.05)]
+    res = sc.optimize.minimize(func, (random.uniform(res.x[0]-0.05, res.x[0]+0.05), random.uniform(res.x[1]-0.05, res.x[1]+0.05)),method="COBYLA", bounds=bounds2,tol=tolerance, args=( d1, 4.5E+8 ))
+    time2 = time.time()
+    D2C2.append(res.x[0])
+    D3C2.append(res.x[1])
+    funkValC2.append(angleCalculation(runRef(d1, *res.x, 4.5E+8, False)))
+    timeC2.append(time2 -time1)
+
+results = [D1, 
+           D2P1,D3P1, funkValP1, timeP1, 
+           D2P2, D3P2, funkValP2, timeP2, 
+           D2NM1, D3NM1, funkValNM1, timeNM1, 
+           D2NM2, D3NM2, funkValNM2, timeNM2, 
+           D2C1, D3C1, funkValC1, timeC1, 
+           D2C2, D3C2, funkValC2, timeC2]
+df = pd.DataFrame(results)
+df.to_csv(f"table{tolerance}.csv",index=False)
+
+
+# In[68]:
+
+
+'''
+i = 0
+method = ['Powell','Nelder-Mead','COBYQA', 'Nelder-Mead' ,'COBYLA']
+while i < len(PowellMethod):
+    plt.scatter(PowellMethod[i], PowellMethod[i+1], label=method[int(i/2)])
+    i += 2
+    
+
+plt.xlabel('D3 [mm]')
+plt.ylabel('f(D3) [kev]')
+#plt.xlim(0.085, 0.1)
+#plt.ylim(0., 0.0)
+plt.yscale('log')
+plt.legend()
+plt.show()
+'''
+
+
+# In[69]:
+
+
+def funcTemp(D, D1, D2, mom):
+    dataCurrent = runRef(D1, D2, D[0], mom, False)
+    if dataCurrent == 1:
+        return 1E+9
+    sum = angleCalculation(dataCurrent)
+    D3.append(D[0])
+    funkRes.append(sum)
+    print(D[0], sum)
+    
+    return sum
+
+
+# In[70]:
 
 
 def study(inputFile):
@@ -908,7 +1035,7 @@ def study(inputFile):
     '''
     results = D1, D2, D3, momZ,f_MAXIMA, f_topHat_found, f_fringeFields, f_fringeFields_found, f_fieldProfile, f_fieldProfile_found
     '''
-    
+    '''
     with open(inputFile, "r") as file:
         setups = file.readlines()
 
@@ -918,8 +1045,8 @@ def study(inputFile):
         line = line.replace("\n","")
         line = line.split(" ")  
         setup.append(line)
-
-
+    '''
+    setup = [[0.1, 0.056362, 0.101014 ,4.5E+8]]
     #angles = [50, 45, 40, 35, 30, 25, 20, 15, 10,9,8,7,6,5,4,3,2,1 ]
     results = []
     #sigInAccept = ""
@@ -968,21 +1095,22 @@ def study(inputFile):
     return df
 
 
-# In[122]:
+# In[71]:
 
 
+'''
 args = sys.argv
 args.pop(0)
 if len(args) != 1:
     print(f"more than 1 argument")
 file = args[0]
-
+'''
 #file = "../../MAXIMA/numericalResultsP_1.txt"
-study(file)
+#study(file)
 
 
 
-# In[103]:
+# In[72]:
 
 
 def comparisonAnaNum(setupFileName, minimalFunVal):
@@ -1076,7 +1204,7 @@ def comparisonAnaNum(setupFileName, minimalFunVal):
     return finalTable
 
 
-# In[104]:
+# In[73]:
 
 
 def plotResultsAcceptance(file, file2):
@@ -1129,7 +1257,7 @@ def plotResultsAcceptance(file, file2):
 
 
 
-# In[105]:
+# In[74]:
 
 
 def plotResultsSigmaSpread(file):
@@ -1170,7 +1298,7 @@ def plotResultsSigmaSpread(file):
         
 
 
-# In[106]:
+# In[75]:
 
 
 def plotResultsD1(data):
@@ -1228,7 +1356,7 @@ def plotResultsD1(data):
     return
 
 
-# In[107]:
+# In[76]:
 
 
 def plotResultsPz(data):
@@ -1287,7 +1415,7 @@ def plotResultsPz(data):
     return
 
 
-# In[108]:
+# In[77]:
 
 
 '''
@@ -1316,7 +1444,7 @@ plotResultsPz(list_of_lists)
 '''
 
 
-# In[109]:
+# In[78]:
 
 
 def getResults(setupFileName):
@@ -1365,7 +1493,7 @@ def getResults(setupFileName):
     
 
 
-# In[110]:
+# In[79]:
 
 
 #df = getResults("results.txt")
@@ -1376,7 +1504,7 @@ def getResults(setupFileName):
 # The following functions are implemented with a goal to study how sensitive or stable a solution is when some parameters or variables are being alternated. runAna() studies variability in D1, D2, D3, Pz and initial Px, Py. The input of the function is a solution- a functioning setup. For each variable function prints a graph with logarithmic x axis representing change in the variable, the logarithmic y axis returns relative change in the function (angleCalculation() ). 
 # Below that is another function which studies the initial x and y offset. 
 
-# In[111]:
+# In[80]:
 
 
 #analytic: 0.10 0.1767908617405159 0.1859304244423013 700000000
@@ -1532,7 +1660,7 @@ def runAna(D1,D2, D3, momZ, switch):
     return
 
 
-# In[112]:
+# In[81]:
 
 
 def runAnaOffset(D1,D2, D3, momZ):
@@ -1591,7 +1719,7 @@ def runAnaOffset(D1,D2, D3, momZ):
 
 
 
-# In[113]:
+# In[82]:
 
 
 #study of sensitivity w.r.t. varying to D1, D2, D3
@@ -1602,7 +1730,7 @@ def runAnaOffset(D1,D2, D3, momZ):
 # # Beam analytics
 # Here are functions that do not run only on 3 reference particles, but run the whole beam. The beam has it's energy/momentum spread whether it is in the magnitude of longitudinal momentum or in transverse direction.
 
-# In[114]:
+# In[83]:
 
 
 def updateBeam(x_off, sig_x, sig_px, y_off, sig_y, sig_py, sig_z, sig_pz , pz):
@@ -1635,7 +1763,7 @@ def updateBeam(x_off, sig_x, sig_px, y_off, sig_y, sig_py, sig_z, sig_pz , pz):
     return    
 
 
-# In[115]:
+# In[84]:
 
 
 def runBeam(D1,D2,D3, momZ, px_sig, py_sig, moreData):
@@ -1671,7 +1799,7 @@ def runBeam(D1,D2,D3, momZ, px_sig, py_sig, moreData):
         
 
 
-# In[116]:
+# In[85]:
 
 
 def divergence(dataX, dataY):
@@ -1686,7 +1814,7 @@ def divergence(dataX, dataY):
     return math.sqrt(p)         
 
 
-# In[117]:
+# In[86]:
 
 
 def funcBeam(D,D1, mom, sig_px, sig_py):
@@ -1697,7 +1825,7 @@ def funcBeam(D,D1, mom, sig_px, sig_py):
     return divSum
 
 
-# In[118]:
+# In[87]:
 
 
 def Beam():
@@ -1751,14 +1879,14 @@ def Beam():
     
 
 
-# In[119]:
+# In[88]:
 
 
 #df = Beam()
 #df.to_csv('resFigs/table.csv', index=False)
 
 
-# In[120]:
+# In[89]:
 
 
 def plotBeam(D1, D2, D3, momZ, px_sig, py_sig, title):
@@ -1797,7 +1925,7 @@ def plotBeam(D1, D2, D3, momZ, px_sig, py_sig, title):
     return   
 
 
-# In[121]:
+# In[90]:
 
 
 def comparisonAnaBeam(setupFilePath):

@@ -9,7 +9,7 @@
   Cathode=F
   Q_total=1.0E0
   Ref_zpos=0.0E0
- Ref_Ekin=700000000.0
+ Ref_Ekin=450000000.0
   Dist_z='gauss'
  sig_z=0.1
   Dist_pz='g'
@@ -34,7 +34,7 @@
 &NEWRUN
  Head='Example of ASTRA users manual'
  RUN=1
- Distribution=test4.ini
+ Distribution=test1.ini
  Xoff=0.0
  Yoff=0.0
  Track_All=T
@@ -92,10 +92,10 @@
 &QUADRUPOLE
  Lquad=T
 ! Q_grad(1)=222
- Q_length(1)=0.03619
+! Q_length(1)=0.035
  Q_smooth(1)=0
  Q_bore(1)=0.007
- Q_pos(1)=0.11750000000000001
+ Q_pos(1)=0.08750000000000001
  Q_type(1)='3Dcavity1data.dat'
  Q_noscale(1)=True
  Q_xoff(1)=0
@@ -107,10 +107,10 @@
  Q_type(2)='3Dcavity2data.dat'
  Q_noscale(2)=True
 ! Q_grad(2)=-94
- Q_length(2)=0.12429
+! Q_length(2)=0.12
  Q_smooth(2)=0
  Q_bore(2)=0.018
- Q_pos(2)=0.29897899650683457
+ Q_pos(2)=0.165
  Q_xoff(2)=0
  Q_yoff(2)=0
  Q_xrot(2)=0
@@ -120,10 +120,10 @@
  Q_type(3)='3Dcavity3data.dat'
  Q_noscale(3)=True
 ! Q_grad(3)=57
- Q_length(3)=0.09596
+! Q_length(3)=0.105
  Q_smooth(3)=0
  Q_bore(3)=0.03
- Q_pos(3)=0.6279134163563361
+ Q_pos(3)=0.4327734375000003
  Q_xoff(3)=0
  Q_yoff(3)=0
  Q_xrot(3)=0
@@ -140,19 +140,19 @@
  File_Efield(1)='cavity/3Dcavity1'
  !MaxE(1)=1
  Com_grid(1)=all
- C_pos(1)=0.09940500000000001
+ C_pos(1)=0.06940500000000001
  C_noscale(1)=True
 
  File_Efield(2)='cavity/3Dcavity2'
  Com_grid(2)=all
- C_pos(2)=0.23683399650683457
+ C_pos(2)=0.102855
  Bx_stat(2)=True
  By_stat(2)=True
  C_noscale(2)=True
 
  File_Efield(3)='cavity/3Dcavity3'
  Com_grid(3)=all
- C_pos(3)=0.5799334163563361
+ C_pos(3)=0.3847934375000003
  Bx_stat(3)=True
  By_stat(3)=True
  Bz_stat(3)=True
