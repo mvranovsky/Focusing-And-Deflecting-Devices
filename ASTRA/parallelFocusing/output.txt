@@ -3,7 +3,7 @@
                Astra - A space charge tracking algorithm 
                              Version 4.0              
                          DESY,  Hamburg 2022          
-                         26. 9.2024  18: 2
+                         27. 9.2024  15: 1
 
      Parameter file is:  parallelBeam.in                                   
      Example of ASTRA users manual                                                   
@@ -16,21 +16,21 @@
 
      Reading quadrupole field data from:    3Dcavity1data.dat                                                               
      maximum gradient                      -228.3     T/m
-     at                                    9.9500E-02 m
+     at                                    0.1120     m
      effective length                      3.5054E-02 m
 
      Reading quadrupole field data from:    3Dcavity2data.dat                                                               
      maximum gradient                      -97.79     T/m
-     at                                    0.2460     m
+     at                                    0.2856     m
      effective length                      0.1192     m
 
      Reading quadrupole field data from:    3Dcavity3data.dat                                                               
      maximum gradient                      -53.85     T/m
-     at                                    0.4845     m
+     at                                    0.4748     m
      effective length                      0.1006     m
 
  --------------------------------------------------------------------------
-       1 particles from file test1.ini                                         
+       1 particles from file test4.ini                                         
 
      Emittance calculation suppressed for N < 5
      Particles taken into account      N =          1
@@ -62,7 +62,7 @@
  on axis tracking of the reference particle:
      initial position                  z =    0.000     m
                                        x =    0.000     mm
-                                       y =    0.000     mm
+                                       y =   1.0000E-03 mm
      initial momentum                  p =    450.0     MeV/c
      global phase shift              phi =    0.000     deg
      time step for integration        dt =    1.000     ps
@@ -82,12 +82,12 @@
  off axis tracking of the reference particle: 
      initial position                  z =    0.000     m
                                        x =    0.000     mm
-                                       y =    0.000     mm
+                                       y =   1.0000E-03 mm
 
-     final position                    x =   0.3549     mm
-                                       y =    0.000     mm
-     divergence                    px/pz =  -0.2852     mrad
-                                   py/pz =    0.000     mrad
+     final position                    x =    0.000     mm
+                                       y =  -4.6344E-03 mm
+     divergence                    px/pz =    0.000     mrad
+                                   py/pz =  -4.9482E-03 mrad
  --------------------------------------------------------------------------
  tracking of        1 particles:
      tracking will stop at             z =    1.500     m
@@ -144,7 +144,7 @@
      **********************************************************************
 
 
-     finished simulation  26. 9.2024     18:02
+     finished simulation  27. 9.2024     15:01
      execution time:  0.05 sec                         
      Goodbye.
  --------------------------------------------------------------------------
