@@ -1,40 +1,39 @@
 &INPUT
-  FNAME = 'parallelBeam.ini'
-  Add=FALSE
-  N_add=0
+ FNAME = 'parallelBeam.ini'
+ Add=FALSE
+ N_add=0
  IPart=500
-  Species='electrons'
-  Probe=False
-  Noise_reduc=F
-  Cathode=F
-  Q_total=1.0E0
-  Ref_zpos=0.0E0
- Ref_Ekin=450000000.0
-  Dist_z='gauss'
+ Species='electrons'
+ Probe=False
+ Noise_reduc=F
+ Cathode=F
+ Q_total=1.0E0
+ Ref_zpos=0.0E0
+ Ref_Ekin=600000000.0
+ Dist_z='gauss'
  sig_z=0.1
-  Dist_pz='g'
+ Dist_pz='g'
  sig_Ekin=3000.0
-  cor_Ekin=0.0E0
-  Dist_x='gauss'
+ cor_Ekin=0.0E0
+ Dist_x='gauss'
  sig_x=0.002
  x_off=0.0
-  Dist_px='gauss'
+ Dist_px='gauss'
  sig_px=300000.0
  ! Nemit_x=1.0E0
-  cor_px=0.0E0
-  Dist_y='g'
+ cor_px=0.0E0
+ Dist_y='g'
  sig_y=0.002
-  Dist_py='g'
+ Dist_py='g'
  sig_py=300000.0
-!  Nemit_y=1.0E0
-  cor_py=0.0E0
- /
+! Nemit_y=1.0E0
+ cor_py=0.0E0
+/
 
 
-&NEWRUN
- Head='Example of ASTRA users manual'
- RUN=1
- Distribution=test4.ini
+&NEWRUN 
+ RUN=5
+ Distribution=test0.ini
  Xoff=0.0
  Yoff=0.0
  Track_All=T
@@ -44,12 +43,13 @@
  H_max=0.001
  H_min=0.00
  Max_step=1E+9
+! Screen(1)=2.599442334363851
 /
 
 
 &OUTPUT
  ZSTART=0.0
- ZSTOP=1.5
+ ZSTOP=2.6
  Zemit=500
  Zphase=1
  RefS=T
@@ -70,7 +70,7 @@
 
 
 &APERTURE
- LApert=F
+ LApert=T
 
 ! Ap_Z1(1)=0.00
 ! Ap_Z2(1)=0.036
@@ -83,7 +83,7 @@
 
 ! Ap_Z1(3)=0
 ! Ap_Z2(3)=0.1
-! File_Aperture(3)='aperture/aperture3.dat'
+ File_Aperture(3)='aperture/aperture3.dat'
 
 
 /
@@ -95,7 +95,7 @@
  Q_length(1)=0.03619
  Q_smooth(1)=0
  Q_bore(1)=1E-9
- Q_pos(1)=0.1
+ Q_pos(1)=0.118095
 ! Q_type(1)='3Dcavity1data.dat'
  Q_noscale(1)=True
  Q_xoff(1)=0
@@ -110,7 +110,7 @@
  Q_length(2)=0.12429
  Q_smooth(2)=0
  Q_bore(2)=1E-9
- Q_pos(2)=0.20458723559975556
+ Q_pos(2)=0.3085182576930854
  Q_xoff(2)=0
  Q_yoff(2)=0
  Q_xrot(2)=0
@@ -123,7 +123,7 @@
  Q_length(3)=0.09596
  Q_smooth(3)=0
  Q_bore(3)=1E-9
- Q_pos(3)=0.42306280832737664
+ Q_pos(3)=0.6768713788796602
  Q_xoff(3)=0
  Q_yoff(3)=0
  Q_xrot(3)=0
@@ -145,14 +145,14 @@
 
  File_Efield(2)='cavity/3Dcavity2'
  Com_grid(2)=all
- C_pos(2)=0.20458723559975556
+ C_pos(2)=0.2463732576930854
  Bx_stat(2)=True
  By_stat(2)=True
  C_noscale(2)=True
 
  File_Efield(3)='cavity/3Dcavity3'
  Com_grid(3)=all
- C_pos(3)=0.42306280832737664
+ C_pos(3)=0.6288913788796602
  Bx_stat(3)=True
  By_stat(3)=True
  Bz_stat(3)=True

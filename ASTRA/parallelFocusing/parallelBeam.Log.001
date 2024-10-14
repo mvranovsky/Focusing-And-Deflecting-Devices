@@ -1,12 +1,12 @@
  Echo Input deck
  &NEWRUN
  VERSION =           4,
- HEAD    = Example of ASTRA users manual                                                                                             
+ HEAD    =                                                                                                                           
                              ,
  RUN     =           1,
  LOOP    = F,
  NLOOP   =           0,
- DISTRIBUTION    = test4.ini                                                                                                         
+ DISTRIBUTION    = test0.ini                                                                                                         
                                      ,
  N_RED   =           1,
  XOFF    =  0.000000000000000E+000,
@@ -42,7 +42,7 @@
  Z_CATHODE       =  1.000000000000000E+015,
  LPROMPT = T,
  ZSTART  =  0.000000000000000E+000,
- ZSTOP   =   1.50000000000000     ,
+ ZSTOP   =   2.60000000000000     ,
  ZEMIT   =         500,
  ZPHASE  =           1,
  SCREEN  = 500*-1.000000000000000E+015 ,
@@ -75,7 +75,7 @@
  /
  &OUTPUT
  ZSTART  =  0.000000000000000E+000,
- ZSTOP   =   1.50000000000000     ,
+ ZSTOP   =   2.60000000000000     ,
  ZEMIT   =         500,
  ZPHASE  =           1,
  SCREEN  = 500*-1.000000000000000E+015 ,
@@ -1030,7 +1030,7 @@
  /
  &APERTURE
  LOOP    = F,
- LAPERT  = F,
+ LAPERT  = T,
  FILE_APERTURE   = aperture/aperture1.dat                                                                                            
                                      aperture/aperture2.dat                                                                          
                                                                                                                                      
@@ -3551,7 +3551,7 @@
  MAXE    = 500*0.000000000000000E+000  ,
  FLATNESS        = 500*0.000000000000000E+000  ,
  PHI     = 501*0.000000000000000E+000  ,
- C_POS   =  0.100000000000000     ,  0.204587235599756     ,  0.423062808327377     , 497*0.000000000000000E+000  ,
+ C_POS   =  0.100000000000000     ,  0.246373257693085     ,  0.628891378879660     , 497*0.000000000000000E+000  ,
  C_NUMB  = 500*1,
  MODE    = 500*0,
  T_DEPENDENCE    = constantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantco
@@ -4341,9 +4341,9 @@
  &QUADRUPOLE
  LOOP    = F,
  LQUAD   = T,
- Q_TYPE  = 3Dcavity1data.dat                                                                                                         
-                             3Dcavity2data.dat                                                                                       
-                                               3Dcavity3data.dat                                                                     
+ Q_TYPE  =                                                                                                                           
+                                                                                                                                     
+                                                                                                                                     
                                                                                                                                      
                                                                                                                                      
                                                                                                                                      
@@ -4912,15 +4912,15 @@
                                    ,
  Q_NOSCALE       = 3*T, 497*F,
  Q_SMOOTH        = 500*0,
- Q_GRAD  = 500*0.000000000000000E+000  ,
+ Q_GRAD  =   222.000000000000     ,  -94.0000000000000     ,   57.0000000000000     , 497*0.000000000000000E+000  ,
  Q_K     = 500*0.000000000000000E+000  ,
  Q_MULT_A        = 3000*0.000000000000000E+000  ,
  Q_MULT_B        = 3000*0.000000000000000E+000  ,
- Q_LENGTH        = 500*0.000000000000000E+000  ,
- Q_BORE  =  7.000000000000000E-003,  1.800000000000000E-002,  3.000000000000000E-002, 497*3.500000000000000E-002  ,
+ Q_LENGTH        =  3.619000000000000E-002,  0.124290000000000     ,  9.596000000000000E-002, 497*0.000000000000000E+000  ,
+ Q_BORE  = 3*1.000000000000000E-009  , 497*3.500000000000000E-002  ,
  Q_RAD   = 500*1.00000000000000        ,
  Q_DIST  = 500*0.000000000000000E+000  ,
- Q_POS   =  0.100000000000000     ,  0.204587235599756     ,  0.423062808327377     , 497*0.000000000000000E+000  ,
+ Q_POS   =  0.118095000000000     ,  0.308518257693085     ,  0.676871378879660     , 497*0.000000000000000E+000  ,
  Q_XOFF  = 500*0.000000000000000E+000  ,
  Q_YOFF  = 500*0.000000000000000E+000  ,
  Q_XROT  = 500*0.000000000000000E+000  ,
@@ -4996,9 +4996,9 @@
  STAT    = 188*F, T, F, T, F, T, F, T, F, T, F, T, F, T, F, T, F, 198*T
  /
  End of Input deck
-test4.ini                       0.0000D+00  0.0000D+00  F
+test0.ini                       0.0000D+00  0.0000D+00  F
 parallelBeam.0000.001           0.0000D+00  0.0000D+00  F
 
-     execution started:   27. 9.2024     15:01
-     execution finished:  27. 9.2024     15:01
-     execution time:  0.05 sec                         
+     execution started:   14.10.2024     13:01
+     execution finished:  14.10.2024     13:01
+     execution time:  0.08 sec                         

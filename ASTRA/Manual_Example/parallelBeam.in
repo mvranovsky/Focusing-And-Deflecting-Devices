@@ -35,8 +35,8 @@
  Head='Example of ASTRA users manual'
 ! LOOP=True
 ! NLoop=True
-! RUN=1
- Distribution=test1.ini
+ RUN=1
+ Distribution=test0.ini
  Xoff=0.0
  Yoff=0.0
  Track_All=T
