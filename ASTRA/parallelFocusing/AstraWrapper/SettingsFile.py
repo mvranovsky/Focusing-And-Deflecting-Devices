@@ -12,8 +12,13 @@ class SettingsFile:
 
     def __init__(self, nameOfFile):
         try:
-            with open(nameOfFile + ".in", 'r') as file:
-                lines = file.readlines()
+            lines = []
+            if ".in" in nameOfFile:
+                with open(nameOfFile,'r') as file:
+                    lines = file.readlines()
+            else:
+                with open(nameOfFile + ".in", 'r') as file:
+                    lines = file.readlines()
 
             self.fileName = nameOfFile
             self.library = {}  # Assuming you forgot to declare this earlier

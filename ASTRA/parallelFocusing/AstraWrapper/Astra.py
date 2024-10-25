@@ -1,5 +1,5 @@
 
-from SettingsFile import SettingsFile
+from . import SettingsFile
 from subprocess import Popen, PIPE
 import math
 import matplotlib.pyplot as plt
@@ -11,7 +11,7 @@ class Astra:
 
     # quad constants
     nameOfFiles = ["test0.ini", "test1.ini", "test2.ini", "test3.ini", "test4.ini"]
-    AstraLengths = [0.03619, 0.12429, 0.09596]
+    AstraLengths = [0.03619, 0.12429, 0.09596] #these values were computed so that integrated gradient matches the fits from field profiles
     FPlengths = [0.035, 0.120, 0.105]
     bores = [0.007, 0.018, 0.030]
 
@@ -131,7 +131,7 @@ class Astra:
         return True
 
 
-    def changeMom(self,pz, xAngle=-1, yAngle=-1, xoffset=-1, yoffset=-1,sig_Ekin =-1, sig_z = -1 ): 
+    def changeMom(self,pz, xAngle=-1, yAngle=-1, xoff=-1, yoff=-1,sig_Ekin =-1, sig_z = -1 ): 
         #function to change initial angle, Pz and offsets.
         #this function does not change a variable, if it is set to -1
         try:
@@ -143,28 +143,36 @@ class Astra:
                     line = file.readlines()[0].split()
 
                 #offset update
-                if name == "test3.ini" and yoffset != -1:
+                if name == "test3.ini" and yoff != -1:
                     line[1] = str(yoff)
                     self.setFile.changeInputData("sig_y", str(yoff))
-                    self.yoff = yoff
+                    self.yoff = yoff                    
                 if name == "test4.ini" and xoff != -1:
                     line[0] = str(xoff)
                     self.setFile.changeInputData("sig_x", str(xoff))
                     self.xoff = xoff
 
                 #momentum update
-                if name == "test1.ini" and xAngle != -1:
-                    line[3] = str(xAngle*pz*1e-3)
-                    self.setFile.changeInputData("sig_px", str(xAngle*pz*1e-3))
-                    self.xAng = xAngle
-                if name == "test2.ini" and yAngle != -1:
-                    line[4] = str(yAngle*pz*1e-3)
-                    self.setFile.changeInputData("sig_py", str(yAngle*pz*1e-3))
-                    self.yAng = yAngle
+                if name == "test1.ini":
+                    if xAngle != -1:
+                        line[3] = str(xAngle*pz*1e-3)
+                        self.setFile.changeInputData("sig_px", str(xAngle*pz*1e-3))
+                        self.xAngle = xAngle
+                    else:  #have to recalculate initial px, because pz changed and want to keep angle the same
+                        line[3] = str(self.xAngle*pz*1e-3)
+                        self.setFile.changeInputData("sig_px", str(self.xAngle*pz*1e-3))
 
+                if name == "test2.ini":
+                    if yAngle != -1:
+                        line[4] = str(yAngle*pz*1e-3)
+                        self.setFile.changeInputData("sig_py", str(yAngle*pz*1e-3))
+                        self.yAngle = yAngle
+                    else:   #have to recalculate initial py, because pz changed and want to keep angle the same
+                        line[4] = str(self.yAngle*pz*1e-3)
+                        self.setFile.changeInputData("sig_py", str(self.yAngle*pz*1e-3)) 
                 
                 line[5] = str(pz)
-                self.Ref_Ekin = pz
+                self.Ref_Ekin = pz*1e-6
 
                 inputData = ""
                 for num in line:
@@ -178,10 +186,10 @@ class Astra:
                 file.write(testData)
         
             # change distributions in longitudinal direction
-            self.setFile.changeInputData("Ref_Ekin", str(pz))
+            self.setFile.changeInputData("Ref_Ekin", str(pz*1e-6))
             if sig_Ekin != -1:
                 self.sig_Ekin = sig_Ekin
-                self.setFile.changeInputData("sig_pz", str(self.sig_Ekin))
+                self.setFile.changeInputData("sig_Ekin", str(self.sig_Ekin))
             if sig_z != -1:
                 self.sig_z = sig_z
                 self.setFile.changeInputData("sig_z", str(self.sig_z))
@@ -210,17 +218,25 @@ class Astra:
             self.lengthQ1 = self.FPlengths[0]
             self.lengthQ2 = self.FPlengths[1]
             self.lengthQ3 = self.FPlengths[2]
+            self.setFile.changeInputData("Q_pos(1)",str(D1) )
+            self.setFile.changeInputData("Q_pos(2)",str(D1 + self.lengthQ1 + D2) )
+            self.setFile.changeInputData("Q_pos(3)",str(D1 + self.lengthQ1 + D2 + self.lengthQ2 + D3) )
         else:
             self.lengthQ1 = self.AstraLengths[0]
             self.lengthQ2 = self.AstraLengths[1]
             self.lengthQ3 = self.AstraLengths[2]
+            self.setFile.changeInputData("Q_pos(1)",str(D1 + self.lengthQ1/2) )
+            self.setFile.changeInputData("Q_pos(2)",str(D1 + self.lengthQ1 + D2 + self.lengthQ2/2) )
+            self.setFile.changeInputData("Q_pos(3)",str(D1 + self.lengthQ1 + D2 + self.lengthQ2 + D3 + self.lengthQ3/2) )
 
 
         if D4 != None and hardEnd != None:
             print(f"Something is wrong, D4 and hardEnd are both set")
-            return
+            return 1
         elif D4 == None: #end is set, D4 is calculated
             D4 = hardEnd -( D1 + self.lengthQ1 + D2 + self.lengthQ2 + D3 + self.lengthQ3)
+            if D4 < self.bores[2]*3/2:
+                return 1
             self.setupLength = hardEnd
             self.setFile.changeInputData("ZSTOP",str(math.ceil(self.setupLength*10)/10 ) )
         elif hardEnd == None: #D4 is set, end of setup is calculated
@@ -232,18 +248,12 @@ class Astra:
         ap1 = str(D1) + " " + str(self.bores[0]*1E+3/2) + "\n" + str(D1 + self.lengthQ1 ) + " " + str(self.bores[0]*1E+3/2)
         with open("aperture/aperture1.dat", "w") as file:
             file.write(ap1)
-        ap2 = str(D1 + self.lengthQ1 + D2) + " " + str(self.bores[1]*1E+3/2) + "\n" + str(D1 + self.lengthQ1 + D2 + self.lengthQ2) + " " + str(self.bores[1]*1E+3/2)
+        ap2 = str(D1 + self.lengthQ1 + D2) + " " + str((self.bores[1]*1E+3)/2) + "\n" + str(D1 + self.lengthQ1 + D2 + self.lengthQ2) + " " + str(self.bores[1]*1E+3/2)
         with open("aperture/aperture2.dat", "w") as file:
             file.write(ap2)
         ap3 = str(D1 + self.lengthQ1 + D2 + self.lengthQ2 + D3) + " " + str(self.bores[2]*1E+3/2) + "\n" + str(D1 + self.lengthQ1 + D2 + self.lengthQ2 + D3 + self.lengthQ3) + " " + str(self.bores[2]*1E+3/2)
         with open("aperture/aperture3.dat", "w") as file:
             file.write(ap3)
-
-
-        self.setFile.changeInputData("Q_pos(1)",str(D1 + self.lengthQ1/2) )
-        self.setFile.changeInputData("Q_pos(2)",str(D1 + self.lengthQ1 + D2 + self.lengthQ2/2) )
-        self.setFile.changeInputData("Q_pos(3)",str(D1 + self.lengthQ1 + D2 + self.lengthQ2 + D3 + self.lengthQ3/2) )
-
         
         #changing the positions of cavities
         self.setFile.changeInputData("C_pos(1)",str(D1))
@@ -251,7 +261,7 @@ class Astra:
         self.setFile.changeInputData("C_pos(3)", str(D1 + self.lengthQ1 + D2 + self.lengthQ2 + D3))    
 
         
-        return [D1 + self.lengthQ1/2, D1 + self.lengthQ1 + D2 + self.lengthQ2/2 ,D1 + self.lengthQ1 + D2 + self.lengthQ2 + D3 + self.lengthQ3/2,  D1 + self.lengthQ1 + D2 + self.lengthQ2 + D3 + self.lengthQ3 + D4]
+        return [D1 + self.lengthQ1/2, D1 + self.lengthQ1 + D2 + self.lengthQ2/2 ,D1 + self.lengthQ1 + D2 + self.lengthQ2 + D3 + self.lengthQ3/2,  self.setupLength]
 
 
     def runCommand(self,cmd):
@@ -325,7 +335,7 @@ class Astra:
         Qpos = self.changePositions(D1, D2, D3, D4, hardEnd)
         
         #change momentum 
-        self.changeMom(self.sig_xAngle, self.sig_yAngle, momZ, -1, -1)
+        self.changeMom(momZ)
 
         #run reference particles and get data
         data = self.runRef(D1, D2, D3,D4,hardEnd, momZ, True)
@@ -392,17 +402,45 @@ class Astra:
 
 
         #angular acceptance separately for x and y and for quads
-        maxValsX = [ (self.sig_xAngle*self.bores[0]*1e+3)/(2*maxOffsetX[0]), (self.sig_xAngle*self.bores[1]*1e+3)/(2*maxOffsetX[1]), (self.sig_xAngle*self.bores[2]*1e+3)/(2*maxOffsetX[2])  ]
-        maxValsY = [ (self.sig_yAngle*self.bores[0]*1e+3)/(2*maxOffsetY[0]), (self.sig_yAngle*self.bores[1]*1e+3)/(2*maxOffsetY[1]), (self.sig_yAngle*self.bores[2]*1e+3)/(2*maxOffsetY[2])  ]
+        maxValsX = [ (self.xAngle*self.bores[0]*1e+3)/(2*maxOffsetX[0]), (self.xAngle*self.bores[1]*1e+3)/(2*maxOffsetX[1]), (self.xAngle*self.bores[2]*1e+3)/(2*maxOffsetX[2])  ]
+        maxValsY = [ (self.yAngle*self.bores[0]*1e+3)/(2*maxOffsetY[0]), (self.yAngle*self.bores[1]*1e+3)/(2*maxOffsetY[1]), (self.yAngle*self.bores[2]*1e+3)/(2*maxOffsetY[2])  ]
 
         #get the minimal value
         self.xAngularAcceptance = min(maxValsX)
         self.yAngularAcceptance = min(maxValsY)
         
-        percentagePassed = self.calculatePercentage([self.xAngularAcceptance, self.yAngularAcceptance],xAng, yAng) #possible to add x,y offsets
+        #percentagePassed = self.calculatePercentage([self.xAngularAcceptance, self.yAngularAcceptance],xAng, yAng) #possible to add x,y offsets
         
         
-        return [self.xAngularAcceptance, self.yAngularAcceptance, xAng, yAng, percentagePassed]
+        return [self.xAngularAcceptance, self.yAngularAcceptance]
+
+    def beamRatio(self, D1,D2,D3,D4, hardEnd, momZ):
+
+        Qpos = self.changePositions(D1, D2, D3, D4, hardEnd)
+        self.changeMom( momZ)
+
+        data = self.runRef(D1, D2, D3,D4,hardEnd, momZ, False)
+        
+        xPos = data[1][0]
+        yPos = data[2][1]
+
+        return xPos/yPos
+
+    def getClosest(self, currentData):
+
+        bestLine = []
+        closest = 0.1
+        for j in range(len(currentData)):
+            dist = math.fabs(currentData[j][0] - self.setupLength)
+            if dist < closest:
+                bestLine = list(currentData[j])
+                closest = float(dist)
+
+        if closest >0.1:
+            print(f"Reference particle {i} did not get to the end of setup.")
+            return 1
+
+        return bestLine
 
 
 
@@ -413,9 +451,11 @@ class Astra:
         #if moreData is set to False, runs only 2 particles (right now) with initial angles and returns
         #output only at the end position of setup
 
-        self.changePositions(D1,D2,D3, D4, hardEnd)
-        self.changeMom(-1, -1, momZ, -1, -1)
+        out = self.changePositions(D1,D2,D3, D4, hardEnd)
+        out2 = self.changeMom(momZ)
 
+        if out ==1:
+            return 1
 
         if moreData:
             outputMoreData = []
@@ -457,21 +497,15 @@ class Astra:
                 #    return 1
                 #condition to check if the particle came all the way to the end
 
-                bestLine = []
-                closest = 0.1
-                for j in range(len(currentData)):
-                    dist = math.fabs(currentData[j][0] - self.setupLength)
-                    if dist < closest:
-                        bestLine = list(currentData[j])
-                        closest = float(dist)
+                bestLine = self.getClosest(currentData)
+                if bestLine == 1:
+                    return 1
 
-                if closest >0.1:
-                    print(f"Reference particle {i} did not get to the end of setup.")
                 outputMoreData.append( [bestLine[5]*1e-3, bestLine[6]*1e-3, bestLine[0], bestLine[7], bestLine[8], bestLine[2]*1e+6] )
 
 
-        self.process.stdin.write("rm parallelBeam.ref.00*\n")
-        self.process.stdin.flush()
+        #self.process.stdin.write("rm parallelBeam.ref.00*\n")
+        #self.process.stdin.flush()
 
         return outputMoreData
 
@@ -502,7 +536,7 @@ class Astra:
         #output only at the end position of setup
 
         self.changePositions(D1,D2,D3, D4, hardEnd)
-        self.changeMom(-1, -1, momZ, -1, -1)
+        self.changeMom( momZ)
 
 
         if moreData:
@@ -538,7 +572,7 @@ class Astra:
 
             outputMoreData = self.getBeamInfo()            
 
-
+        '''
         self.process.stdin.write("rm " 
             + self.fileName + ".ref.00* "
             + self.fileName + ".?emit* "
@@ -547,7 +581,7 @@ class Astra:
             + self.fileName + ".0* "
         + "\n")
         self.process.stdin.flush()
-
+        '''
         return outputMoreData
 
 
@@ -574,6 +608,11 @@ class Astra:
 
         #print(f"Running best setup again to get full data.")
         dataBest = self.runRef(D1, D2, D3,D4,hardEnd, mom, True)
+
+        if dataBest == 1:
+            print("Could not plot Ref, runRef() returned 1")
+            return False
+
 
         data0 = self.separateDataXYZ(dataBest[0])
         data3 = self.separateDataXYZ(dataBest[1])
