@@ -1,3 +1,4 @@
+HMax H_max 0.001 0.0005 0.0001 0.005 H_{max} ns
 #sourceSize sig_x 1E-9 0.003 0.015 0.03 sigma_x mm
 #sourceOffsetX1 x_off 0 0.001 0.01 0.05 offset_x mm
 #sourceOffsetX2 x_off 0 -0.001 -0.01 -0.05 offset_x mm

@@ -22,14 +22,9 @@ def wait():
 
 def func(D, qType):
 
-    quadType1(qType)
-    astra.lengthQ1 = astra.AstraLengths[0]
-
-    if qType == 2:
-        setFile.changeInputData("Q_pos(1)",str(D[0]))
-    else:
-        setFile.changeInputData("Q_pos(1)",str(D[0] + astra.lengthQ1/2))
-
+    astra.quadType(qType)
+    astra.changePositions(*D)
+    
     ap1 = str(D[0]) + " " + str(astra.bores[0]*1E+3/2) + "\n" + str(D[0] + astra.lengthQ1 ) + " " + str(astra.bores[0]*1E+3/2)
     with open("aperture/aperture1.dat", "w") as file:
         file.write(ap1)    
@@ -60,20 +55,6 @@ def checkXAcceptance(data, D1):
 
     return astra.xAngle*astra.bores[0]*1e+3/maxX
 
-def quadType1(i):
-
-    if i == 0:
-        setFile.changeInputData("Q_bore(1)", "1.0E-9")
-        setFile.enable("Q_grad(1)")
-        setFile.disable("Q_type(1)")
-    elif i ==1:
-        setFile.changeInputData("Q_bore(1)", str(astra.bores[0]))
-        setFile.enable("Q_grad(1)")
-        setFile.disable("Q_type(1)")
-    elif i == 2:
-        setFile.disable("Q_grad(1)")
-        setFile.enable("Q_type(1)")
-
 def findSolution(fields):
 
     Dmin = [0.0]
@@ -89,7 +70,14 @@ def findSolution(fields):
     Pz = 4.0E+8 #eV
     astra.lengthQ1 = astra.AstraLengths[0]
     
+    #-------------------------------------
+    #rewrite this for finding solution for a triplet
     
+
+
+
+
+
     setFile.changeInputData("ZSTOP",str(astra.setupLength))
 
     #first, i look only at the first quadrupole
@@ -207,38 +195,6 @@ def study(fields , key , Vals, description):
     file.Close()
 
 
-def surveyBottom(fields, D):
-
-
-    step = 1E-6
-    lowerRange = D - 50*step
-
-
-    fVals0, fVals1, fVals2, dVals = [],[], [],[]
-    for i in range(100):
-        D_current = lowerRange + i*step
-        dVals.append(D_current*100)
-        setFile.changeInputData("H_max", "0.0001")
-        setFile.changeInputData("Q_grad(1)", "222")        
-        fVals0.append( func([D_current], fields ) )
-
-        setFile.changeInputData("H_max", "0.001")
-        fVals1.append( func([D_current], fields ) )
-
-        setFile.changeInputData("Q_grad(1)", "223")
-        setFile.changeInputData("H_max", "0.001")
-        fVals2.append( func([D_current], fields ) )
-
-    plt.scatter(dVals, fVals0, color='red', label='fields '+ str(fields)+ ", H_max = 0.0001,G=222" )
-    plt.scatter(dVals, fVals1, color='blue', label='fields '+ str(fields) + ", H_max = 0.001, G=222" )
-    plt.scatter(dVals, fVals2, color='green', label='fields '+ str(fields) + ", H_max = 0.001, G=223" )
-    plt.legend()
-    plt.xlabel("D1 [cm]")
-    plt.ylabel("f(D1) [mm]")
-    plt.show()
-
-
-
 
 if __name__ == "__main__":
 
@@ -246,12 +202,9 @@ if __name__ == "__main__":
     astra = Astra(setFile)
 
     # default value 
-    setFile.changeInputData("H_max", "0.0001")
+    setFile.changeInputData("H_max", "0.001")
     
-    #surveyBottom(0,0.201734 )
-    #surveyBottom(1,0.203137 )
 
-    
     lines = []
     with open("study.txt", "r") as file:
         lines = file.readlines()
@@ -266,8 +219,6 @@ if __name__ == "__main__":
         descript = [line[6], line[7]]
 
         for i in range(3):
-            if i ==2:
-                continue
             try:
                 study(i, key, rangeVal, descript)
             except ValueError as e:

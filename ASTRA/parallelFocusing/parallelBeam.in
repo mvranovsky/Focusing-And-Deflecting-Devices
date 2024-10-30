@@ -9,7 +9,7 @@
  Cathode=F
  Q_total=1.0E0
  Ref_zpos=0.0E0
- Ref_Ekin=400.0
+ Ref_Ekin=500.0
  Dist_z='gauss'
  sig_z=0.0
  Dist_pz='g'
@@ -19,19 +19,19 @@
  sig_x=0.0001
  x_off=0
  Dist_px='u'
- sig_px=400000.0
+ sig_px=500000.0
  ! Nemit_x=1.0E0
  Dist_y='g'
  sig_y=0.0001
  Dist_py='u'
- sig_py=400000.0
+ sig_py=500000.0
 ! Nemit_y=1.0E0
 /
 
 
 &NEWRUN 
- RUN=1
- Distribution=test1.ini
+ RUN=2
+ Distribution=test2.ini
  Xoff=0.0
  Yoff=0.0
  Track_All=T
@@ -47,7 +47,7 @@
 
 &OUTPUT
  ZSTART=0.0
- ZSTOP=1.5
+ ZSTOP=0.9
  Zemit=500
  Zphase=1
  RefS=T
@@ -93,7 +93,7 @@
  Q_length(1)=0.03619
  Q_smooth(1)=0
  Q_bore(1)=0.007
- Q_pos(1)=0.221281
+ Q_pos(1)=0.35371270633753515
 ! Q_type(1)='3Dcavity1data.dat'
  Q_noscale(1)=True
  Q_xoff(1)=0
@@ -108,7 +108,7 @@
  Q_length(2)=0.12429
  Q_smooth(2)=0
  Q_bore(2)=0.018
- Q_pos(2)=0.250223
+ Q_pos(2)=0.4885915557999026
  Q_xoff(2)=0
  Q_yoff(2)=0
  Q_xrot(2)=0
@@ -121,7 +121,7 @@
  Q_length(3)=0.09596
  Q_smooth(3)=0
  Q_bore(3)=0.03
- Q_pos(3)=0.43702407853936276
+ Q_pos(3)=0.6363861351145645
  Q_xoff(3)=0
  Q_yoff(3)=0
  Q_xrot(3)=0
@@ -138,19 +138,19 @@
  File_Efield(1)='cavity/3Dcavity1'
  !MaxE(1)=1
  Com_grid(1)=all
- C_pos(1)=0.1
+ C_pos(1)=0.3356177063375352
  C_noscale(1)=True
 
  File_Efield(2)='cavity/3Dcavity2'
  Com_grid(2)=all
- C_pos(2)=0.188078
+ C_pos(2)=0.4264465557999026
  Bx_stat(2)=True
  By_stat(2)=True
  C_noscale(2)=True
 
  File_Efield(3)='cavity/3Dcavity3'
  Com_grid(3)=all
- C_pos(3)=0.38904407853936274
+ C_pos(3)=0.5884061351145645
  Bx_stat(3)=True
  By_stat(3)=True
  Bz_stat(3)=True

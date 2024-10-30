@@ -34,36 +34,66 @@ def func(D, Pz):
     print(D, Sum)
     return Sum
 
-def tripletFocusing(Pz):
+def func1(D,D1, Pz):
 
-    Dmin = [0.0, 0.0, 0.0]
-    Dmax = [0.4, 0.4, 0.4]
-    bounds = [(low, high) for low, high in zip(Dmin, Dmax)]
+    data = astra.runRef(D1, *D, None, astra.setupLength,Pz, False)
+    if data == 1:
+        print(D1,D,"1")
+        return 1E+9
+
+    Sum = astra.parallelFocusing(data)
+    print(D1,D, Sum)
+    return Sum
+
+def func2(D,Pz):
+
+    data = astra.runRef(*D, None, astra.setupLength,Pz, False)
+    if data == 1:
+        print(D,"1")
+        return 1E+9
+
+
+    Sum = (data[1][3]*1e+3/data[1][5])**2 + (data[2][4]*1e+3/data[2][5])**2 + (data[1][0]/data[2][1] - 1)**2
+    print(D, Sum)
+    return Sum
+
+
+def tripletFocusing(Pz, D1 = None , beamRatio = False, ):
     method = "COBYLA"
     tolerance = 1e-5
     fields = ["top hat fields", "Astra fringe fields", "field profiles"]
 
-    # settings
+    astra.quadType(1)
     astra.setupLength = 0.9  #m
 
-    astra.quadType(1)
-    
-    res = sc.optimize.minimize(func, (0.1,0.1,0.1), method=method, tol=tolerance, bounds=bounds, args=(Pz) )
-    
-    funcVal = func(res.x, Pz)
+    Dmin = [0.0, 0.0, 0.0]
+    Dmax = [0.4, 0.4, 0.4]
+    bounds = [(low, high) for low, high in zip(Dmin, Dmax)]
+    result = []
+    if D1 != None:
+        Dmin = [0.0, 0.0]
+        Dmax = [0.4, 0.4]
+        bounds = [(low, high) for low, high in zip(Dmin, Dmax)]
 
-    #if astra.plotRefXY(*res.x, None,astra.setupLength, Pz, f"parallel Focusing, setup:{[math.ceil(num*10000)/100 for num in res.x]}\nminimum found, Pz={math.ceil(Pz*1e-6)} MeV,\nf(x',y')={math.ceil(funcVal*1e+6)/1000000} mrad^2", f"specialAssignment/solution{Pz*1e-6}MeV") == False:
-    #    print("sad times")
-    #    return
+        res = sc.optimize.minimize(func1, (0.1,0.1), method=method, tol=tolerance, bounds=bounds, args=(D1,Pz) )
+        result = list(res.x)
+        result.insert(0,D1)
+    elif beamRatio == True:
+        res = sc.optimize.minimize(func2, (0.1,0.1,0.1), method=method, tol=tolerance, bounds=bounds, args=(Pz) )
+        result = list(res.x)
+    else:
+        res = sc.optimize.minimize(func, (0.1,0.1,0.1), method=method, tol=tolerance, bounds=bounds, args=(Pz) )
+        result = list(res.x)
 
-    #get beam ratio
-    beamRatio = astra.beamRatio(*res.x, None, astra.setupLength, Pz)
 
-    #get ang acceptance
-    acc = astra.checkAngleAcceptance(*res.x, None, astra.setupLength, Pz)
+    print(result)
+    funcVal = func(result, Pz)
+    beamRatio = astra.beamRatio(*result, None, astra.setupLength, Pz)
+    acc = astra.checkAngleAcceptance(*result, None, astra.setupLength, Pz)
 
+    astra.plotRefXY(*result, None, astra.setupLength, Pz, f"Solution triplet point to parallel focusing with Pz = {Pz} MeV\n Ds = {[math.ceil(d*10000)/100 for d in result]} cm", f"specialAssignment/tripletFocusing/solution{Pz}MeV")
 
-    return [*[math.ceil(num*10000)/100 for num in res.x],None, astra.setupLength,Pz, funcVal,*acc, beamRatio]
+    return [*[math.ceil(num*10000)/100 for num in result],None, astra.setupLength,Pz, funcVal,*acc, beamRatio]
 
 
 def checkAng(data):
@@ -133,6 +163,7 @@ def checkAng(data):
 
 def plotRef(arg,Ds, Pz):
 
+
     setFile.changeInputData("Q_grad(4)", arg[0])
     setFile.changeInputData("Q_grad(5)", arg[1])
     setFile.changeInputData("Q_grad(6)", arg[2])
@@ -163,8 +194,9 @@ def plotRef(arg,Ds, Pz):
     plt.legend()
     plt.xlabel("z [m]")
     plt.ylabel("offset [mm]")
-    plt.title(f"point to point focusing using triplet and 3 EMagnets for Pz={math.ceil(Pz*1e-6)} MeV, ang accept: {[math.ceil(num) for num in ang]} mrad,\n size of triplet= {math.ceil( 10*(0.9 - Ds[3]/100 + astra.bores[2]*4) )/10 } m, gradients of the EM: {[math.ceil(num) for num in arg[0:3]]} T/m\n D = {[Ds]} cm")
-    plt.savefig(f"specialAssignment/finalF/solution{math.ceil(Pz*1e-6)}MeV.png", format='png', dpi=300)
+    plt.ylim(-0.2, 1.2)
+    plt.title(f"point to point focusing using triplet and 3 EMagnets for Pz={math.ceil(Pz*1e-6)} MeV, ang accept: {[math.ceil(num) for num in ang]} mrad,\n size of triplet= {math.ceil( 100*(0.9 - Ds[3]/100 + astra.bores[2]*4) )/100 } m, gradients of the EM: {[math.ceil(num) for num in arg[0:3]]} T/m\n D = {Ds[0:4] + [num*100 for num in Ds[4:]]} cm")
+    plt.savefig(f"specialAssignment/sextetFocusing/solution{math.ceil(Pz*1e-6)}MeV.png", format='png', dpi=300)
     plt.close()
 
 
@@ -197,17 +229,44 @@ def funcSextet(arg):
     print(Sum)
     return Sum
 
+def funcSextet2(arg, D5, D6):
 
-def sextetFocusing(tripletData,D5, D6, D7):
+    setFile.changeInputData("Q_grad(4)", arg[0])
+    setFile.changeInputData("Q_grad(5)", arg[1])
+    setFile.changeInputData("Q_grad(6)", arg[2])
+    astra.setupLength = 0.9 +Qlength + D5 + Qlength + D6 + Qlength + arg[3]
+
+    setFile.changeInputData("ZSTOP", str(astra.setupLength ) )
+
+    files = ["test1.ini","test2.ini"]
+    data = []
+    data.append([0,0,0,0,0,0])
+    for file in files:
+        setFile.changeInputData("Distribution", file)
+
+        astra.process.stdin.write("./Astra " + astra.fileName + "\n")
+        astra.process.stdin.flush()
+
+        wait()
+        
+        datCurrent =  astra.loadData("ref") 
+        bestLine = astra.getClosest(datCurrent)
+
+        #print(f"setup length and closest:{bestLine[0]}, {astra.setupLength}")
+        data.append( [bestLine[5]*1e-3, bestLine[6]*1e-3, bestLine[0], bestLine[7], bestLine[8], bestLine[2]*1e+6] )
+
+    Sum = astra.pointFocusing(data)
+
+    print(Sum)
+    return Sum
+
+
+
+def sextetFocusing(tripletData,D5 = 0.2, D6 = 0.2 , D7 = 1.0, limitValue = 0.0001, moveD7 = False):
 
     astra.changePositions(*tripletData[0:5])
     astra.changeMom(tripletData[5])
 
-    Dmin = [-60, -60, -60]   #G4, G5, G6
-    Dmax = [60, 60, 60]
-    bounds = [(low, high) for low, high in zip(Dmin, Dmax)]
-    method = "Powell"
-    tolerance = 1e-5
 
     # settings
     astra.setupLength = 0.9 +Qlength + D5 + Qlength + D6 + Qlength + D7
@@ -220,16 +279,98 @@ def sextetFocusing(tripletData,D5, D6, D7):
     setFile.changeInputData("ZSTOP", str( math.ceil( 10*astra.setupLength )/10  ) )
 
 
+    method = "COBYLA"
+    tolerance = 1e-5
+
+    Dmin = [0, -60, 0]   #G4, G5, G6
+    Dmax = [60, 0, 60]
+    bounds = [(low, high) for low, high in zip(Dmin, Dmax)]
+
+
     res = sc.optimize.minimize(funcSextet, ( 30, -55, 30), method=method, tol=tolerance, bounds=bounds)
-
-    if not res.success:
-        print("Did not have success with finding solution for this setup")
-        return 1
-
-    print(res.x)
+    funcValue = funcSextet(res.x)
 
     plotRef(res.x, [math.ceil(num*10000)/100 for num in tripletData[0:3]] + [math.ceil( (tripletData[4] - float(setFile.readOption("Q_pos(3)")) -astra.AstraLengths[2]/2)*10000 ) /100] + [D5,D6,D7], tripletData[5])
+    print(res.x, funcValue)
 
+    if funcValue < limitValue:
+        print(f"Found a solution, the gradients of the resistive quadrupoles: {res.x} T/m")
+        #plotRef(res.x, [math.ceil(num*10000)/100 for num in tripletData[0:3]] + [math.ceil( (tripletData[4] - float(setFile.readOption("Q_pos(3)")) -astra.AstraLengths[2]/2)*10000 ) /100] + [D5,D6,D7], tripletData[5])
+        return
+
+
+    print(f"Could not find a solution which maximizes angular acceptance at the same as keeping D7 constant. Now looking for solution with gradients being (-60, 60).")
+    
+
+    if moveD7:
+        res = sc.optimize.minimize(funcSextet2, ( 30, -55, 30, 1.2), method=method, tol=tolerance, bounds=bounds, args=(D5,D6))
+        funcValue = funcSextet2(res.x, D5,D6)
+
+        plotRef(res.x, [math.ceil(num*10000)/100 for num in tripletData[0:3]] + [math.ceil( (tripletData[4] - float(setFile.readOption("Q_pos(3)")) -astra.AstraLengths[2]/2)*10000 ) /100] + [D5,D6,math.ceil(100*res.x[3])/100 ], tripletData[5])
+        
+        if funcValue < limitValue:
+            print(f"Found a solution with varied D7, the gradients turned out: {res.x[0:3]} T/m, D7 = {math.ceil(res.x[3]*100000)/1000} cm.")
+            return
+
+        Dmin = [-60, -60, -60]   #G4, G5, G6
+        Dmax = [60, 60, 60]
+        bounds = [(low, high) for low, high in zip(Dmin, Dmax)]
+
+        res = sc.optimize.minimize(funcSextet, ( -30, 55, -30), method=method, tol=tolerance, bounds=bounds)
+        funcValue = funcSextet(res.x)
+
+        plotRef(res.x, [math.ceil(num*10000)/100 for num in tripletData[0:3]] + [math.ceil( (tripletData[4] - float(setFile.readOption("Q_pos(3)")) -astra.AstraLengths[2]/2)*10000 ) /100] + [D5,D6,D7], tripletData[5])
+
+        if funcValue < limitValue:
+            print(f"Found a solution with reversed gradients. Found solution: {res.x} T/m")
+            return
+    else:
+        Dmin = [-60, -60, -60]   #G4, G5, G6
+        Dmax = [60, 60, 60]
+        bounds = [(low, high) for low, high in zip(Dmin, Dmax)]
+
+        res = sc.optimize.minimize(funcSextet, ( -30, 55, -30), method=method, tol=tolerance, bounds=bounds)
+        funcValue = funcSextet(res.x)
+
+        plotRef(res.x, [math.ceil(num*10000)/100 for num in tripletData[0:3]] + [math.ceil( (tripletData[4] - float(setFile.readOption("Q_pos(3)")) -astra.AstraLengths[2]/2)*10000 ) /100] + [D5,D6,D7], tripletData[5])
+
+        if funcValue < limitValue:
+            print(f"Found a solution with reversed gradients. Found solution: {res.x} T/m")
+            return
+
+
+        print(f"Could not find a solution with gradients being less than 60 in absolute value. Now looking for solution with D7 being varied.")
+        Dmin = [0, -60, 0, 0]   #G4, G5, G6
+        Dmax = [60, 0, 60, 3.0]
+        bounds = [(low, high) for low, high in zip(Dmin, Dmax)]
+
+        res = sc.optimize.minimize(funcSextet2, ( 30, -55, 30, 1.2), method=method, tol=tolerance, bounds=bounds, args=(D5,D6))
+        funcValue = funcSextet2(res.x, D5,D6)
+
+        plotRef(res.x, [math.ceil(num*10000)/100 for num in tripletData[0:3]] + [math.ceil( (tripletData[4] - float(setFile.readOption("Q_pos(3)")) -astra.AstraLengths[2]/2)*10000 ) /100] + [D5,D6,math.ceil(100*res.x[3])/100 ], tripletData[5])
+        
+        if funcValue < limitValue:
+            print(f"Found a solution with varied D7, the gradients turned out: {res.x[0:3]} T/m, D7 = {math.ceil(res.x[3]*100000)/1000} cm.")
+            return
+
+
+
+    print(f"Could not find a solution with gradients being less than 60 in absolute value. Now looking for solution with D7 being varied.")
+    Dmin = [-60, -60, -60, 0]   #G4, G5, G6
+    Dmax = [60, 60, 60, 3.0]
+    bounds = [(low, high) for low, high in zip(Dmin, Dmax)]
+
+    res = sc.optimize.minimize(funcSextet2, ( -30, 55, -30, 1.2), method=method, tol=tolerance, bounds=bounds, args=(D5,D6))
+    funcValue = funcSextet2(res.x, D5,D6)
+  
+    plotRef(res.x, [math.ceil(num*10000)/100 for num in tripletData[0:3]] + [math.ceil( (tripletData[4] - float(setFile.readOption("Q_pos(3)")) -astra.AstraLengths[2]/2)*10000 ) /100] + [D5,D6,res.x[3]], tripletData[5])
+    
+    if funcValue < limitValue:
+        print(f"Finally found a solution with varying gradients and D7. The gradients: {res.x[0:3]} T/m, D7 = {math.ceil(res.x[3]*100000)/1000} cm")
+        return
+    else:
+        print(f"Could not find a solution for Pz = {Pz} MeV. Leaving...")
+        return
 
 
 
@@ -240,10 +381,11 @@ if __name__ == "__main__":
 
 
     # first find solution for as high momentum as possible with the triplet
-    PZ = [2.5E+8, 3.0E+8, 3.5E+8, 4.0E+8, 4.5E+8, 5.0E+8, 5.5E+8,6.0E+8, 6.5E+8, 7.0E+8, 7.5E+8]
+    #PZ = [2.5E+8, 3.0E+8, 3.5E+8, 4.0E+8, 4.5E+8, 5.0E+8, 5.5E+8,6.0E+8, 6.5E+8, 7.0E+8, 7.5E+8]
+    PZ = [5.0E+8]
     data = []
     for Pz in PZ:
-        data.append(tripletFocusing(Pz))
+        data.append(tripletFocusing(Pz, beamRatio = True))
 
 
     #plt.scatter([math.ceil(num*1e-6) for num in PZ], [line[6] for line in data], color="blue")
@@ -268,12 +410,5 @@ if __name__ == "__main__":
         xAngTriplet = float(dataForSextet[-3])
         yAngTriplet = float(dataForSextet[-2])
         dataForSextet = [num/100 for num in dataForSextet[0:3] ] + dataForSextet[3:-1] 
-        sextetFocusing(dataForSextet, 0.2,0.1,1.0)
-
-    #plotRef([ 1.71413093e-01,  1.73534717e-02,  9.92670911e-01, -2.72794321e+01,  5.98140402e+01, -3.31527962e+01],
-    #    [math.ceil(num*10000)/100 for num in dataForSextet[0:3]] + [dataForSextet[4] - float(setFile.readOption("Q_pos(3)")) -astra.AstraLengths[2]/2 ],
-    #    dataForSextet[5]
-    #)
-
-
+        sextetFocusing(dataForSextet, D5 = 0.2, D6 = 0.1, D7 = 1.0)
 

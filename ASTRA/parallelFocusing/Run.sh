@@ -6,4 +6,4 @@ if [ "$#" -ne 0 ]; then
     exit 1
 fi
 
-python3 parallelFocused.py > output.out 2>output.err &
+python3 parallelFocusing.py > output.out 2>output.err &
