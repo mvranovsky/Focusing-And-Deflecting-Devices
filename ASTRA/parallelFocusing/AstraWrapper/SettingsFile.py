@@ -118,8 +118,9 @@ class SettingsFile:
             for i, line in enumerate(lines):
                 if tag in line:
                     setting = line.split("=")
-                    break  # Assuming there's only one occurrence to replace
-            return setting[-1]
+                    return setting[-1]
+
+            raise ValueError(f"No occurence of tag {tag} in {self.fileName}.in.")
 
         except FileNotFoundError:
             raise FileNotFoundError("The file " + self.fileName + ".in was not found.")

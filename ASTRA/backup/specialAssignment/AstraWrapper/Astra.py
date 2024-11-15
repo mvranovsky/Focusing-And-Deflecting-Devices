@@ -419,7 +419,7 @@ class Astra:
         xPos = data[1][0]
         yPos = data[2][1]
 
-        return xPos/yPos
+        return math.fabs(xPos)/math.fabs(yPos)
 
     def getClosest(self, currentData):
 
@@ -567,6 +567,8 @@ class Astra:
     def plotRefXY(self,D1, D2, D3,D4,hardEnd, mom, title = None, tag = None):
         #main plotting function to plot trajectories of reference particles
 
+        plt.figure()
+
         #print(f"Running best setup again to get full data.")
         dataBest = self.runRef(D1, D2, D3,D4,hardEnd, mom, True)
 
@@ -595,8 +597,11 @@ class Astra:
 
         if tag != None:
             plt.savefig(tag + ".png", format="png", dpi=300)
+
+        plt.show()
+
         
-        #plt.show()
+        
 
     def findInfo(self,D1,D2,D3,D4, hardEnd, momZ):
 

@@ -9,6 +9,7 @@ import pandas as pd
 import math
 import matplotlib.pyplot as plt
 import numpy as np
+import sys
 
 
 
@@ -17,91 +18,87 @@ Qbore = 0.017
 
 
 
-def func(D, Pz):
+def func(D, Pz, focusing):
     data = []
+    Sum = 1E+9
     try:
         data = astra.runRef(*D, None, astra.setupLength,Pz, False)
     except Exception as e:
         print(f"exception: {e}")
-        return 1E+9
+        return Sum
     else:
-        Sum = astra.parallelFocusing(data)
-        print(D, Sum)
+        if focusing == "parallel":
+            Sum = astra.parallelFocusing(data)
+        elif focusing == "xLine":
+            Sum = astra.xLineFocusing(data)
+        elif focusing == "yLine":
+            Sum = astra.yLineFocusing(data)
+        else:
+            Sum = astra.pointFocusing(data)
+        #print(D, Sum)
         return Sum
 
-def func1(D,D1, Pz):
+def func1(D,D1, Pz, focusing):
 
     data = []
+    Sum = 1E+9
     try:
         data = astra.runRef(D1, *D, None, astra.setupLength,Pz, False)
     except Exception as e:
         print(f"exception: {e}")
-        return 1E+9
-    else:
-        Sum = astra.parallelFocusing(data)
-        print(D, Sum)
         return Sum
-
-def func2(D,Pz):
-
-    data = []
-    try:
-        data = astra.runRef(*D, None, astra.setupLength,Pz, False)
-    except Exception as e:
-        print(f"exception: {e}")
-        return 1E+9
     else:
-        Sum = (data[1][3]*1e+3/data[1][5])**2 + (data[2][4]*1e+3/data[2][5])**2 # + (data[1][0]/data[2][1] - 1)
+        if focusing == "parallel":
+            Sum = astra.parallelFocusing(data)
+        elif focusing == "xLine":
+            Sum = astra.xLineFocusing(data)
+        elif focusing == "yLine":
+            Sum = astra.yLineFocusing(data)
+        else:
+            Sum = astra.pointFocusing(data)
         print(D, Sum)
         return Sum
 
 
-def tripletFocusing(Pz, D1 = None , beamRatio = False, limitValue = 0.0001, FFFactor = 1 ):
-    method = "Powell"
+def tripletFocusing(Pz, D1 = None , focusing = "parallel", limitValue = 0.0001, FFFactor = 1 ):
     method = "COBYLA"
+    method = "Powell"
     tolerance = 1e-4
     fields = ["top hat fields", "Astra fringe fields", "field profiles"]
 
     astra.quadType(1)
-    astra.setupLength = 0.9  #m
+    astra.setupLength = 3.0  #m
 
     Dmin = [ FFFactor*astra.bores[0], FFFactor*(astra.bores[0] + astra.bores[1]) , FFFactor*(astra.bores[1] + astra.bores[2]) ]
-    Dmax = [0.6, 0.6, 0.6]
+    Dmax = [0.9, 0.9, 0.9]
     bounds = [(low, high) for low, high in zip(Dmin, Dmax)]
     result = []
     
     if D1 != None:
         Dmin = [FFFactor*(astra.bores[0] + astra.bores[1]) , FFFactor*(astra.bores[1] + astra.bores[2]) ]
-        Dmax = [0.6, 0.6]
+        Dmax = [2., 2.]
         bounds = [(low, high) for low, high in zip(Dmin, Dmax)]
 
-        res = sc.optimize.minimize(func1, (0.1,0.1), method=method, tol=tolerance, bounds=bounds, args=(D1,Pz) )
-
-        funcVal = func1(res.x,D1, Pz)
-        if funcVal > limitValue:
-            astra.setupLength = 1.2
-            res = sc.optimize.minimize(func1, (0.1,0.1), method="Powell", tol=tolerance, bounds=bounds, args=(D1, Pz) )
+        res = sc.optimize.minimize(func1, (0.3,0.7), method=method, tol=tolerance, bounds=bounds, args=(D1,Pz,focusing) )
 
         result = list(res.x)
         result.insert(0,D1)
-    elif beamRatio == True:
-        res = sc.optimize.minimize(func2, (0.1,0.1,0.1), method=method, tol=tolerance, bounds=bounds, args=(Pz) )
-        result = list(res.x)
     else:
-        res = sc.optimize.minimize(func, (0.1,0.1,0.1), method=method, tol=tolerance, bounds=bounds, args=(Pz) )
+        res = sc.optimize.minimize(func, (0.1,0.1,0.1), method=method, tol=tolerance, bounds=bounds, args=(Pz, focusing) )
         result = list(res.x)
 
 
     print(result)
-    funcVal = func(result, Pz)
+    funcVal = func(result, Pz, focusing=focusing)
+    if funcVal > 10:
+        return [*[math.ceil(num*1000000)/10000 for num in result],None, astra.setupLength,Pz, funcVal,0,0, 0]
 
-    beamRatio = astra.beamRatio(*result, None, astra.setupLength, Pz)
-    acc = astra.checkAngleAcceptance(*result, None, astra.setupLength, Pz)
+    beamRatio = math.ceil(astra.beamRatio(*result, None, astra.setupLength, Pz)*100)/100
+    acc = [math.floor(num*10)/10 for num in astra.checkAngleAcceptance(*result, None, astra.setupLength, Pz)]
 
-    print(f"Now about to plot the result...")
-    astra.plotRefXY(*result, None, astra.setupLength, Pz, f"Solution triplet point to parallel focusing with Pz = {Pz/1000000} MeV\n Ds = {[math.ceil(d*10000)/100 for d in result]} cm", f"specialAssignment/tripletFocusing/solution{math.ceil(Pz*1e-6)}MeV")
+    #astra.plotRefXY(*result, None, astra.setupLength, Pz, f"Solution triplet point to parallel focusing with Pz = {Pz/1000000} MeV\n Ds = {[math.ceil(d*10000)/100 for d in result]} cm", f"specialAssignment/tripletFocusing/solutionD1:{math.ceil(result[0]*1000)/100}cm,Pz:{math.ceil(Pz*1e-6)}MeV")
 
-    return [*[math.ceil(num*10000)/100 for num in result],None, astra.setupLength,Pz, funcVal,*acc, beamRatio]
+    return [*[math.ceil(num*1000000)/10000 for num in result],None, astra.setupLength,Pz, funcVal,*acc, beamRatio]
 
 
 def checkAng(data):
@@ -381,37 +378,44 @@ def sextetFocusing(tripletData,D5, D6, D7, limitValue = 0.0001, moveD7 = False):
 
 if __name__ == "__main__":
 
+    args = sys.argv
+    args.pop(0)
+    if len(args) != 1:
+        print(f"more than 1 argument")
+    inputFile = args[0]
+
+    stri = ''
+    with open(inputFile, "r") as file:
+        stri = file.readlines()
+
+    D1s = [float(d1) for d1 in stri ]
+    
     setFile = SettingsFile("parallelBeam")
     astra = Astra(setFile)
 
-    
-    D1s = []
-    for k in range(66): #66
-        D1s.append( astra.bores[0] + k*0.002 )
 
     PZ = []
-    for k in range(80): #80
-        PZ.append(2.0E+8 + k*1.0E+7)
+    for k in range(17): #80
+        PZ.append(2.0E+8 + k*5.0E+7)
 
 
-    # first find solution for as high momentum as possible with the triplet
-    #PZ = [ 2.5E+8, 3.0E+8, 3.5E+8, 4.0E+8, 4.5E+8, 5.0E+8, 5.5E+8,6.0E+8, 6.5E+8, 7.0E+8, 7.5E+8, 8.0E+8, 8.5E+8]
-    #PZ = [5.0E+8]
     data = []
     for D1 in D1s:
+        data = []
         for Pz in PZ:
             print(f"Now running D1 = {D1*100} cm and Pz = {Pz*1e-6} MeV")
-            data.append(tripletFocusing(Pz, D1 = D1, FFFactor = 1))
+            data.append( tripletFocusing(Pz, D1 = D1, FFFactor = 1, focusing = "point") )
+
+
+        df = pd.DataFrame(data)
+        print(data)
+        #astra.plotRefXY(*data[0][:6])
+        custom_header = ["D1 [cm]", "D2 [cm]", "D3 [cm]", "D4 [cm]", "setup length [m]", "Pz [eV/c]", "f(x',y') [mrad^2]", "x acceptance [mrad]", "y acceptance [mrad]", "beam ratio [-]"]
+        df.to_csv(f"outputD1={math.ceil(1000000*D1)/1000000}.csv", header=custom_header, index=False)
 
 
 
-    df = pd.DataFrame(data)
-
-
-    custom_header = ["D1 [cm]", "D2 [cm]", "D3 [cm]", "D4 [cm]", "setup length [m]", "Pz [eV/c]", "f(x',y') [mrad^2]", "x acceptance [mrad]", "y acceptance [mrad]", "beam ratio [-]"]
-    df.to_csv("output.csv", header=custom_header, index=False)
     '''
-
     # now switch on EMagnets
     setFile = SettingsFile("specAssign")
     astra = Astra(setFile)

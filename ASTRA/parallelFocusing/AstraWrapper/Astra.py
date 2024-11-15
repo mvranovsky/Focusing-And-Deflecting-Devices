@@ -129,14 +129,14 @@ class Astra:
                     line = file.readlines()[0].split()
 
                 #offset update
-                if name == "test3.ini" and yoff != -1:
-                    line[1] = str(yoff)
-                    self.setFile.changeInputData("sig_y", str(yoff))
-                    self.yoff = yoff                    
-                if name == "test4.ini" and xoff != -1:
-                    line[0] = str(xoff)
-                    self.setFile.changeInputData("sig_x", str(xoff))
-                    self.xoff = xoff
+                if name == "test3.ini" and xoff != -1:
+                    line[0] = str(xoff/1000)
+                    self.setFile.changeInputData("sig_x", str(xoff/1000))
+                    self.xoff = xoff                   
+                if name == "test4.ini" and yoff != -1:
+                    line[1] = str(yoff/1000)
+                    self.setFile.changeInputData("sig_y", str(yoff/1000))
+                    self.yoff = yoff
 
                 #momentum update
                 if name == "test1.ini":
@@ -322,11 +322,11 @@ class Astra:
 
         return passed    
 
-    def checkAngleAcceptance(self, D1,D2,D3,D4, hardEnd, momZ, xAng = 1, yAng = 1):
-        #long function which checks the linear angle acceptance in the x and y direction
-        #it also returns the percentage of particles that are passed according to xAng, yAng
-        #which should be sigma spread of gaussian beam. 
-        #obtain z positions of quads
+
+    def checkAngleAcceptance(self, D1,D2,D3,D4, hardEnd, momZ):
+        #long function which checks how close a ray gets close to a quadrupole
+        #based on linearity rescales the distance to obtain the angular acceptance 
+
         Qpos = self.changePositions(D1, D2, D3, D4, hardEnd)
         
         #change momentum 
@@ -335,10 +335,6 @@ class Astra:
         #run reference particles and get data
         data = self.runRef(D1, D2, D3,D4,hardEnd, momZ, True)
 
-        if data == 1:
-            print(f"Something is wrong in runRef, leaving...")
-            return False
-        
         
         Q1_start = Qpos[0] - self.lengthQ1/2
         Q1_end = Qpos[0] + self.lengthQ1/2
@@ -401,13 +397,96 @@ class Astra:
         maxValsY = [ (self.yAngle*self.bores[0]*1e+3)/(2*maxOffsetY[0]), (self.yAngle*self.bores[1]*1e+3)/(2*maxOffsetY[1]), (self.yAngle*self.bores[2]*1e+3)/(2*maxOffsetY[2])  ]
 
         #get the minimal value
-        self.xAngularAcceptance = min(maxValsX)
-        self.yAngularAcceptance = min(maxValsY)
-        
-        #percentagePassed = self.calculatePercentage([self.xAngularAcceptance, self.yAngularAcceptance],xAng, yAng) #possible to add x,y offsets
-        
+        self.xAngularAcceptance = math.floor(min(maxValsX)*100)/100
+        self.yAngularAcceptance = math.floor(min(maxValsY)*100)/100
+                
         
         return [self.xAngularAcceptance, self.yAngularAcceptance]
+
+    def initialOffsetLimit(self, D1,D2,D3,D4,hardEnd, momZ):
+        #similar function to checkAngleAcceptance() only to find the maximal initial x and y offsets 
+        #which still pass through the setup
+
+        Qpos = self.changePositions(D1, D2, D3, D4, hardEnd)
+        
+        #change momentum 
+        self.changeMom(momZ)
+
+        #run reference particles and get data
+        data = self.runRef(D1, D2, D3,D4,hardEnd, momZ, True)
+
+        
+        Q1_start = Qpos[0] - self.lengthQ1/2
+        Q1_end = Qpos[0] + self.lengthQ1/2
+
+        Q2_start = Qpos[1] - self.lengthQ2/2
+        Q2_end = Qpos[1] + self.lengthQ2/2
+
+        Q3_start = Qpos[2] - self.lengthQ3/2
+        Q3_end = Qpos[2] + self.lengthQ3/2
+
+        #variables where max values will be saved
+        maxOffsetX = [0,0,0]
+        maxOffsetY = [0,0,0]
+        maxOffsetXzpos = [0,0,0]
+        maxOffsetYzpos = [0,0,0]
+        
+        #check x acceptance
+        for line in data[3]:
+            #check Q1
+            if line[0] > Q1_start and line[0]< Q1_end:
+                if math.fabs(line[5]) > maxOffsetX[0]:
+                    maxOffsetX[0] = math.fabs(line[5])
+                    maxOffsetXzpos[0] = line[0]
+                    
+            #check Q2
+            if line[0] > Q2_start and line[0]< Q2_end:
+                if math.fabs(line[5]) > maxOffsetX[1]:
+                    maxOffsetX[1] = math.fabs(line[5])
+                    maxOffsetXzpos[1] = line[0]
+
+            #check Q3
+            if line[0] > Q3_start and line[0]< Q3_end:
+                if math.fabs(line[5]) > maxOffsetX[2]:
+                    maxOffsetX[2] = math.fabs(line[5])
+                    maxOffsetXzpos[2] = line[0]
+
+        #check y acceptance
+        for line in data[4]:
+            #check Q1
+            if line[0] > Q1_start and line[0]< Q1_end:                
+                if math.fabs(line[6]) > maxOffsetY[0]:
+                    maxOffsetY[0] = math.fabs(line[6])
+                    maxOffsetYzpos[0] = line[0]
+                    
+            #check Q2
+            if line[0] > Q2_start and line[0]< Q2_end:
+                if math.fabs(line[6]) > maxOffsetY[1]:
+                    maxOffsetY[1] = math.fabs(line[6])
+                    maxOffsetYzpos[1] = line[0]
+
+            #check Q3
+            if line[0] > Q3_start and line[0]< Q3_end:
+                if math.fabs(line[6]) > maxOffsetY[2]:
+                    maxOffsetY[2] = math.fabs(line[6])
+                    maxOffsetYzpos[2] = line[0]
+
+
+        #angular acceptance separately for x and y and for quads
+        maxValsX = [ (self.xoff*self.bores[0])/(2*maxOffsetX[0]), (self.xoff*self.bores[1])/(2*maxOffsetX[1]), (self.xoff*self.bores[2])/(2*maxOffsetX[2])  ]
+        maxValsY = [ (self.yoff*self.bores[0])/(2*maxOffsetY[0]), (self.yoff*self.bores[1])/(2*maxOffsetY[1]), (self.yoff*self.bores[2])/(2*maxOffsetY[2])  ]
+
+        print(maxValsX)
+        print(maxValsY)
+
+        #get the minimal value
+        self.xOffsetMax = math.floor(min(maxValsX)*100000)/100
+        self.yOffsetMax = math.floor(min(maxValsY)*100000)/100
+            
+        
+        return [self.xOffsetMax, self.yOffsetMax]
+
+
 
     def beamRatio(self, D1,D2,D3,D4, hardEnd, momZ):
 
@@ -419,7 +498,7 @@ class Astra:
         xPos = data[1][0]
         yPos = data[2][1]
 
-        return xPos/yPos
+        return math.fabs(xPos)/math.fabs(yPos)
 
     def getClosest(self, currentData):
 
@@ -457,7 +536,7 @@ class Astra:
 
                 res = self.runAstra()
 
-                if not (res.stderr == '' or 'Goodbye' in res.stdout):
+                if not (res.stderr == '' or 'Goodbye' in res.stdout) or "ATTENTION: PROGRAM IS QUITTING  EARLY !" in res.stdout:
                     raise ValueError(f"Astra did not run properly in runRef() with moreData=True.")
 
                 currentData = self.loadData("ref", str(i + 1))
@@ -472,8 +551,8 @@ class Astra:
 
                 res = self.runAstra()
 
-                if not (res.stderr == '' or 'Goodbye' in res.stdout):
-                    raise ValueError(f"Astra did not run properly in runRef() with moreData=False.")
+                if not (res.stderr == '' or 'Goodbye' in res.stdout) or "ATTENTION: PROGRAM IS QUITTING  EARLY !" in res.stdout:
+                    raise ValueError(f"Astra did not run properly in runRef() with moreData=True.")
 
                 currentData = self.loadData("ref", str(i+1) )
 
@@ -567,19 +646,22 @@ class Astra:
     def plotRefXY(self,D1, D2, D3,D4,hardEnd, mom, title = None, tag = None):
         #main plotting function to plot trajectories of reference particles
 
+        plt.figure()
+
         #print(f"Running best setup again to get full data.")
         dataBest = self.runRef(D1, D2, D3,D4,hardEnd, mom, True)
 
         data0 = self.separateDataXYZ(dataBest[0])
-        data3 = self.separateDataXYZ(dataBest[1])
-        data4 = self.separateDataXYZ(dataBest[2])
+        data1 = self.separateDataXYZ(dataBest[1])
+        data2 = self.separateDataXYZ(dataBest[2])
+        data3 = self.separateDataXYZ(dataBest[3])
+        data4 = self.separateDataXYZ(dataBest[4])
 
-
-        plt.plot(data0[2], data0[0], label='0 offset, initial 0 angle', color='blue')
-        plt.plot(data3[2], data3[0], label='x offset, initial x angle', color='red')
-        plt.plot(data3[2], data3[1], label='y offset, initial x angle', color='yellow')
-        plt.plot(data4[2], data4[0], label='x offset, initial y angle', color='green')
-        plt.plot(data4[2], data4[1], label='y offset, initial y angle', color='purple')
+        plt.plot(data0[2], data0[0], label='0 offset, initial 0 angle', color='black')
+        plt.plot(data1[2], data1[0], label='x offset, initial x angle', color='red')
+        plt.plot(data2[2], data2[1], label='y offset, initial y angle', color='purple')
+        plt.plot(data3[2], data3[0], label='x offset, initial x offset', color='blue')
+        plt.plot(data4[2], data4[1], label='y offset, initial y offset', color='green')
 
         if D4 != None:
             plt.plot([self.setupLength, self.setupLength], [-0.5,0.5], color='black')
@@ -588,60 +670,14 @@ class Astra:
 
         plt.xlabel("z [m]")
         plt.ylabel("offset [mm]")
-        plt.ylim(-0.2, 1.2)
+        #plt.ylim(-0.2, 1.2)
 
         if title != None:
             plt.title(title)
 
         if tag != None:
             plt.savefig(tag + ".png", format="png", dpi=300)
-        
-        #plt.show()
 
-    def findInfo(self,D1,D2,D3,D4, hardEnd, momZ):
-
-        currentData = self.runRef(D1,D2,D3,D4, hardEnd,momZ,True)
-
-        result = []
-        result.append( self.setupLength )
-        accept = self.checkAngleAcceptance(D1,D2,D3,D4, hardEnd, momZ)
-
-        result.append(accept[0])
-        result.append(accept[1])
-
-        positions = changePositions(D1,D2,D3,D4, hardEnd)
-
-        data = []
-        data.append(list(currentData[1][0]))
-        data.append(list(currentData[2][0]))
-
-        data.append( astra.getClosest(currentData[1][:]) )
-        data.append( astra.getClosest(currentData[2][:]) )
+        plt.show()
 
         
-        #data: 0=z, 1=t, 2=Pz [MeV],5-x [mm], 6=y [mm], 7=px [eV], 8=py [eV] 
-
-        #x_2/x'_1
-        num = data[2][5]/ (data[0][7]*1e-3/data[0][2])
-        result.append(num)
-        #y_2/y'_1
-        num = data[3][6]/ (data[1][8]*1e-3/data[1][2])
-        result.append(num)
-
-        #x_2/x_1
-        num = data[2][5]/data[0][5]
-        result.append(num)
-        #y_2/y_1
-        num = data[3][6]/data[1][6]
-        result.append(num)
-
-        #x'_2/x'_1
-        num =  (data[2][7]*1e-3/data[2][2])/ (data[0][7]*1e-3/data[0][2])
-        result.append(num)
-        #y'_2/y'_1
-        num =  (data[3][8]*1e-3/data[3][2])/ (data[1][8]*1e-3/data[1][2])
-        result.append(num)
-        
-        #[setuplength, x acc, y acc, x_2/x'_1, y_2/y'_1, x_2/x_1,y_2/y_1, x'_2/x'_1, y'_2/y'_1 ]
-        return result
-                

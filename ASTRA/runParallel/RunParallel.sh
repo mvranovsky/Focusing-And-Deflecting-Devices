@@ -1,11 +1,13 @@
 #!/bin/bash
 #---------------------------------------------
 # run by command:
-# ./RunParallel.sh Run1 10 ../../MAXIMA/analyticalResultsP.txt 
+# ./RunParallel.sh Run1 10 ../../MAXIMA/analyticalResultsP.txt specialAssignment.py specialAssignment.zip
 #
 # Run1 = basedir name
 # 10 = number of independent executions
 # inputlist
+# script to execute
+# all files needed for running including the script for execution (absolute path)
 #---------------------------------------------
 # Check if the correct number of arguments are provided
 
@@ -51,33 +53,38 @@ split_lines_into_groups() {
 
 moveFiles(){
 
-	local filesToBeMoved=("parallelFocused.py" "parallelBeam.in" "aperture1.dat" "aperture2.dat" "aperture3.dat")
-	filesToBeMoved+=("Astra")
-	filesToBeMoved+=("generator")
-	filesToBeMoved+=("test.ini")
-	filesToBeMoved+=("test0.ini")
-	filesToBeMoved+=("test1.ini")
-	filesToBeMoved+=("test2.ini")
-	filesToBeMoved+=("test3.ini")
-	filesToBeMoved+=("test4.ini")
+	#local filesToBeMoved=("specialAssignment.py" "parallelBeam.in" "aperture1.dat" "aperture2.dat" "aperture3.dat")
+	#filesToBeMoved+=("Astra")
+	#filesToBeMoved+=("generator")
+	#filesToBeMoved+=("test.ini")
+	#filesToBeMoved+=("test0.ini")
+	#filesToBeMoved+=("test1.ini")
+	#filesToBeMoved+=("test2.ini")
+	#filesToBeMoved+=("test3.ini")
+	#filesToBeMoved+=("test4.ini")
 
 	for (( j = 1; j <= NUM_EXECUTIONS; j++ )); do
-		mkdir "$BASE_DIR/dir$j"
-		for file in "${filesToBeMoved[@]}"; do
-			cp "../parallelFocusing/$file" "$BASE_DIR/dir$j"
-		done
-		touch "$BASE_DIR/dir$j/results.txt" 
-		touch "$BASE_DIR/dir$j/errors.txt" 
-		mkdir "$BASE_DIR/dir$j/resFigs"
-		touch "$BASE_DIR/dir$j/inputData$j.txt" 
+		mkdir -p "$BASE_DIR/dir$j"
+        cp "$ZIP_FILE" "$BASE_DIR/dir$j"
+        cd "$BASE_DIR/dir$j"
+        unzip "$ZIP_FILE"
+        touch "output.txt"
+        cd "../../"
+	#	for file in "${filesToBeMoved[@]}"; do
+	#		cp "../specialAssignment/$file" "$BASE_DIR/dir$j"
+	#	done
+	#	touch "$BASE_DIR/dir$j/output.txt" 
+	#	touch "$BASE_DIR/dir$j/errors.txt" 
+	#	mkdir "$BASE_DIR/dir$j/resFigs"
+	#	touch "$BASE_DIR/dir$j/inputData$j.txt" 
 	done
 
 
 	echo "Succesfully created directories for each execution and moved files inside."
 }
 
-if [ "$#" -ne 3 ]; then
-    echo "Usage: $0 <base_directory> <number_of_parallel_executions> <input_file>"
+if [ "$#" -ne 5 ]; then
+    echo "Usage: $0 <base_directory> <number_of_parallel_executions> <input_file> <executable_script> <zip_file>"
     exit 1
 fi
 
@@ -86,10 +93,19 @@ fi
 BASE_DIR=$1
 NUM_EXECUTIONS=$2
 INPUT_FILE=$3
+SCRIPT=$4
+ZIP_FILE=$5
+
 
 # Check if the input file exists
 if [ ! -f "$INPUT_FILE" ]; then
     echo "Error: Input file $INPUT_FILE does not exist."
+    exit 1
+fi
+
+# Check if the input file exists
+if [ ! -f "$ZIP_FILE" ]; then
+    echo "Error: zip file $ZIP_FILE does not exist."
     exit 1
 fi
 
@@ -98,6 +114,8 @@ echo "Beginning submitting parallel processes."
 echo "Base directory:                      $BASE_DIR"
 echo "Number of parallel executions:       $NUM_EXECUTIONS"
 echo "Running input file:                  $INPUT_FILE"
+echo "Running script:                      $SCRIPT"
+echo "All files are included in:           $ZIP_FILE"
 
 
 # Create the base directory if it does not exist
@@ -106,7 +124,7 @@ mkdir -p "$BASE_DIR"
 # Ensure a clean start
 rm -rf "$BASE_DIR/*"
 
-moveFiles "$BASE_DIR" "$NUM_EXECUTIONS"
+moveFiles
 
 # Array to store the list of arguments for the Python script
 args=()
@@ -138,7 +156,7 @@ for ((i=1; i<=NUM_EXECUTIONS; i++)); do
     (
         cd "$DIR" || exit
         echo "Running script in $DIR"
-        python3 parallelFocused.py "inputData$i.txt" 
+        python3 "$SCRIPT" "inputData$i.txt"
         #echo "0.1 2 3 80" >> "results.txt"
         #echo "0.2 5 6 90" >> "results.txt"
         #cp "/home/michal/Desktop/RPIT/ASTRA/parallelFocusing/table.csv" "."
@@ -150,7 +168,7 @@ wait
 
 echo "All executions are complete. Now moving on to finish up."
 
-python3 MergeAndSort.py "$BASE_DIR"
+#python3 MergeAndSort.py "$BASE_DIR"
 
 wait
 

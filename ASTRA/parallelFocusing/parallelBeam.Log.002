@@ -6,7 +6,7 @@
  RUN     =           2,
  LOOP    = F,
  NLOOP   =           0,
- DISTRIBUTION    = test2.ini                                                                                                         
+ DISTRIBUTION    = test1.ini                                                                                                         
                                      ,
  N_RED   =           1,
  XOFF    =  0.000000000000000E+000,
@@ -30,8 +30,8 @@
  TRACK_ALL       = T,
  TRACK_ON_AXIS   = F,
  AUTO_PHASE      = T,
- PHASE_SCAN      = T,
- CHECK_REF_PART  = T,
+ PHASE_SCAN      = F,
+ CHECK_REF_PART  = F,
  L_RM_BACK       = F,
  LMONITOR        = F,
  H_MAX   =  1.000000000000000E-003,
@@ -42,10 +42,10 @@
  Z_CATHODE       =  1.000000000000000E+015,
  LPROMPT = T,
  ZSTART  =  0.000000000000000E+000,
- ZSTOP   =  0.900000000000000     ,
+ ZSTOP   =   2.00000000000000     ,
  ZEMIT   =         500,
  ZPHASE  =           1,
- SCREEN  =  0.000000000000000E+000, 499*-1.000000000000000E+015 ,
+ SCREEN  =  0.000000000000000E+000,   2.00000000000000     , 498*-1.000000000000000E+015 ,
  STEP_WIDTH      =           0,
  STEP_MAX        =           0,
  HIGH_RES        = F,
@@ -75,10 +75,10 @@
  /
  &OUTPUT
  ZSTART  =  0.000000000000000E+000,
- ZSTOP   =  0.900000000000000     ,
+ ZSTOP   =   2.00000000000000     ,
  ZEMIT   =         500,
  ZPHASE  =           1,
- SCREEN  =  0.000000000000000E+000, 499*-1.000000000000000E+015 ,
+ SCREEN  =  0.000000000000000E+000,   2.00000000000000     , 498*-1.000000000000000E+015 ,
  SCR_XROT        = 500*0.000000000000000E+000  ,
  SCR_YROT        = 500*0.000000000000000E+000  ,
  STEP_WIDTH      =           0,
@@ -1032,8 +1032,8 @@
  LOOP    = F,
  LAPERT  = T,
  FILE_APERTURE   = aperture/aperture1.dat                                                                                            
-                                                                                                                                     
-                                                                                                                                     
+                                     aperture/aperture2.dat                                                                          
+                                                       aperture/aperture3.dat                                                        
                                                                                                                                      
                                                                                                                                      
                                                                                                                                      
@@ -3551,7 +3551,7 @@
  MAXE    = 500*0.000000000000000E+000  ,
  FLATNESS        = 500*0.000000000000000E+000  ,
  PHI     = 501*0.000000000000000E+000  ,
- C_POS   =  0.335617706337535     ,  0.426446555799903     ,  0.588406135114565     , 497*0.000000000000000E+000  ,
+ C_POS   =  0.100000000000000     ,  0.211610000000000     ,  0.553648000000000     , 497*0.000000000000000E+000  ,
  C_NUMB  = 500*1,
  MODE    = 500*0,
  T_DEPENDENCE    = constantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantco
@@ -4912,7 +4912,7 @@
                                    ,
  Q_NOSCALE       = 3*T, 497*F,
  Q_SMOOTH        = 500*0,
- Q_GRAD  =   223.000000000000     ,  -94.0000000000000     ,   57.0000000000000     , 497*0.000000000000000E+000  ,
+ Q_GRAD  =   222.000000000000     ,  -94.0000000000000     ,   57.0000000000000     , 497*0.000000000000000E+000  ,
  Q_K     = 500*0.000000000000000E+000  ,
  Q_MULT_A        = 3000*0.000000000000000E+000  ,
  Q_MULT_B        = 3000*0.000000000000000E+000  ,
@@ -4920,7 +4920,7 @@
  Q_BORE  =  7.000000000000000E-003,  1.800000000000000E-002,  3.000000000000000E-002, 497*3.500000000000000E-002  ,
  Q_RAD   = 500*1.00000000000000        ,
  Q_DIST  = 500*0.000000000000000E+000  ,
- Q_POS   =  0.353712706337535     ,  0.488591555799903     ,  0.636386135114565     , 497*0.000000000000000E+000  ,
+ Q_POS   =  0.118095000000000     ,  0.273755000000000     ,  0.601628000000000     , 497*0.000000000000000E+000  ,
  Q_XOFF  = 500*0.000000000000000E+000  ,
  Q_YOFF  = 500*0.000000000000000E+000  ,
  Q_XROT  = 500*0.000000000000000E+000  ,
@@ -4996,9 +4996,9 @@
  STAT    = 188*F, T, F, T, F, T, F, T, F, T, F, T, F, T, F, T, F, 198*T
  /
  End of Input deck
-test2.ini                       0.0000D+00  0.0000D+00  F
+test1.ini                       0.0000D+00  0.0000D+00  F
 parallelBeam.0000.002           0.0000D+00  0.0000D+00  F
 
-     execution started:   29.10.2024     15:57
-     execution finished:  29.10.2024     15:57
-     execution time:  0.04 sec                         
+     execution started:   15.11.2024     14:37
+     execution finished:  15.11.2024     14:37
+     execution time:  0.02 sec                         
