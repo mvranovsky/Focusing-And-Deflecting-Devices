@@ -75,7 +75,7 @@ def tripletFocusing(Pz, D1 = None , focusing = "parallel", limitValue = 0.0001, 
 
         funcVal = func1(res.x,D1, Pz, focusing=focusing)
         if funcVal > limitValue:
-            astra.setupLength = 1.2
+            astra.setupLength = 2.0
             res = sc.optimize.minimize(func1, (0.1,0.1), method="Powell", tol=tolerance, bounds=bounds, args=(D1, Pz, focusing) )
 
         result = list(res.x)

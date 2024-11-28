@@ -3,10 +3,11 @@
 #
 #  class written by: Michal Vranovsky (github: mvranovsky, email: miso.vranovsky@gmail.com)
 #
-#  hasn't been tested!!
+# 
 #-----------------------------------------------------------------------------------------
 import random
 import math
+import matplotlib.pyplot as plt
 
 class Generator:
 
@@ -123,4 +124,158 @@ class Generator:
         with open(self.fileName + ".ini", 'w') as file:
             file.write(output)
 
+
+    def integrateG(self, z_val, G_val, switcher):
+        #equidistant integration- just linear, because ASTRA linearly interpolates between data points
+
+        if len(z_val) != len(G_val):
+            print("Ranges of z and G are not equal.")
+            return
+        
+
+        DeltaZ =( z_val[1] - z_val[0]) #mm
+
+        sum1 = 0
+        G_Tm = []
+        for i in range(len(G_val)):
+            #gradient in T/mm
+            sum += G_val[i]*DeltaZ 
+            G_Tm.append(G_val[i]*1000)
+
+        
+        
+        plt.plot(z_val,G_Tm,color='blue',label='Gradient')
+        plt.title('Gradient of the field [T/mm] ')
+        plt.xlabel("z [mm]")
+        plt.legend(loc='best')
+        plt.grid()
+        plt.show()
+
+        gradient = 0 
+        length = 0
+        Qbore = 0
+        if switcher == 1:
+            Qbore = 0.007
+            gradient = 222 #T/m
+            length = sum1/gradient
+        elif switcher == 2:
+            Qbore = 0.018
+            gradient = -94
+            length = sum1/gradient
+        elif switcher == 3:
+            Qbore = 0.03
+            gradient = 57
+            length = sum1/gradient
+
+
+        fringeL = fringeFieldB(sum1, gradient, Qbore)
+        
+
+        print(f"The entire integrated magnetic field turns out to be {sum} T")
+        print(f"For gradient {gradient} T/m, the effective length of the quadrupole magnet with top hat fields should be {length} m")
+        print(f"For gradient {gradient} T/m, the effective length of the quadrupole magnet with fringe fields in Astra should be {fringeL} m")
+
+
+
+
+
+    def radiusFunction(self, z, qLength, QboreRadiusStart, QboreRadiusEnd):
+        return z*(QboreRadiusEnd- QboreRadiusStart)/qLength + QboreRadiusStart
+
+
+    def gradFunction0(self, z, qLength, gradStart, gradEnd):
+        return z*(gradEnd - gradStart)/qLength + gradStart
+
+
+    def gradFunction1(self, z, qLength, gradStart, gradEnd, QboreRadiusStart, QboreRadiusEnd):
+        grad = 0
+        if z >= 0 and z <= qLength:
+            grad = z*(gradEnd - gradStart )/qLength + gradStart
+        elif z < 0:
+            grad = gradStart
+        elif z >qLength:
+            grad = gradEnd
+        else:
+            print(f"What the fuck did i forget? z = {z}")
+
+        fVal = grad/( (1+math.exp( -2*z/QboreRadiusStart ) )*( 1+math.exp( 2*(z - qLength )/QboreRadiusEnd ) ) )
+
+        return fVal
+
+    def generateGProfile(self, quadName, qLength, QboreRadiusStart, QboreRadiusEnd,gradAtStartP, gradAtEndP,fieldType = 1, nPoints = 100):
+        #simple function, which generates a gradient profile for specified parameters such as bore diameter, quadrupole length
+        #and the gradAtStartP, gradAtEndP. Based on this, one can introduce 
+
+        Zpos, ZposForR, gradVal, radius = [], [], [],[]
+
+        if fieldType == 0:
+            for i in range(nPoints):
+                z = i*qLength/nPoints
+                Zpos.append( z )
+                ZposForR.append( z )
+                gradVal.append( self.gradFunction0(z, qLength, gradAtStartP, gradAtEndP) )
+                radius.append( self.radiusFunction(z, qLength, QboreRadiusStart, QboreRadiusEnd ) )
+
+        elif fieldType == 1:
+
+            #before the quad
+            for i in range(math.ceil(nPoints/4)):
+                z = -5*QboreRadiusStart + i*(5*QboreRadiusStart)/math.ceil(nPoints/4)
+                Zpos.append(z)
+                gradVal.append( self.gradFunction1(z, qLength, gradAtStartP, gradAtEndP, QboreRadiusStart, QboreRadiusEnd) )
+
+
+            # inside the quad
+            for i in range(nPoints + 1):
+                z = i*qLength/nPoints
+                Zpos.append( z )
+                ZposForR.append( z )
+                gradVal.append( self.gradFunction1(z, qLength, gradAtStartP, gradAtEndP, QboreRadiusStart, QboreRadiusEnd) )
+                radius.append( self.radiusFunction(z, qLength, QboreRadiusStart, QboreRadiusEnd ) )
+
+            #after the quad
+            for i in range(math.ceil(nPoints/4)):
+                z = qLength + (i+1)*(5*QboreRadiusEnd)/math.ceil(nPoints/4)
+                Zpos.append(z)
+                gradVal.append( self.gradFunction1(z, qLength, gradAtStartP, gradAtEndP, QboreRadiusStart, QboreRadiusEnd) )
+        else:
+            raise ValueError(f"fieldType {fieldType} is not implemented, only 0 for top hat field, 1 for astra generated gradients with fringe fields.")
+
+        profileG = ''
+        for i in range(len(Zpos) ):
+            profileG += f"{Zpos[i]} {gradVal[i]}\n"
+
+        apertureR = ''
+        for i in range(len(ZposForR) ):
+            apertureR += f"{ZposForR[i]} {radius[i]}\n"
+
+        # save the radius to aperture/quadName
+        if ".dat" in quadName:
+            with open("aperture/" + quadName, "w") as file:
+                file.write(apertureR)
+            with open(quadName, "w") as file:
+                file.write(profileG)
+        else:
+            with open("aperture/" + quadName + ".dat", "w") as file:
+                file.write(apertureR)
+            with open(quadName + ".dat", "w") as file:
+                file.write(profileG)
+
+
+        fig, axes = plt.subplots(2, 1, figsize=(10, 10))
+        # Plot in each subplot
+        axes[0].plot(Zpos, gradVal, color='blue')
+        axes[0].set_xlabel("z [m]")
+        axes[0].set_ylabel("gradient [T/m]")
+        axes[0].set_title("gradient profile")
+        axes[0].set_xlim(-6*QboreRadiusStart, qLength + 6*QboreRadiusEnd )
+
+
+        axes[1].plot(ZposForR, radius, color='red')
+        axes[1].set_xlabel("z [m]")
+        axes[1].set_ylabel("radius [m]")
+        axes[1].set_xlim(-6*QboreRadiusStart, qLength + 6*QboreRadiusEnd )
+
+        plt.tight_layout()
+        plt.show()
 
