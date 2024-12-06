@@ -1,7 +1,0 @@
-D1 [cm],D2 [cm],D3 [cm],D4 [cm],setup length [m],Pz [MeV/c],"f(x',y') [mrad^2]",studied variable,Astra key,xAngle xOffset slope[mm],xAngle yOffset slope [mm],yAngle xOffset slope [mm],yAngle yOffset slope [mm]
-10.0,7.542,21.775,,2.0,500,2.1516457609000003e-28,sourceOffsetX,x_off,-1.704,0.0,-1.704,0.001
-5.0,9.754,22.614,,2.0,500,3.0513556544e-12,sourceOffsetX,x_off,-1.546,0.0,-1.547,0.001
-15.0,6.036,20.618,,2.0,500,8.619087241999999e-27,sourceOffsetX,x_off,-1.797,0.0,-1.798,0.001
-30.0,3.785,16.36,,2.0,500,6.653612455999998e-27,sourceOffsetX,x_off,-1.826,0.0,-1.828,0.001
-25.0,4.271,17.831,,2.0,500,2.9854625891600006e-25,sourceOffsetX,x_off,-1.845,0.0,-1.846,0.001
-20.0,4.993,19.27,,2.0,500,1.814966821e-25,sourceOffsetX,x_off,-1.84,0.0,-1.841,0.001

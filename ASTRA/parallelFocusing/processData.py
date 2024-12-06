@@ -13,9 +13,9 @@ import numpy as np
 import ROOT 
 import os
 #-----------------------------------------------------------------------------------------------
-def mergeResults():
+def mergeResults(runNum):
 
-    path = "/home/michal/Desktop/RPIT/ASTRA/runParallel/Run15/"
+    path = "/home/michal/Desktop/RPIT/ASTRA/runParallel/" + runNum + "/"
     data_frames = []
 
     dirs = os.listdir(path)
@@ -23,7 +23,7 @@ def mergeResults():
     for d in dirs:
         d = os.path.join(path,d)
 
-        csv_files = [file for file in os.listdir( d ) if file.endswith('.csv') and "outputSys" in file]
+        csv_files = [file for file in os.listdir( d ) if file.endswith('.csv') and "outputD1" in file]
         print(csv_files)
 
         # Loop through and read each CSV file
@@ -145,10 +145,10 @@ def analyze(inputDat = "merged_output.csv",Pz = None, D1 = None, limFuncValue = 
     data = df.values.tolist()
 
     data_chosen = []
-    if Pz != None and (Pz > 200 and Pz < 990) and Pz % 10 == 0:
+    if Pz != None and (Pz >= 200 and Pz <= 1000) and Pz % 10 == 0:
         print(f"Will be showing results for Ekin = {Pz} MeV")
         data_chosen = [row for row in data if row[6] < limFuncValue and row[5] == Pz*1000000]
-    elif D1 != None and (D1 > 0.7 and D1 < 30.6):
+    elif D1 != None and (D1 >= 0.7 and D1 <= 40):
         data_chosen = [row for row in data if row[6] < limFuncValue and row[0] == D1]
         print(f"Will be showing results for D1 = {D1} cm")
     else:
@@ -184,14 +184,14 @@ def analyze(inputDat = "merged_output.csv",Pz = None, D1 = None, limFuncValue = 
         setupL.append( l )
         D4.append( line[4]*100 - l )
         
-        val = l*0.01 + (line[9] - 1) + 100/(line[7]*line[8])
-        #print(l*0.01, (line[9] -1), 100/(line[7]*line[8]) )
-        if val < bestVal:
-            bestVal = float(val)
-            bestLine = list(line + [l])
 
+    plotNum = 0
+    if pointFocusing:
+        plotNum = 3
+    else:
+        plotNum = 2
 
-    fig, axes = plt.subplots(2, 2, figsize=(10, 10))
+    fig, axes = plt.subplots(plotNum, 2, figsize=(10,plotNum*3))
     # Plot in each subplot
     axes[0, 0].scatter(rang,[row[7] for row in data_chosen], color='blue', label='x acceptance' )
     axes[0, 0].scatter(rang,[row[8] for row in data_chosen], color='red', label='y acceptance' )
@@ -202,26 +202,38 @@ def analyze(inputDat = "merged_output.csv",Pz = None, D1 = None, limFuncValue = 
     axes[0, 0].set_xlim(*xlimits)
     axes[0, 0].legend(loc="upper left")
 
+    if pointFocusing:
+        axes[0, 1].scatter(rang, D4, color='black')
+        axes[0, 1].set_title("D4")
+        #axes[0, 1].set_ylim(0, 150 )
+        axes[0, 1].set_xlabel(descriptionX)
+        axes[0, 1].set_xlim(*xlimits)
+        axes[0, 1].set_ylabel('length [cm]')        
+    else:
+        axes[0, 1].scatter(rang,[row[9] for row in data_chosen], color='black' )
+        axes[0, 1].set_xlabel(descriptionX)
+        axes[0, 1].set_xlim(*xlimits)
+        axes[0, 1].set_ylim(0, 15)
+        axes[0, 1].set_ylabel("beam size ratio [-]")
+        axes[0, 1].set_title("beam size ratio")
 
-    axes[0, 1].scatter(rang,[row[9] for row in data_chosen], color='black' )
-    axes[0, 1].set_xlabel(descriptionX)
-    axes[0, 1].set_xlim(*xlimits)
-    axes[0, 1].set_ylim(0, 15)
-    axes[0, 1].set_ylabel("beam size ratio [-]")
-    axes[0, 1].set_title("beam size ratio")
 
     if pointFocusing:
-        axes[1, 0].scatter(rang, D4, color="green", label='D4' )
-        axes[1, 0].set_title("D4")
-        axes[1, 0].set_ylim(100, 300 )
+        axes[1, 0].scatter(rang, [row[13]*1000 for row in data_chosen], color = 'blue', label="final x position of x angle ray")
+        axes[1, 0].scatter(rang, [row[14]*1000 for row in data_chosen], color = 'red', label="final y position of y angle ray")
+        axes[1, 0].set_xlabel(descriptionX)
+        axes[1, 0].set_ylabel("offset [mu m]")
+        axes[1, 0].legend(loc='upper left')
+        axes[1, 0].set_xlim(*xlimits)
+        axes[1, 0].set_ylim(-0.5, 0.5 )
+        axes[1, 0].set_title("final position")
     else:
         axes[1, 0].scatter(rang, setupL, color='black')
         axes[1, 0].set_title("setup size")
         axes[1, 0].set_ylim(0, 150 )
-
-    axes[1, 0].set_xlabel(descriptionX)
-    axes[1, 0].set_xlim(*xlimits)
-    axes[1, 0].set_ylabel('length [cm]')
+        axes[1, 0].set_xlabel(descriptionX)
+        axes[1, 0].set_xlim(*xlimits)
+        axes[1, 0].set_ylabel('length [cm]')
 
 
     axes[1, 1].scatter(rang,[row[1] for row in data_chosen], color='blue', label='D2' )
@@ -232,6 +244,32 @@ def analyze(inputDat = "merged_output.csv",Pz = None, D1 = None, limFuncValue = 
     axes[1, 1].set_ylim(0,80)
     axes[1, 1].set_xlim(*xlimits)
     axes[1, 1].legend(loc="upper left")
+
+
+
+
+
+    if pointFocusing:
+        axes[2, 0].scatter(rang,[row[9] for row in data_chosen], color='blue', label= "x'_2/x'_1")
+        axes[2, 0].scatter(rang,[row[10] for row in data_chosen], color='red', label="y'_2/y'_1")
+        axes[2, 0].set_xlabel(descriptionX)
+        axes[2, 0].set_ylabel("magnification of angle")
+        axes[2, 0].legend(loc='best')
+        axes[2, 0].set_xlim(*xlimits)
+        axes[2, 0].set_ylim(-1, 0)
+        axes[2, 0].set_title("magnification [mrad/mrad]")
+
+
+        axes[2, 1].scatter(rang,[row[11] for row in data_chosen], color='blue' , label = "x_2/x_1")
+        axes[2, 1].scatter(rang,[row[12] for row in data_chosen], color='red', label='y_2/y_1' )
+        axes[2, 1].set_xlabel(descriptionX)
+        axes[2, 1].set_ylabel("magnification of offset")
+        axes[2, 1].legend(loc='best')
+        axes[2, 1].set_xlim(*xlimits)
+        axes[2, 1].set_ylim(-30, 0)
+        axes[2, 1].set_title("magnification [mm/mm]")
+
+
 
 
     plt.tight_layout()
@@ -318,15 +356,16 @@ if __name__ == "__main__":
 
     astra = Astra("parallelBeam")
 
-    #mergeResults()
+    mergeResults("Run22")
 
+    '''
+    # this is for offset analysis
     PZ = [ 3.0E+8, 3.5E+8, 4.0E+8, 4.5E+8, 5.0E+8, 5.5E+8,6.0E+8, 6.5E+8, 7.0E+8, 7.5E+8, 8.0E+8, 8.5E+8, 9.0E+8, 9.5E+8, 1E+9]
-    D1 = [5, 10, 15,20, 25, 30, 35 ]
+    D1 = [0.8, 1.0 ,5.0, 10.0, 15.0,20.0, 25.0, 30.0 ]
     
     lines = []
     with open("study2.txt", "r") as file:
         lines = file.readlines()
-
 
     for line in lines:
         if line[0] == "#":
@@ -346,14 +385,15 @@ if __name__ == "__main__":
     '''
     #fixData()
     #PZ = [9.5E+8]
-    PZ = [ 3.0E+8, 3.5E+8, 4.0E+8, 4.5E+8, 5.0E+8, 5.5E+8,6.0E+8, 6.5E+8, 7.0E+8, 7.5E+8, 8.0E+8, 8.5E+8, 9.0E+8, 9.5E+8]
-    D1 = [0.8, 1.0 ,5.0, 10.0, 15.0,20.0, 25.0, 30.0 ]
-    for pz in PZ:
-        analyze(inputDat="../backup/specialAssignment/output_POINT_in2m.csv",Pz = pz/1000000, pointFocusing = True)
-    for d1 in D1:
-        analyze(inputDat="../backup/specialAssignment/output_POINT_in2m.csv",D1=d1, pointFocusing=True)
-    '''
 
+    # this part is for processing data from systematic analysis
+
+    PZ = [ 3.0E+8, 3.5E+8, 4.0E+8, 4.5E+8, 5.0E+8, 5.5E+8,6.0E+8, 6.5E+8, 7.0E+8, 7.5E+8, 8.0E+8, 8.5E+8, 9.0E+8, 9.5E+8]
+    D1 = [5, 10, 15,20, 25, 30, 35 ]
+    for pz in PZ:
+        analyze(inputDat="outputSysStudy.csv",Pz = pz/1000000, pointFocusing = True)
+    for d1 in D1:
+        analyze(inputDat="outputSysStudy.csv",D1=d1, pointFocusing=True)
 
 
 

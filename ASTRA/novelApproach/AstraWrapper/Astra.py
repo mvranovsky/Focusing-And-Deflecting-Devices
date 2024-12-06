@@ -6,6 +6,20 @@ import matplotlib.pyplot as plt
 import time
 import scipy as sc
 
+#--------------------------------------------------------------------------------------------------------------------------
+#
+#       author: Michal Vranovsky (github: mvranovsky, email: miso.vranovsky@gmail.com)
+#
+#       description: This is a class for working with triplet of magnets that are located at the labs of LLR
+#                    there are several methods to this class to either run Astra with reference particles or 
+#                    or an entire beam, to calculate angular acceptance, max. initial offset, beam ratio or 
+#                    to plot the result. It can be run in 4 different modes, the first one is top hat shaped
+#                    fields, then astra generated ideal gradient with fringe fields, then are actual results
+#                    from fits of measurements of the actual quadrupole magnets. The last one is using field 
+#                    maps. Field maps can be generated from Generator class.
+#
+#--------------------------------------------------------------------------------------------------------------------------
+
 
 class Astra:
 
@@ -13,7 +27,7 @@ class Astra:
     nameOfFiles = ["test0.ini", "test1.ini", "test2.ini", "test3.ini", "test4.ini"]
     AstraLengths = [0.03619, 0.12429, 0.09596] #these values were computed so that integrated gradient matches the fits from field profiles
     FPlengths = [0.035, 0.120, 0.105]
-    bores = [0.007, 0.018, 0.030]
+    bores = [0.007, 0.018, 0.030]    
 
     # constants regarding reference particles
     # when using beam, these values are sigmas

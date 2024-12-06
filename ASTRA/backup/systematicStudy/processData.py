@@ -13,9 +13,9 @@ import numpy as np
 import ROOT 
 import os
 #-----------------------------------------------------------------------------------------------
-def mergeResults():
+def mergeResults(runNum):
 
-    path = "/home/michal/Desktop/RPIT/ASTRA/runParallel/Run10/"
+    path = "/home/michal/Desktop/RPIT/ASTRA/runParallel/" + runNum + "/"
     data_frames = []
 
     dirs = os.listdir(path)
@@ -23,7 +23,7 @@ def mergeResults():
     for d in dirs:
         d = os.path.join(path,d)
 
-        csv_files = [file for file in os.listdir( d ) if file.endswith('.csv')]
+        csv_files = [file for file in os.listdir( d ) if file.endswith('.csv') and "outputD1" in file]
         print(csv_files)
 
         # Loop through and read each CSV file
@@ -36,7 +36,7 @@ def mergeResults():
     merged_df = pd.concat(data_frames, ignore_index=True)
 
     # Save merged DataFrame to a new CSV file (optional)
-    merged_df.to_csv('merged_output.csv', index=False)
+    merged_df.to_csv('outputSysStudy.csv', index=False)
 
 #-----------------------------------------------------------------------------------------------
 def createTTree(file_path, tree_name, output_file):
@@ -116,38 +116,49 @@ def tripletFocusing(D1,Pz, FFFactor = 1 , limitValue = 0.0001):
     #print(dataX, dataY)
 
     if funcVal > limitValue:
-    	raise ValueError(f"Something went wrong, this time when running the minimization procedure, the solution was not smaller than {limitValue}.")
+        raise ValueError(f"Something went wrong, this time when running the minimization procedure, the solution was not smaller than {limitValue}.")
 
 
     return dataX, dataY
 #-----------------------------------------------------------------------------------------------
 
-def analyze(Pz = None, D1 = None, limFuncValue = 0.00001 ):
+def fixData():
+
+    df = pd.read_csv("merged_output.csv")
+
+    df.iloc[:, :3] = df.iloc[:, :3] / 100
+
+    # Save the modified DataFrame back to the same file
+    df.to_csv("merged_output.csv", index=False)
+
+
+
+#----------------------------------------------------------------------------------------------
+def analyze(inputDat = "merged_output.csv",Pz = None, D1 = None, limFuncValue = 0.00001, pointFocusing=True ):
 
     if (Pz != None and D1 != None) or (Pz == None and D1 == None):
         raise ValueError(f"Function only works when either D1 or Pz is specified, not both or neither!!")
     
 
 
-    df = pd.read_csv('sorted_output.csv')
+    df = pd.read_csv(inputDat)
     data = df.values.tolist()
+
     data_chosen = []
-    if Pz != None and (Pz > 200 and Pz < 990) and Pz % 10 == 0:
+    if Pz != None and (Pz >= 200 and Pz <= 1000) and Pz % 10 == 0:
         print(f"Will be showing results for Ekin = {Pz} MeV")
         data_chosen = [row for row in data if row[6] < limFuncValue and row[5] == Pz*1000000]
-    elif D1 != None and (D1 > 0.7 and D1 < 30.6):
+    elif D1 != None and (D1 >= 0.7 and D1 <= 40):
         data_chosen = [row for row in data if row[6] < limFuncValue and row[0] == D1]
         print(f"Will be showing results for D1 = {D1} cm")
     else:
-        raise ValueError(f"Expecting D1 as 0.8, 1.0, 1.2...up to 30.6 cm or Pz in range (200, 990) MeV and divisible by 10, so 200, 210, 220...")
+        raise ValueError(f"Expecting specific values of D1 and Pz depending on data...")
 
 
 
     if(len(data_chosen) == 0 ):
         print(f"For this input, there are no solutions.")
         return
-
-
 
     #acceptance
     setupL, rang = [],[]
@@ -167,18 +178,20 @@ def analyze(Pz = None, D1 = None, limFuncValue = 0.00001 ):
 
     bestVal = 1E+6
     bestLine = []
+    D4 = []
     for line in data_chosen:
         l = line[0] + astra.AstraLengths[0]*100 + line[1] + astra.AstraLengths[1]*100 + line[2] + astra.AstraLengths[2]*100 + astra.bores[2]*100
         setupL.append( l )
+        D4.append( line[4]*100 - l )
         
-        val = l*0.01 + (line[9] - 1) + 100/(line[7]*line[8])
-        #print(l*0.01, (line[9] -1), 100/(line[7]*line[8]) )
-        if val < bestVal:
-            bestVal = float(val)
-            bestLine = list(line + [l])
 
+    plotNum = 0
+    if pointFocusing:
+        plotNum = 3
+    else:
+        plotNum = 2
 
-    fig, axes = plt.subplots(2, 2, figsize=(10, 10))
+    fig, axes = plt.subplots(plotNum, 2, figsize=(10,plotNum*3))
     # Plot in each subplot
     axes[0, 0].scatter(rang,[row[7] for row in data_chosen], color='blue', label='x acceptance' )
     axes[0, 0].scatter(rang,[row[8] for row in data_chosen], color='red', label='y acceptance' )
@@ -189,45 +202,74 @@ def analyze(Pz = None, D1 = None, limFuncValue = 0.00001 ):
     axes[0, 0].set_xlim(*xlimits)
     axes[0, 0].legend(loc="upper left")
 
+    if pointFocusing:
+        axes[0, 1].scatter(rang, D4, color='black')
+        axes[0, 1].set_title("D4")
+        #axes[0, 1].set_ylim(0, 150 )
+        axes[0, 1].set_xlabel(descriptionX)
+        axes[0, 1].set_xlim(*xlimits)
+        axes[0, 1].set_ylabel('length [cm]')        
+    else:
+        axes[0, 1].scatter(rang,[row[9] for row in data_chosen], color='black' )
+        axes[0, 1].set_xlabel(descriptionX)
+        axes[0, 1].set_xlim(*xlimits)
+        axes[0, 1].set_ylim(0, 15)
+        axes[0, 1].set_ylabel("beam size ratio [-]")
+        axes[0, 1].set_title("beam size ratio")
 
-    axes[0, 1].scatter(rang,[row[9] for row in data_chosen], color='black' )
-    axes[0, 1].set_xlabel(descriptionX)
-    axes[0, 1].set_xlim(*xlimits)
-    axes[0, 1].set_ylim(0, 10)
-    axes[0, 1].set_ylabel("beam size ratio [-]")
-    axes[0, 1].set_title("beam size ratio")
 
-    axes[1, 0].scatter(rang, setupL, color='black')
-    axes[1, 0].set_xlabel(descriptionX)
-    axes[1, 0].set_xlim(*xlimits)
-    axes[1, 0].set_ylim(0, 120 )
-    axes[1, 0].set_ylabel('length [cm]')
-    axes[1, 0].set_title("setup size")
+    if pointFocusing:
+        axes[1, 0].scatter(rang, [row[13]*1000 for row in data_chosen], color = 'blue', label="final x position of x angle ray")
+        axes[1, 0].scatter(rang, [row[14]*1000 for row in data_chosen], color = 'red', label="final y position of y angle ray")
+        axes[1, 0].set_xlabel(descriptionX)
+        axes[1, 0].set_ylabel("offset [mu m]")
+        axes[1, 0].legend(loc='upper left')
+        axes[1, 0].set_xlim(*xlimits)
+        axes[1, 0].set_ylim(-0.5, 0.5 )
+        axes[1, 0].set_title("final position")
+    else:
+        axes[1, 0].scatter(rang, setupL, color='black')
+        axes[1, 0].set_title("setup size")
+        axes[1, 0].set_ylim(0, 150 )
+        axes[1, 0].set_xlabel(descriptionX)
+        axes[1, 0].set_xlim(*xlimits)
+        axes[1, 0].set_ylabel('length [cm]')
 
-    '''
-    dataX, dataY = [], []
-    if D1 != None:
-        dataX, dataY = tripletFocusing(D1/100, bestLine[5] )
-    else: 
-        dataX, dataY = tripletFocusing(bestLine[0]/100, Pz*1000000)
-   
-    axes[1, 1].plot([line[0] for line in dataX], [line[5] for line in dataX], color='blue', label='x offset')
-    axes[1, 1].plot([line[0] for line in dataY], [line[6] for line in dataY], color='red', label='y offset')
-    axes[1, 1].plot([0, dataX[-1][0] ],[0,0], color='black', label='beamline')
-    axes[1, 1].legend()
-    axes[1, 1].set_xlabel('z [m]')
-    axes[1, 1].set_ylabel('offset [mm]')
-    axes[1, 1].set_title(f"best solution with acceptance = {[ math.ceil(num*10)/10 for num in bestLine[7:9] ]} mrad,\nbeam ratio = {math.ceil(100*bestLine[9])/100}, setup size = {math.ceil(100*bestLine[10])/100} cm,\nDs = {bestLine[0:3]} cm")
-    '''
 
     axes[1, 1].scatter(rang,[row[1] for row in data_chosen], color='blue', label='D2' )
     axes[1, 1].scatter(rang,[row[2] for row in data_chosen], color='red', label='D3' )
     axes[1, 1].set_xlabel(descriptionX)
     axes[1, 1].set_ylabel("distance [cm]")
     axes[1, 1].set_title("Scaling of distances D2, D3")
-    axes[1, 1].set_ylim(0,50)
+    axes[1, 1].set_ylim(0,80)
     axes[1, 1].set_xlim(*xlimits)
     axes[1, 1].legend(loc="upper left")
+
+
+
+
+
+    if pointFocusing:
+        axes[2, 0].scatter(rang,[row[9] for row in data_chosen], color='blue', label= "x'_2/x'_1")
+        axes[2, 0].scatter(rang,[row[10] for row in data_chosen], color='red', label="y'_2/y'_1")
+        axes[2, 0].set_xlabel(descriptionX)
+        axes[2, 0].set_ylabel("magnification of angle")
+        axes[2, 0].legend(loc='best')
+        axes[2, 0].set_xlim(*xlimits)
+        axes[2, 0].set_ylim(-1, 0)
+        axes[2, 0].set_title("magnification [mrad/mrad]")
+
+
+        axes[2, 1].scatter(rang,[row[11] for row in data_chosen], color='blue' , label = "x_2/x_1")
+        axes[2, 1].scatter(rang,[row[12] for row in data_chosen], color='red', label='y_2/y_1' )
+        axes[2, 1].set_xlabel(descriptionX)
+        axes[2, 1].set_ylabel("magnification of offset")
+        axes[2, 1].legend(loc='best')
+        axes[2, 1].set_xlim(*xlimits)
+        axes[2, 1].set_ylim(-30, 0)
+        axes[2, 1].set_title("magnification [mm/mm]")
+
+
 
 
     plt.tight_layout()
@@ -240,21 +282,118 @@ def analyze(Pz = None, D1 = None, limFuncValue = 0.00001 ):
     plt.show()
 
 
+def analyzeOffsets(nameOfProp, key,inputDat = "output_SysStudy.csv", Pz = None, D1 = None ):
+
+
+    if (Pz != None and D1 != None) or (Pz == None and D1 == None):
+        raise ValueError(f"Function only works when either D1 or Pz is specified, not both or neither!!")
+    
+
+    df = pd.read_csv(inputDat)
+    data = df.values.tolist()
+
+    xrang = []
+    data_chosen = []
+    idx = 0
+    xDescript = ''
+    outName = ''
+    if Pz != None and (Pz >= 300 and Pz <= 1000) and Pz % 50 == 0:
+        print(f"Will be showing results for Ekin = {Pz} MeV")
+        data_chosen = [row for row in data if row[8] == key and row[5] == Pz]
+        idx = 0
+        xDescript = "D1 [cm]"
+        outName = f"{nameOfProp}_Pz:{Pz}MeV.png"
+        xrang = [0, 35]
+    elif D1 != None and (D1 >= 5 and D1 <= 35):
+        data_chosen = [row for row in data if row[8] == key and row[0] == D1]
+        print(f"Will be showing results for D1 = {D1} cm")
+        idx = 5
+        xDescript = "Pz [MeV]"
+        outName = f"{nameOfProp}_D1:{D1}cm.png"
+        xrang = [300, 1000]
+    else:
+        raise ValueError(f"Expecting specific values of D1 and Pz depending on data. Arguments were Pz = {Pz} MeV and D1 = {D1} cm...")
+
+
+    if(len(data_chosen) == 0 ):
+        print(f"For this input, there are no solutions.")
+        return
+
+
+    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+    # Plot in each subplot
+    axes[0].scatter([line[idx] for line in data_chosen], [line[9] for line in data_chosen], color='blue', label='slope for x offset (initial x angle)' )
+    axes[0].scatter([line[idx] for line in data_chosen], [line[10] for line in data_chosen], color='red', label='slope for y offset (initial x angle)' )    
+    axes[0].set_xlabel(xDescript)
+    axes[0].set_xlim(*xrang)
+    axes[0].set_ylabel("slope")
+    axes[0].set_title("ray with initial x angle")
+    axes[0].legend(loc="upper right")
+    axes[0].set_ylim(-10, 10)
+
+
+    axes[1].scatter([line[idx] for line in data_chosen], [line[11] for line in data_chosen], color='blue', label='slope for x offset (initial y angle)' )
+    axes[1].scatter([line[idx] for line in data_chosen], [line[12] for line in data_chosen], color='red', label='slope for y offset (initial y angle)' )
+    axes[1].set_xlabel(xDescript)
+    axes[1].set_ylabel("slope")
+    axes[1].set_xlim(*xrang)
+    axes[1].set_ylim(-10, 10)
+    axes[1].set_title("ray with initial y angle")
+    axes[1].legend(loc="upper right")
+
+    plt.tight_layout()
+
+    plt.savefig("offsetStudy/" + outName, format="png", dpi=300)
+
+    
+    plt.close()
+
+
+
 
 if __name__ == "__main__":
 
 
     astra = Astra("parallelBeam")
 
-    #PZ = [9.5E+8]
-    PZ = [ 3.0E+8, 3.5E+8, 4.0E+8, 4.5E+8, 5.0E+8, 5.5E+8,6.0E+8, 6.5E+8, 7.0E+8, 7.5E+8, 8.0E+8, 8.5E+8, 9.0E+8, 9.5E+8]
+    mergeResults("Run22")
+
+    '''
+    # this is for offset analysis
+    PZ = [ 3.0E+8, 3.5E+8, 4.0E+8, 4.5E+8, 5.0E+8, 5.5E+8,6.0E+8, 6.5E+8, 7.0E+8, 7.5E+8, 8.0E+8, 8.5E+8, 9.0E+8, 9.5E+8, 1E+9]
     D1 = [0.8, 1.0 ,5.0, 10.0, 15.0,20.0, 25.0, 30.0 ]
-    #for pz in PZ:
-    #    analyze(Pz = pz/1000000)
+    
+    lines = []
+    with open("study2.txt", "r") as file:
+        lines = file.readlines()
+
+    for line in lines:
+        if line[0] == "#":
+            continue
+        line = line.replace("\n", "").split(" ")
+        if len(line) < 8:
+            print("not good length of line")
+            continue
+        variable = line[0]
+        key = line[1]
+
+        for pz in PZ:
+            analyzeOffsets(variable,key,inputDat="outputSysStudy.csv",Pz = pz/1000000)
+        #for d1 in D1:
+        #    analyzeOffsets(variable,key,inputDat="outputSysStudy.csv",D1=d1)
+
+    '''
+    #fixData()
+    #PZ = [9.5E+8]
+
+    # this part is for processing data from systematic analysis
+
+    PZ = [ 3.0E+8, 3.5E+8, 4.0E+8, 4.5E+8, 5.0E+8, 5.5E+8,6.0E+8, 6.5E+8, 7.0E+8, 7.5E+8, 8.0E+8, 8.5E+8, 9.0E+8, 9.5E+8]
+    D1 = [5, 10, 15,20, 25, 30, 35 ]
+    for pz in PZ:
+        analyze(inputDat="outputSysStudy.csv",Pz = pz/1000000, pointFocusing = True)
     for d1 in D1:
-        analyze(D1=d1)
-
-
+        analyze(inputDat="outputSysStudy.csv",D1=d1, pointFocusing=True)
 
 
 

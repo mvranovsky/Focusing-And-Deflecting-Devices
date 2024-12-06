@@ -222,8 +222,8 @@ class Generator:
 
 
     def radiusFunction(self, z):
-        if z >= 0 and z<= self.qLength:
-            return z*(self.radius2- self.radius1)/self.qLength + self.radius1
+        if z >= 0 and z <= self.qLength:
+            return ( z*(self.radius2- self.radius1)/self.qLength + self.radius1 )
         else:
             return 3
 
@@ -257,7 +257,7 @@ class Generator:
         return fVal if fVal.size > 1 else fVal[0]
 
 
-    def generateGradProfile(self, qLength, BTipField ,QboreRadiusStart = None, QboreRadiusEnd = None,gradAtStartP = None, gradAtEndP = None, wobbles = False, fieldType = 1, nPoints = 100, fileOutputName = None, showPlot = False):
+    def generateGradProfile(self, qLength, BTipField ,Qbore1 = None, Qbore2 = None,xFocusing = True,grad1 = None, grad2 = None, wobbles = False, fieldType = 1, nPoints = 100, fileOutputName = None, showPlot = False):
         #function to generate gradient profile, input either gradient or radius at start and end positions
         #(will be linearly interpolated) and the BtipField. Other parameters will be calculated according 
         #to BTipField = Grad*R_Q. One can specify the type of field, name of the file with output or number 
@@ -265,26 +265,32 @@ class Generator:
         
         self.qLength = qLength
         self.BTipField = BTipField
-
-        if QboreRadiusStart != None and QboreRadiusEnd != None:
+        Zpos, gradVal, radius = [],[],[]
+        if Qbore1 != None and Qbore2 != None:
             print("Will be generating field according to bore radius input and the tip field.")
-            self.radius1 = QboreRadiusStart
-            self.radius2 = QboreRadiusEnd
-            self.grad1 = BTipField/QboreRadiusStart
-            self.grad2 = BTipField/QboreRadiusEnd
-        elif gradAtStartP != None and gradAtEndP != None:
+            self.radius1 = Qbore1
+            self.radius2 = Qbore2
+            self.grad1 = BTipField/Qbore1
+            self.grad2 = BTipField/Qbore2
+            Zpos, gradVal, radius = self.gradient(BTipField ,fieldType, nPoints, wobbles, False)
+            if not xFocusing:
+                for i,g  in enumerate(gradVal):
+                    gradVal[i] = -g
+        elif grad1 != None and grad2 != None:
             print("Will be generating field according to gradient input and the tip field.")
-            self.radius1 = BTipField/math.fabs(gradAtStartP)
-            self.radius2 = BTipField/math.fabs(gradAtEndP)
-            self.grad1 = gradAtStartP
-            self.grad2 = gradAtEndP
+            self.radius1 = BTipField/math.fabs(grad1)
+            self.radius2 = BTipField/math.fabs(grad2)
+            self.grad1 = grad1
+            self.grad2 = grad2
+            Zpos, gradVal, radius = self.gradient(BTipField ,fieldType, nPoints, wobbles, True)
         else:
             raise ValueError("BTipField has to be set at all times and then either bore radius or gradients are set at the beginning and the end.")
+
+
 
         if fileOutputName != None:
             self.quadName = fileOutputName
 
-        Zpos, gradVal, radius = self.gradient(fieldType, nPoints, wobbles)
 
         if showPlot:
             self.plotGandR(Zpos, gradVal, radius)
@@ -297,12 +303,7 @@ class Generator:
             profileG += f"{Zpos[i]} {gradVal[i]}\n"
 
         apertureR = ''
-        '''
-        for i in range(len(Zpos) ):
-            if radius[i] > 1:
-                continue
-            apertureR += f"{Zpos[i]} {1000*radius[i]}\n"
-        '''
+
         apertureR = f"0 {self.radius1*1000}\n{self.qLength} {self.radius2*1000}\n"
 
 
@@ -321,7 +322,7 @@ class Generator:
         return Zpos, gradVal, radius
 
 
-    def gradient(self,fieldType, nPoints, wobbles):
+    def gradient(self,BTipField, fieldType, nPoints, wobbles, gradSet):
 
 
         Zpos, gradVal, radius = [], [], []
@@ -329,33 +330,29 @@ class Generator:
             for i in range(nPoints):
                 z = i*self.qLength/nPoints
                 Zpos.append( z )
-                gradVal.append( self.gradFunction0(z, wobbles) )
-                radius.append( self.radiusFunction(z) )
 
+                if gradSet:
+                    g = self.grad1 + z*(self.grad2 - self.grad1)/self.qLength 
+                    gradVal.append(g)
+                    radius.append(BTipField/g )
+                else:
+                    r = (self.radius1 + (self.radius2 - self.radius1)*z/self.qLength)
+                    gradVal.append( BTipField/r )
+                    radius.append( r )
         elif fieldType == 1:
-            #before the quad
-            for i in range(math.ceil(nPoints/4)):
-                z = -5*self.radius1 + i*(5*self.radius1)/math.ceil(nPoints/4)
+            dist = 5*self.radius1 + self.qLength + 5*self.radius1
+            for i in range(math.ceil(nPoints*3/2 + 1) ):
+                z = -5*self.radius1 + i*dist/(math.ceil(3*nPoints/2) )
                 Zpos.append(z)
-                gradVal.append( self.gradFunction(z, wobbles) )
-                radius.append( self.radiusFunction(z) )
-
-            # inside the quad
-            for i in range(nPoints + 1):
-                z = i*self.qLength/nPoints
-                Zpos.append( z )
-                gradVal.append( self.gradFunction(z, wobbles) )
-                radius.append( self.radiusFunction(z) )
-
-
-            #after the quad
-            for i in range(math.ceil(nPoints/4)):
-                z = self.qLength + (i+1)*(5*self.radius2)/math.ceil(nPoints/4)
-                Zpos.append(z)
-                gradVal.append( self.gradFunction(z, wobbles) )
-                radius.append( self.radiusFunction(z) )
-
-
+                if gradSet:
+                    g = self.gradFunction(z, wobbles)
+                    gradVal.append( g )
+                    radius.append( self.radiusFunction(z) )
+                else:
+                    radius.append( self.radiusFunction(z) )  
+                    r = (self.radius1 + (self.radius2 - self.radius1)*z/self.qLength)
+                    g = BTipField/(r*( (1 + np.exp(-2 * z / self.radius1)) *(1 + np.exp(2 * (z - self.qLength) / self.radius2) ) ) )
+                    gradVal.append( g )
         else:
             raise ValueError(f"fieldType {fieldType} is not implemented, only 0 for top hat field, 1 for astra generated gradients with fringe fields.")
 
@@ -403,16 +400,17 @@ class Generator:
                 return 0*z
 
 
-    def generateFieldMap(self, qLength, BTipField ,QboreRadiusStart = None, QboreRadiusEnd = None,gradAtStartP = None, gradAtEndP = None,gradWobbles = False,fieldType = 1, nGradPoints = 100,nFMPoints = 21, fileOutputName = None , magCentreXWobbles=False, magCentreYWobbles = False ,skewAngleWobbles = False):
+    def generateFieldMap(self, qLength, BTipField ,Qbore1 = None, Qbore2 = None, xFocusing = True,grad1 = None, grad2 = None,gradWobbles = False,fieldType = 1, nGradPoints = 100,nFMPoints = 21, fileOutputName = None , magCentreXWobbles=False, magCentreYWobbles = False ,skewAngleWobbles = False, showPlot = True):
 
-        Zpos, gradVal, radius = self.generateGradProfile(qLength, BTipField, QboreRadiusStart = QboreRadiusStart, QboreRadiusEnd=QboreRadiusEnd, gradAtStartP = gradAtStartP, gradAtEndP=gradAtEndP, wobbles=gradWobbles, fieldType=fieldType, nPoints = nGradPoints, fileOutputName=fileOutputName)
+        Zpos, gradVal, radius = self.generateGradProfile(qLength, BTipField, Qbore1 = Qbore1, Qbore2=Qbore2,xFocusing=xFocusing, grad1 = grad1, grad2=grad2, wobbles=gradWobbles, fieldType=fieldType, nPoints = nGradPoints, fileOutputName=fileOutputName, showPlot = showPlot)
 
         self.radius = radius
         skewAng = list(self.skewAngle(np.array(Zpos), skewAngleWobbles))
         magCentreX = list(self.magCenterX(np.array(Zpos), magCentreXWobbles))
         magCentreY = list(self.magCenterY(np.array(Zpos), magCentreYWobbles))
 
-        self.plotGenerationParameters(Zpos, skewAng, gradVal, magCentreX, magCentreY, radius)
+        if showPlot:
+            self.plotGenerationParameters(Zpos, skewAng, gradVal, magCentreX, magCentreY, radius)
 
         rad = max([self.radius1, self.radius2])
 
@@ -426,12 +424,11 @@ class Generator:
         grad = np.array(gradVal)
         gradVal_3D = grad[ np.newaxis, np.newaxis,:]  # Make gradVal 3D along z-axis
 
-        # Simulate magnetic field components (example: simple dipole field)
+        Bx =( np.sin( (2*np.pi/360)*self.skewAngle(Z, skewAngleWobbles) )*gradVal_3D*(X - self.magCenterX(Z, magCentreXWobbles)) +
+              np.cos( (2*np.pi/360)*self.skewAngle(Z, skewAngleWobbles) )*gradVal_3D*(Y - self.magCenterY(Z, magCentreYWobbles))  )
+        By =( np.cos( (2*np.pi/360)*self.skewAngle(Z, skewAngleWobbles) )*gradVal_3D*(X - self.magCenterX(Z, magCentreXWobbles)) -
+              np.sin( (2*np.pi/360)*self.skewAngle(Z, skewAngleWobbles) )*gradVal_3D*(Y - self.magCenterY(Z, magCentreYWobbles))  )
 
-        Bx =( np.sin( (np.pi/360)*self.skewAngle(Z, skewAngleWobbles) )*gradVal_3D*(X - self.magCenterX(Z, magCentreXWobbles)) +
-              np.cos( (np.pi/360)*self.skewAngle(Z, skewAngleWobbles) )*gradVal_3D*(Y - self.magCenterY(Z, magCentreYWobbles))  )
-        By =( np.cos( (np.pi/360)*self.skewAngle(Z, skewAngleWobbles) )*gradVal_3D*(X - self.magCenterX(Z, magCentreXWobbles)) -
-              np.sin( (np.pi/360)*self.skewAngle(Z, skewAngleWobbles) )*gradVal_3D*(Y - self.magCenterY(Z, magCentreYWobbles))  )
 
 
         # Calculate the derivative of Bx along z using central difference
@@ -460,6 +457,8 @@ class Generator:
 
         self.saveFieldMap(X,Y,Z,Bx,By,Bz)
 
+        if not showPlot:
+            return 
 
         max_abs_value = max(np.max(np.abs(Bx)), np.max(np.abs(By)))
         max_abs_value = 1
@@ -473,7 +472,8 @@ class Generator:
 
         # Initial plot: Show Bx at z-index 0
         z_index = 0
-        self.field_plot = self.ax.imshow(Bx[:, :, z_index], origin='lower', cmap='viridis',extent=[-rad, rad, -rad, rad], vmin=-max_abs_value, vmax=max_abs_value )
+        #taking .T transposed matrix, because imshow() expects aruments y,x and not x,y like all other plotting functions
+        self.field_plot = self.ax.imshow(Bx[:, :, z_index].T, origin='lower', cmap='viridis',extent=[-rad, rad, -rad, rad], vmin=-max_abs_value, vmax=max_abs_value )
         self.ax.set_title(f'Magnetic Field at z = {z_index} m')
 
 
@@ -507,7 +507,7 @@ class Generator:
         # Find the closest z-index to the current slider value
         z_idx = (np.abs(self.z - val)).argmin()
         
-        self.field_plot.set_data(self.current_field[:, :, z_idx])  # Update the plot data
+        self.field_plot.set_data(self.current_field[:, :, z_idx].T)  # Update the plot data
         self.ax.set_title(f'Magnetic Field at z = {self.z[z_idx]:.3f}')  # Update title with actual z value
         self.circle = plt.Circle((0,0),self.radius[z_idx] ,color='black', fill=False, linewidth=2)
         #self.ax.add_patch(circle)
@@ -631,3 +631,38 @@ class Generator:
         plt.tight_layout()
         plt.show()
 
+
+    def plotGandR(self, z_val, G, radius):
+
+        plt.figure(figsize=(5,10))
+        row = 2; col =1
+        plt.subplots_adjust(hspace =.4)
+        
+        plt.subplot(row,col,1)
+        plt.title("gradient profile")
+        plt.plot(z_val,G,'-', color='red')
+        plt.xlabel("z [m]")
+        plt.ylabel('Gradient of the field [T/m] ')
+        plt.grid()
+        
+
+        plt.subplot(row,col,2)
+
+        radiusChosen = []
+        zChosen = []
+        for i,z in enumerate(z_val):
+            if radius[i] <1:
+                zChosen.append( float(z) )
+                radiusChosen.append( float(radius[i]*1000) )
+
+
+        plt.title("radius of aperture")
+        plt.plot(zChosen,radiusChosen,label='aperture radius', color = 'blue')
+        plt.xlabel("z [m]")
+        plt.ylabel("radius [mm]")
+        plt.ylim(0, math.ceil(max([self.radius1,self.radius2])*100 )*10 )
+        plt.grid()
+
+
+        plt.tight_layout()
+        plt.show()
