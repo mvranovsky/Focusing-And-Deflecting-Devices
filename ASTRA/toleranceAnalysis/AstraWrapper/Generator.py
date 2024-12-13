@@ -40,10 +40,10 @@ class Generator:
 
 
     # parameters for wobbles of skew angle
-    skewAmp1 = 1    #degrees
+    skewAmp1 = 1    #radians
     skewFreq1 = 10
     skewIniPhase1 = 0
-    skewAmp2 = 0.5  #degrees
+    skewAmp2 = 0.5  #radians
     skewFreq2 = 30
     skewIniPhase2 = 0.05 
 
@@ -267,7 +267,7 @@ class Generator:
         self.BTipField = BTipField
         Zpos, gradVal, radius = [],[],[]
         if Qbore1 != None and Qbore2 != None:
-            print("Will be generating field according to bore radius input and the tip field.")
+            #print("Will be generating field according to bore radius input and the tip field.")
             self.radius1 = Qbore1
             self.radius2 = Qbore2
             self.grad1 = BTipField/Qbore1
@@ -277,7 +277,7 @@ class Generator:
                 for i,g  in enumerate(gradVal):
                     gradVal[i] = -g
         elif grad1 != None and grad2 != None:
-            print("Will be generating field according to gradient input and the tip field.")
+            #print("Will be generating field according to gradient input and the tip field.")
             self.radius1 = BTipField/math.fabs(grad1)
             self.radius2 = BTipField/math.fabs(grad2)
             self.grad1 = grad1
@@ -424,10 +424,10 @@ class Generator:
         grad = np.array(gradVal)
         gradVal_3D = grad[ np.newaxis, np.newaxis,:]  # Make gradVal 3D along z-axis
 
-        Bx =( np.sin( (2*np.pi/360)*self.skewAngle(Z, skewAngleWobbles) )*gradVal_3D*(X - self.magCenterX(Z, magCentreXWobbles)) +
-              np.cos( (2*np.pi/360)*self.skewAngle(Z, skewAngleWobbles) )*gradVal_3D*(Y - self.magCenterY(Z, magCentreYWobbles))  )
-        By =( np.cos( (2*np.pi/360)*self.skewAngle(Z, skewAngleWobbles) )*gradVal_3D*(X - self.magCenterX(Z, magCentreXWobbles)) -
-              np.sin( (2*np.pi/360)*self.skewAngle(Z, skewAngleWobbles) )*gradVal_3D*(Y - self.magCenterY(Z, magCentreYWobbles))  )
+        Bx =( np.sin( self.skewAngle(Z, skewAngleWobbles) )*gradVal_3D*(X - self.magCenterX(Z, magCentreXWobbles)) +
+              np.cos( self.skewAngle(Z, skewAngleWobbles) )*gradVal_3D*(Y - self.magCenterY(Z, magCentreYWobbles))  )
+        By =( np.cos( self.skewAngle(Z, skewAngleWobbles) )*gradVal_3D*(X - self.magCenterX(Z, magCentreXWobbles)) -
+              np.sin( self.skewAngle(Z, skewAngleWobbles) )*gradVal_3D*(Y - self.magCenterY(Z, magCentreYWobbles))  )
 
 
 

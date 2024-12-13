@@ -26,7 +26,7 @@ class Astra:
     # quad constants
     nameOfFiles = ["test0.ini", "test1.ini", "test2.ini", "test3.ini", "test4.ini"]
     AstraLengths = [0.03619, 0.12429, 0.09596] #these values were computed so that integrated gradient matches the fits from field profiles
-    FPlengths = [0.035, 0.120, 0.105]
+    FPlengths = [0.036, 0.120, 0.10]
     bores = [0.007, 0.018, 0.030]    
 
     # constants regarding reference particles
@@ -508,12 +508,16 @@ class Astra:
 
         return math.fabs(xPos)/math.fabs(yPos)
 
-    def getClosest(self, currentData):
+    def getClosest(self, currentData, z = None):
+
+        if z is None:
+            z = self.setupLength
+
 
         bestLine = []
         closest = 0.1
         for j in range(len(currentData)):
-            dist = math.fabs(currentData[j][0] - self.setupLength)
+            dist = math.fabs(currentData[j][0] - z)
             if dist < closest:
                 bestLine = list(currentData[j])
                 closest = float(dist)

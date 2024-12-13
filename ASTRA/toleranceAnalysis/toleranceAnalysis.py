@@ -1,9 +1,8 @@
 #!/usr/bin/python3
 
-
-from AstraWrapper import SettingsFile
-from AstraWrapper import Astra
-from AstraWrapper import Generator 
+from AstraWrapper.SettingsFile import SettingsFile
+from AstraWrapper.Astra import Astra
+from AstraWrapper.Generator import Generator
 import scipy as sc
 import subprocess
 import time
@@ -11,285 +10,666 @@ import pandas as pd
 import math
 import matplotlib.pyplot as plt
 import numpy as np
-#import ROOT 
 import sys
-
-def changeMom(Pz,name):
-
-    with open(name, "r") as file:
-        line = file.readlines()[0].split()
-
-    if Pz >= 100 and Pz <= 1000:
-        Pz = Pz*1000000
+import ROOT
+import array
 
 
-
-    xAngle = 1  #mrad
-    yAngle = 1
-    #momentum update
-    if name == "test1.ini":
-        line[3] = str(xAngle*Pz*1e-3)
-
-    if name == "test2.ini":
-        line[4] = str(yAngle*Pz*1e-3)
-
-    line[5] = str(Pz)
-
-    lineTogether = ''
-    for num in line:
-        lineTogether += num + " "
-
-    with open(name, "w") as file:
-        file.write(lineTogether)
+# Define all variables with explicit types
+# Setup info
 
 
-def plotRefXY(data):
+d1 = array.array('f', [0.0]) 
+d2 = array.array('f', [0.0])
+d3 = array.array('f', [0.0])
+d4 = array.array('f', [0.0])
+L = array.array('f', [0.0])
+pz = array.array('f', [0.0])
+accX = array.array('f', [0.0])
+accY = array.array('f', [0.0])
+
+# Initial beam info
+sigX = array.array('f', [0.0])
+sigPx = array.array('f', [0.0])
+iniAvrX = array.array('f', [0.0])
+iniRMSX = array.array('f', [0.0])
+iniRMSXPrime = array.array('f', [0.0])
+iniEmitNormX = array.array('f', [0.0])
+sigY = array.array('f', [0.0])
+sigPy = array.array('f', [0.0])
+iniAvrY = array.array('f', [0.0])
+iniRMSY = array.array('f', [0.0])
+iniRMSYPrime = array.array('f', [0.0])
+iniEmitNormY = array.array('f', [0.0])
+
+# Output beam info
+outAvrX = array.array('f', [0.0])
+outRMSX = array.array('f', [0.0])
+outRMSXPrime = array.array('f', [0.0])
+outEmitNormX = array.array('f', [0.0])
+outAvrY = array.array('f', [0.0])
+outRMSY = array.array('f', [0.0])
+outRMSYPrime = array.array('f', [0.0])
+outEmitNormY = array.array('f', [0.0])
+
+# Quadrupole wobbles info
+offsetInMicrons = array.array('f', [0.0])
+
+# Quadrupole 1
+Q1MCXWobbles = array.array('i', [0])
+Q1MCXAmp1 = array.array('f', [0.0])
+Q1MCXFreq1 = array.array('f', [0.0])
+Q1MCXIniPhase1 = array.array('f', [0.0])
+Q1MCXAmp2 = array.array('f', [0.0])
+Q1MCXFreq2 = array.array('f', [0.0])
+Q1MCXIniPhase2 = array.array('f', [0.0])
+
+Q1MCYWobbles = array.array('i', [0])
+Q1MCYAmp1 = array.array('f', [0.0])
+Q1MCYFreq1 = array.array('f', [0.0])
+Q1MCYIniPhase1 = array.array('f', [0.0])
+Q1MCYAmp2 = array.array('f', [0.0])
+Q1MCYFreq2 = array.array('f', [0.0])
+Q1MCYIniPhase2 = array.array('f', [0.0])
+
+Q1SkewAngleWobbles = array.array('i', [0])
+Q1SkewAngleAmp1 = array.array('f', [0.0])
+Q1SkewAngleFreq1 = array.array('f', [0.0])
+Q1SkewAngleIniPhase1 = array.array('f', [0.0])
+Q1SkewAngleAmp2 = array.array('f', [0.0])
+Q1SkewAngleFreq2 = array.array('f', [0.0])
+Q1SkewAngleIniPhase2 = array.array('f', [0.0])
+
+Q1GradWobbles = array.array('i', [0])
+Q1GradAmp = array.array('f', [0.0])
+Q1GradFreq = array.array('f', [0.0])
+Q1GradIniPhase = array.array('f', [0.0])
+
+# Quadrupole 2
+Q2MCXWobbles = array.array('i', [0])
+Q2MCXAmp1 = array.array('f', [0.0])
+Q2MCXFreq1 = array.array('f', [0.0])
+Q2MCXIniPhase1 = array.array('f', [0.0])
+Q2MCXAmp2 = array.array('f', [0.0])
+Q2MCXFreq2 = array.array('f', [0.0])
+Q2MCXIniPhase2 = array.array('f', [0.0])
+
+Q2MCYWobbles = array.array('i', [0])
+Q2MCYAmp1 = array.array('f', [0.0])
+Q2MCYFreq1 = array.array('f', [0.0])
+Q2MCYIniPhase1 = array.array('f', [0.0])
+Q2MCYAmp2 = array.array('f', [0.0])
+Q2MCYFreq2 = array.array('f', [0.0])
+Q2MCYIniPhase2 = array.array('f', [0.0])
+
+Q2SkewAngleWobbles = array.array('i', [0])
+Q2SkewAngleAmp1 = array.array('f', [0.0])
+Q2SkewAngleFreq1 = array.array('f', [0.0])
+Q2SkewAngleIniPhase1 = array.array('f', [0.0])
+Q2SkewAngleAmp2 = array.array('f', [0.0])
+Q2SkewAngleFreq2 = array.array('f', [0.0])
+Q2SkewAngleIniPhase2 = array.array('f', [0.0])
+
+Q2GradWobbles = array.array('i', [0])
+Q2GradAmp = array.array('f', [0.0])
+Q2GradFreq = array.array('f', [0.0])
+Q2GradIniPhase = array.array('f', [0.0])
+
+
+# Quadrupole 3
+Q3MCXWobbles = array.array('i', [0])
+Q3MCXAmp1 = array.array('f', [0.0])
+Q3MCXFreq1 = array.array('f', [0.0])
+Q3MCXIniPhase1 = array.array('f', [0.0])
+Q3MCXAmp2 = array.array('f', [0.0])
+Q3MCXFreq2 = array.array('f', [0.0])
+Q3MCXIniPhase2 = array.array('f', [0.0])
+
+Q3MCYWobbles = array.array('i', [0])
+Q3MCYAmp1 = array.array('f', [0.0])
+Q3MCYFreq1 = array.array('f', [0.0])
+Q3MCYIniPhase1 = array.array('f', [0.0])
+Q3MCYAmp2 = array.array('f', [0.0])
+Q3MCYFreq2 = array.array('f', [0.0])
+Q3MCYIniPhase2 = array.array('f', [0.0])
+
+Q3SkewAngleWobbles = array.array('i', [0])
+Q3SkewAngleAmp1 = array.array('f', [0.0])
+Q3SkewAngleFreq1 = array.array('f', [0.0])
+Q3SkewAngleIniPhase1 = array.array('f', [0.0])
+Q3SkewAngleAmp2 = array.array('f', [0.0])
+Q3SkewAngleFreq2 = array.array('f', [0.0])
+Q3SkewAngleIniPhase2 = array.array('f', [0.0])
+
+Q3GradWobbles = array.array('i', [0])
+Q3GradAmp = array.array('f', [0.0])
+Q3GradFreq = array.array('f', [0.0])
+Q3GradIniPhase = array.array('f', [0.0])
+
+
+output_file = ROOT.TFile("output.root", "RECREATE")
+tree = ROOT.TTree("outputTree", "output TTree")
+
+# setup info
+tree.Branch("D1", d1, "D1/F")  #m
+tree.Branch("D2", d2, "D2/F")  #m
+tree.Branch("D3", d3, "D3/F")  #m
+tree.Branch("D4", d4, "D4/F")  #m
+tree.Branch("setupLength", L, "L/F")  #m
+tree.Branch("Pz", pz, "Pz/F")  #MeV
+tree.Branch("acceptanceX",accX , "acceptanceXInMrad/F")  #mrad
+tree.Branch("acceptanceY",accY , "acceptanceYInMrad/F")  #mrad
+
+# initial beam info
+tree.Branch("sig_x", sigX, "sigX/F")   #mu m
+tree.Branch("sig_px", sigPx, "sigPx/F")  #eV
+tree.Branch("iniAvrX", iniAvrX, "iniAvrX/F")  #mm
+tree.Branch("iniRMSX", iniRMSX, "iniRMSX/F")  #mm
+tree.Branch("iniRMSXPrime", iniRMSXPrime, "iniRMSXPrime/F")  #mrad
+tree.Branch("iniEmitNormX", iniEmitNormX, "iniEmitNormX/F")  #pi mm mrad
+tree.Branch("sig_y", sigY, "sigY/F")
+tree.Branch("sig_py", sigPy, "sigPy/F")
+tree.Branch("iniAvrY", iniAvrY, "iniAvrY/F")
+tree.Branch("iniRMSY", iniRMSY, "iniRMSY/F")
+tree.Branch("iniRMSYPrime", iniRMSYPrime, "iniRMSYPrime/F")
+tree.Branch("iniEmitNormY", iniEmitNormY, "iniEmitNormY/F")
+
+
+# output beam info
+tree.Branch("outAvrX", outAvrX, "outAvrX/F")  
+tree.Branch("outRMSX", outRMSX, "outRMSX/F")
+tree.Branch("outRMSXPrime", outRMSXPrime, "outRMSXPrime/F")
+tree.Branch("outEmitNormX", outEmitNormX, "outEmitNormX/F")
+tree.Branch("outAvrY", outAvrY, "outAvrY/F")
+tree.Branch("outRMSY", outRMSY, "outRMSY/F")
+tree.Branch("outRMSYPrime", outRMSYPrime, "outRMSYPrime/F")
+tree.Branch("outEmitNormY", outEmitNormY, "outEmitNormY/F")
+
+
+# quadrupole wobbles info
+tree.Branch("offsetInMicrons", offsetInMicrons, "offsetInMicrons/F")  #mu m
+
+# quadrupole 1
+tree.Branch("Q1MCXWobbles", Q1MCXWobbles, "Q1MCXWobbles/I")  #0 == False, 1 == True
+tree.Branch("Q1MCXAmp1", Q1MCXAmp1, "Q1MCXAmp1/F")           #mu m
+tree.Branch("Q1MCXFreq1",Q1MCXFreq1 , "Q1MCXFreq1/F")        #1/m
+tree.Branch("Q1MCXIniPhase1",Q1MCXIniPhase1 , "Q1MCXIniPhase1/F")  #rad
+tree.Branch("Q1MCXAmp2", Q1MCXAmp2, "Q1MCXAmp2/F")
+tree.Branch("Q1MCXFreq2",Q1MCXFreq2 , "Q1MCXFreq2/F")
+tree.Branch("Q1MCXIniPhase2",Q1MCXIniPhase2 , "Q1MCXIniPhase2/F")
+
+tree.Branch("Q1MCYWobbles", Q1MCYWobbles, "Q1MCYWobbles/I")
+tree.Branch("Q1MCYAmp1", Q1MCYAmp1, "Q1MCYAmp1/F")
+tree.Branch("Q1MCYFreq1",Q1MCYFreq1 , "Q1MCYFreq1/F")
+tree.Branch("Q1MCYIniPhase1",Q1MCYIniPhase1 , "Q1MCYIniPhase1/F")
+tree.Branch("Q1MCYAmp2", Q1MCYAmp2, "Q1MCYAmp2/F")
+tree.Branch("Q1MCYFreq2",Q1MCYFreq2 , "Q1MCYFreq2/F")
+tree.Branch("Q1MCYIniPhase2",Q1MCYIniPhase2 , "Q1MCYIniPhase2/F")
+
+tree.Branch("Q1SkewAngleWobbles", Q1SkewAngleWobbles, "Q1SkewAngleWobbles/I")
+tree.Branch("Q1SkewAngleAmp1", Q1SkewAngleAmp1, "Q1SkewAngleAmp1/F")
+tree.Branch("Q1SkewAngleFreq1", Q1SkewAngleFreq1, "Q1SkewAngleFreq1/F")
+tree.Branch("Q1SkewAngleIniPhase1",Q1MCXIniPhase1 , "Q1MCXIniPhase1/F")
+tree.Branch("Q1SkewAngleAmp2", Q1SkewAngleAmp1, "Q1SkewAngleAmp2/F")
+tree.Branch("Q1SkewAngleFreq2", Q1SkewAngleFreq1, "Q1SkewAngleFreq2/F")
+tree.Branch("Q1SkewAngleIniPhase2",Q1MCXIniPhase1 , "Q1MCXIniPhase2/F")
+
+tree.Branch("Q1GradWobbles", Q1GradWobbles, "Q1GradWobbles/I")
+tree.Branch("Q1GradAmp",Q1GradAmp , "Q1GradAmp/F")
+tree.Branch("Q1GradFreq", Q1GradFreq, "Q1GradFreq/F")
+tree.Branch("Q1GradIniPhase", Q1GradIniPhase, "Q1GradIniPhase/F")
+
+# quadrupole 2
+tree.Branch("Q2MCXWobbles", Q2MCXWobbles, "Q2MCXWobbles/I")
+tree.Branch("Q2MCXAmp1", Q2MCXAmp1, "Q2MCXAmp1/F")
+tree.Branch("Q2MCXFreQ2",Q2MCXFreq1 , "Q2MCXFreq1/F")
+tree.Branch("Q2MCXIniPhase1",Q2MCXIniPhase1 , "Q2MCXIniPhase1/F")
+tree.Branch("Q2MCXAmp2", Q2MCXAmp2, "Q2MCXAmp2/F")
+tree.Branch("Q2MCXFreq2",Q2MCXFreq2 , "Q2MCXFreq2/F")
+tree.Branch("Q2MCXIniPhase2",Q2MCXIniPhase2 , "Q2MCXIniPhase2/F")
+
+tree.Branch("Q2MCYWobbles", Q2MCYWobbles, "Q2MCYWobbles/I")
+tree.Branch("Q2MCYAmp1", Q2MCYAmp1, "Q2MCYAmp1/F")
+tree.Branch("Q2MCYFreq1",Q2MCYFreq1 , "Q2MCYFreq1/F")
+tree.Branch("Q2MCYIniPhase1",Q2MCYIniPhase1 , "Q2MCYIniPhase1/F")
+tree.Branch("Q2MCYAmp2", Q2MCYAmp2, "Q2MCYAmp2/F")
+tree.Branch("Q2MCYFreq2",Q2MCYFreq2 , "Q2MCYFreq2/F")
+tree.Branch("Q2MCYIniPhase2",Q2MCYIniPhase2 , "Q2MCYIniPhase2/F")
+
+tree.Branch("Q2SkewAngleWobbles", Q2SkewAngleWobbles, "Q2SkewAngleWobbles/I")
+tree.Branch("Q2SkewAngleAmp1", Q2SkewAngleAmp1, "Q2SkewAngleAmp1/F")
+tree.Branch("Q2SkewAngleFreq1", Q2SkewAngleFreq1, "Q2SkewAngleFreq1/F")
+tree.Branch("Q2SkewAngleIniPhase1",Q2MCXIniPhase1 , "Q2MCXIniPhase1/F")
+tree.Branch("Q2SkewAngleAmp2", Q2SkewAngleAmp1, "Q2SkewAngleAmp2/F")
+tree.Branch("Q2SkewAngleFreq2", Q2SkewAngleFreq1, "Q2SkewAngleFreq2/F")
+tree.Branch("Q2SkewAngleIniPhase2",Q2MCXIniPhase1 , "Q2MCXIniPhase2/F")
+
+tree.Branch("Q2GradWobbles", Q2GradWobbles, "Q2GradWobbles/I")
+tree.Branch("Q2GradAmp",Q2GradAmp , "Q2GradAmp/F")
+tree.Branch("Q2GradFreq", Q2GradFreq, "Q2GradFreq/F")
+tree.Branch("Q2GradIniPhase", Q2GradIniPhase, "Q2GradIniPhase/F")
+
+
+# quadrupole 3
+tree.Branch("Q3MCXWobbles", Q3MCXWobbles, "Q3MCXWobbles/I")
+tree.Branch("Q3MCXAmp1", Q3MCXAmp1, "Q3MCXAmp1/F")
+tree.Branch("Q3MCXFreQ3",Q3MCXFreq1 , "Q3MCXFreq1/F")
+tree.Branch("Q3MCXIniPhase1",Q3MCXIniPhase1 , "Q3MCXIniPhase1/F")
+tree.Branch("Q3MCXAmp2", Q3MCXAmp2, "Q3MCXAmp2/F")
+tree.Branch("Q3MCXFreq2",Q3MCXFreq2 , "Q3MCXFreq2/F")
+tree.Branch("Q3MCXIniPhase2",Q3MCXIniPhase2 , "Q3MCXIniPhase2/F")
+
+tree.Branch("Q3MCYWobbles", Q3MCYWobbles, "Q3MCYWobbles/I")
+tree.Branch("Q3MCYAmp1", Q3MCYAmp1, "Q3MCYAmp1/F")
+tree.Branch("Q3MCYFreq1",Q3MCYFreq1 , "Q3MCYFreq1/F")
+tree.Branch("Q3MCYIniPhase1",Q3MCYIniPhase1 , "Q3MCYIniPhase1/F")
+tree.Branch("Q3MCYAmp2", Q3MCYAmp2, "Q3MCYAmp2/F")
+tree.Branch("Q3MCYFreq2",Q3MCYFreq2 , "Q3MCYFreq2/F")
+tree.Branch("Q3MCYIniPhase2",Q3MCYIniPhase2 , "Q3MCYIniPhase2/F")
+
+tree.Branch("Q3SkewAngleWobbles", Q3SkewAngleWobbles, "Q3SkewAngleWobbles/I")
+tree.Branch("Q3SkewAngleAmp1", Q3SkewAngleAmp1, "Q3SkewAngleAmp1/F")
+tree.Branch("Q3SkewAngleFreq1", Q3SkewAngleFreq1, "Q3SkewAngleFreq1/F")
+tree.Branch("Q3SkewAngleIniPhase1",Q3MCXIniPhase1 , "Q3MCXIniPhase1/F")
+tree.Branch("Q3SkewAngleAmp2", Q3SkewAngleAmp1, "Q3SkewAngleAmp2/F")
+tree.Branch("Q3SkewAngleFreq2", Q3SkewAngleFreq1, "Q3SkewAngleFreq2/F")
+tree.Branch("Q3SkewAngleIniPhase2",Q3MCXIniPhase1 , "Q3MCXIniPhase2/F")
+
+tree.Branch("Q3GradWobbles", Q3GradWobbles, "Q3GradWobbles/I")
+tree.Branch("Q3GradAmp",Q3GradAmp , "Q3GradAmp/F")
+tree.Branch("Q3GradFreq", Q3GradFreq, "Q3GradFreq/F")
+tree.Branch("Q3GradIniPhase", Q3GradIniPhase, "Q3GradIniPhase/F")
+
+def func(D,D1, Pz, focusing):
+
+    data = []
+    Sum = 1E+9
+    try:
+        data = astra.runRef(D1, *D, None, astra.setupLength,Pz, False)
+    except Exception as e:
+        print(f"exception: {e}")
+        return Sum
+    else:
+        if focusing == "parallel":
+            Sum = astra.parallelFocusing(data)
+        else:
+            Sum = astra.pointFocusing(data)
+        print(D, Sum)
+        return Sum
 
 
 
-    plt.plot([line[0] for line in data[0] ], [line[5] for line in data[0] ] , label='x offset, initial x angle', color='blue')
-    plt.plot([line[0] for line in data[1] ], [line[6] for line in data[1] ] , label='y offset, initial y angle', color='red')
+def tripletFocusing(Pz, D1 = None , focusing = "point", limitValue = 0.0000001, FFFactor = 1 ):
+    method = "Powell"
+    tolerance = 1e-6
 
+    
+    Dmin = [FFFactor*(astra.bores[0] + astra.bores[1]) , FFFactor*(astra.bores[1] + astra.bores[2]) ]
+    Dmax = [0.6, 0.6]
+    bounds = [(low, high) for low, high in zip(Dmin, Dmax)]
+
+    res = sc.optimize.minimize(func, (0.1,0.1), method=method, tol=tolerance, bounds=bounds, args=(D1,Pz,focusing) )
+
+    funcVal = func(res.x,D1, Pz, focusing=focusing)
+
+    print("result: ",D1, res.x)
+
+    if funcVal > limitValue:
+        return 1
+
+    #beamRatio = math.ceil(astra.beamRatio(*result, None, astra.setupLength, Pz)*100)/100
+    acc = [math.floor(num*10)/10 for num in astra.checkAngleAcceptance(D1, *res.x, None, astra.setupLength, Pz)]
+
+    return [D1, *[math.ceil(num*1000000)/10000 for num in res.x],None, astra.setupLength,Pz, funcVal,*acc]
+
+
+
+def generate_1D(emittance, num_particles=1000):
+    """
+    Generate a beam with a given emittance.
+    """
+    # Generate random points in normalized phase space (x, px)
+    theta = np.random.uniform(0, 2 * np.pi, num_particles)  # Random angles
+    r = np.sqrt(np.random.normal(0, 1, num_particles))  # Random radii (normalized)
+    
+    # Scale points to satisfy the emittance ellipse
+    x = r * np.sqrt(emittance) * np.cos(theta)
+    px = r * np.sqrt(emittance) * np.sin(theta)
+    
+    return x, px
+
+def generate_beam(emittance, num_particles=1000):
+    # emittance in pi mu m mrad
+    x, px = generate_1D(emittance, num_particles)
+    y, py = generate_1D(emittance, num_particles)
+
+
+    x = x/1000000
+    y = y/1000000
+
+    px = px*Pz/1000
+    py = py*Pz/1000
+
+    #here in future, add z, Pz spread
+
+    out = f"0 0 0 0 0 {Pz} 0 -1E-4   1   5\n"
+
+    for i in range(num_particles):
+        out += f"{x[i]} {y[i]} {0} {px[i]} {py[i]} {0} {0} -1E-4   1   5\n"
+
+    print(out)
+
+    with open(iniFile, "w") as file:
+        file.write(out)
+
+    return x, xPrime, y, yPrime
+
+def plot_beams(x,xPrime,y,yPrime):
+
+
+    plt.figure(figsize=(10, 8))
+    plt.scatter(x, xPrime, s=1, label=f'Emittance: x')
+    plt.scatter(y, yPrime, s=1, label=f'Emittance: y')
+    plt.xlabel('pos [mu m]')
+    plt.ylabel('angle [mrad]')
+    plt.title('Phase Space Distribution of Beams')
     plt.legend()
-    plt.xlabel("z [m]")
-    plt.ylabel("offset [mm]")
-
-    plt.savefig('figure.png', format="png", dpi=300)
+    plt.grid(True)
     plt.show()
 
 
-def func(Pz,L1, L2, showPlot = False, returnAllData = False):
-
-    inputDataName = ["test1.ini", "test2.ini"]
-
-    allData = []
-    outputMoreData = [[0,0,0,0,0,0]]
-    for i in range(len(inputDataName)):
-        changeMom(Pz[0]*1000000, inputDataName[i])
-        setFile.changeInputData("Distribution", inputDataName[i] )
-        setFile.changeInputData("RUN", str(i+1))
-
-        res = astra.runAstra()
-
-        if not (res.stderr == '' or 'Goodbye' in res.stdout) or "ATTENTION: PROGRAM IS QUITTING  EARLY !" in res.stdout:
-            return 1E+9
-
-        currentData = astra.loadData("ref", str(i+1) )
-
-        allData.append( currentData )
-        bestLine = astra.getClosest(currentData)
-        if bestLine == 1:
-            return 1E+9
-
-        outputMoreData.append( [bestLine[5]*1e-3, bestLine[6]*1e-3, bestLine[0], bestLine[7], bestLine[8], bestLine[2]*1e+6] )
+def generateNewOffsets(offset, switch, wobbles):
 
 
-    Sum = astra.parallelFocusing(outputMoreData)
-    print(Pz, Sum)
+    global offsetInMicrons
+    global Q1MCXWobbles,Q1MCYWobbles, Q1GradWobbles, Q1SkewAngleWobbles
+    global Q2MCXWobbles,Q2MCYWobbles, Q2GradWobbles, Q2SkewAngleWobbles
+    global Q3MCXWobbles,Q3MCYWobbles, Q3GradWobbles, Q3SkewAngleWobbles
 
-    if showPlot:
-        plotRefXY(allData)
+    global Q1MCXAmp1, Q1MCXFreq1, Q1MCXIniPhase1, Q1MCXAmp2, Q1MCXFreq2, Q1MCXIniPhase2
+    global Q1MCYAmp1, Q1MCYFreq1, Q1MCYIniPhase1, Q1MCYAmp2, Q1MCYFreq2, Q1MCYIniPhase2
+    global Q1GradAmp, Q1GradFreq, Q1GradIniPhase
+    global Q1SkewAngleAmp1 ,Q1SkewAngleFreq1, Q1SkewAngleIniPhase1, Q1SkewAngleAmp2 ,Q1SkewAngleFreq2, Q1SkewAngleIniPhase2 
 
-    if returnAllData:
-        return allData
+    global Q2MCXAmp1, Q2MCXFreq1, Q2MCXIniPhase1, Q2MCXAmp2, Q2MCXFreq2, Q2MCXIniPhase2
+    global Q2MCYAmp1, Q2MCYFreq1, Q2MCYIniPhase1, Q2MCYAmp2, Q2MCYFreq2, Q2MCYIniPhase2
+    global Q2GradAmp, Q2GradFreq, Q2GradIniPhase
+    global Q2SkewAngleAmp1 ,Q2SkewAngleFreq1, Q2SkewAngleIniPhase1, Q2SkewAngleAmp2 ,Q2SkewAngleFreq2, Q2SkewAngleIniPhase2 
 
-    return Sum
+    global Q3MCXAmp1, Q3MCXFreq1, Q3MCXIniPhase1, Q3MCXAmp2, Q3MCXFreq2, Q3MCXIniPhase2
+    global Q3MCYAmp1, Q3MCYFreq1, Q3MCYIniPhase1, Q3MCYAmp2, Q3MCYFreq2, Q3MCYIniPhase2
+    global Q3GradAmp, Q3GradFreq, Q3GradIniPhase
+    global Q3SkewAngleAmp1 ,Q3SkewAngleFreq1, Q3SkewAngleIniPhase1, Q3SkewAngleAmp2 ,Q3SkewAngleFreq2, Q3SkewAngleIniPhase2 
 
-def funcFindD(args,Pz,L1, L2, showPlot = False):
+    Qlength = [36000, 120000, 100000]
 
+    gen.MCXAmp1 = np.random.uniform(0, offset)
+    gen.MCXFreq1 = np.random.uniform(1, 100)
+    gen.MCXIniPhase1 = np.random.uniform(0,2*np.pi)
 
-    inputDataName = ["test1.ini", "test2.ini"]
-    changeMom(Pz*1000000, inputDataName[0])
-    changeMom(Pz*1000000, inputDataName[1])
+    gen.MCXAmp2 = np.random.uniform(0, offset)
+    gen.MCXFreq2 = np.random.uniform(1, 100)
+    gen.MCXIniPhase2 = np.random.uniform(0,2*np.pi)
 
-    # change positions accordingly
-    setFile.changeInputData("C_pos(1)",str(args[0]))
-    setFile.changeInputData("A_pos(1)",str(args[0]))
-    setFile.changeInputData("C_pos(2)",str(args[0] + L1 + args[1] ))
-    setFile.changeInputData("A_pos(2)",str(args[0] + L2 + args[1] ))
-
-    allData = []
-    outputMoreData = [[0,0,0,0,0,0]]
-    for i in range(len(inputDataName)):
-        setFile.changeInputData("Distribution", inputDataName[i] )
-        setFile.changeInputData("RUN", str(i+1))
-
-        res = astra.runAstra()
-
-        if not (res.stderr == '' or 'Goodbye' in res.stdout) or "ATTENTION: PROGRAM IS QUITTING  EARLY !" in res.stdout:
-            return 1E+9
-
-        currentData = astra.loadData("ref", str(i+1) )
-        allData.append(currentData)
-        bestLine = astra.getClosest(currentData)
-        if bestLine == 1:
-            return 1E+9
-
-        outputMoreData.append( [bestLine[5]*1e-3, bestLine[6]*1e-3, bestLine[0], bestLine[7], bestLine[8], bestLine[2]*1e+6] )
-
-    if showPlot:
-        plotRefXY(allData)
-
-    Sum = astra.parallelFocusing(outputMoreData)
-    print(args, Sum)
-    return Sum
+    gen.MCYAmp1 = np.random.uniform(0, offset)
+    gen.MCYFreq1 = np.random.uniform(1, 100)
+    gen.MCYIniPhase1 = np.random.uniform(0,2*np.pi)
 
 
-def doubletFocusing( D1, D2, L1,L2, limitValue = 0.0001, FFFactor = 1, findD = False , Pz = 500):
-    method = "COBYLA"
-    method = "Powell"
-    tolerance = 1e-8
-
-    astra.setupLength = 1.2
-    setFile.changeInputData("ZSTOP", str(1.2) )
-
-    # change positions accordingly
-    setFile.changeInputData("C_pos(1)",str(D1))
-    setFile.changeInputData("A_pos(1)",str(D1))
-    setFile.changeInputData("C_pos(2)",str(D1 + L1 + D2 ))
-    setFile.changeInputData("A_pos(2)",str(D1 + L2 + D2 ))
-    #changeMom(Pz, "test1.ini")
-    #changeMom(Pz, "test2.ini")
-
-    funkVal = 0
-    if findD:
-        Dmin = [ FFFactor*(r1),FFFactor*(r1+r2) ] 
-        Dmax = [0.5, 0.5]
-        bounds = [(low, high) for low, high in zip(Dmin, Dmax)]
-
-        res = sc.optimize.minimize(funcFindD, (0.1,0.2),method=method, bounds=bounds, args=(Pz,L1,L2) )
-
-        funkVal = funcFindD(res.x,Pz,L1,L2,showPlot = False)
-
-        if funkVal > limitValue:
-            raise ValueError(f"Did not obtain actual minimum, reached only function value {funkVal} for D = {res.x} m")
-
-        return [*res.x, 1.2, Pz , funkVal ]
-
-    else:
-        Pzmin = [100 ]  #MeV
-        Pzmax = [1500]
-        bounds = [(low, high) for low, high in zip(Pzmin, Pzmax)]
-
-        # change positions accordingly
-        setFile.changeInputData("C_pos(1)",str(D1))
-        setFile.changeInputData("A_pos(1)",str(D1))
-        setFile.changeInputData("C_pos(2)",str(D1 + L1 + D2 ))
-        setFile.changeInputData("A_pos(2)",str(D1 + L2 + D2 ))
-
-        res = sc.optimize.minimize(func, (300),method=method, bounds=bounds, args=(L1,L2,False))
-        funkVal = func(res.x,L1,L2, False)
-
-        if funkVal > limitValue:
-            raise ValueError(f"Did not obtain actual minimum, reached only function value {funkVal} for Pz = {res.x[0]} MeV")
+    gen.MCYAmp2 = np.random.uniform(0, offset)
+    gen.MCYFreq2 = np.random.uniform(1, 100)
+    gen.MCYIniPhase2 = np.random.uniform(0,2*np.pi)
 
 
+    # parameters for wobbles of gradient function
+    gen.gradAmp = np.random.uniform(0, offset*222)
+    gen.gradFreq = np.random.uniform(1,100)
+    gen.gradIniPhase = np.random.uniform(0,2*np.pi)
 
-        return [D1,D2, 1.2, res.x[0] , funkVal ]
 
+    gen.skewAmp1 = np.random.uniform(0, offset/(Qlength[switch]) )
+    gen.skewFreq1 = np.random.uniform(1, 50)
+    gen.skewIniPhase1 = np.random.uniform(0,2*np.pi)
+
+    gen.skewAmp2 = np.random.uniform(0, offset/(Qlength[switch]) )
+    gen.skewFreq2 = np.random.uniform(1, 50)
+    gen.skewIniPhase2 = np.random.uniform(0,2*np.pi)
+    
+    offsetInMicrons[0] = offset*1000000
+
+    Q1MCXWobbles[0],Q1MCYWobbles[0], Q1GradWobbles[0], Q1SkewAngleWobbles[0] = wobbles
+    Q2MCXWobbles[0],Q2MCYWobbles[0], Q2GradWobbles[0], Q2SkewAngleWobbles[0] = wobbles
+    Q3MCXWobbles[0],Q3MCYWobbles[0], Q3GradWobbles[0], Q3SkewAngleWobbles[0] = wobbles
+
+    if switch == 0:
+        gen.generateFieldMap(0.036, 0.777, grad1=222, grad2=222, fileOutputName='quad1', nFMPoints = 20, showPlot = False, magCentreXWobbles = Q1MCXWobbles, magCentreYWobbles = Q1MCYWobbles, skewAngleWobbles = Q1SkewAngleWobbles, gradWobbles = Q1GradWobbles)
+    
+        # save parameters
+        Q1MCXAmp1[0], Q1MCXFreq1[0], Q1MCXIniPhase1[0] = 1000000*float(gen.MCXAmp1), float(gen.MCXFreq1), float(gen.MCXIniPhase1)
+        Q1MCXAmp2[0], Q1MCXFreq2[0], Q1MCXIniPhase2[0] = 1000000*float(gen.MCXAmp2), float(gen.MCXFreq2), float(gen.MCXIniPhase2)
+        Q1MCYAmp1[0], Q1MCYFreq1[0], Q1MCYIniPhase1[0] = 1000000*float(gen.MCYAmp1), float(gen.MCYFreq1), float(gen.MCYIniPhase1)
+        Q1MCYAmp2[0], Q1MCYFreq2[0], Q1MCYIniPhase2[0] = 1000000*float(gen.MCYAmp2), float(gen.MCYFreq2), float(gen.MCYIniPhase2)
+        Q1GradAmp[0], Q1GradFreq[0], Q1GradIniPhase[0] = 1000000*float(gen.gradAmp), float(gen.gradFreq), float(gen.gradIniPhase)
+        Q1SkewAngleAmp1[0] ,Q1SkewAngleFreq1[0], Q1SkewAngleIniPhase1[0] = 1000000*float(gen.skewAmp1), float(gen.skewFreq1), float(gen.skewIniPhase1)
+        Q1SkewAngleAmp2[0] ,Q1SkewAngleFreq2[0], Q1SkewAngleIniPhase2[0] = 1000000*float(gen.skewAmp2), float(gen.skewFreq2), float(gen.skewIniPhase2)
+
+    elif switch == 1:
+        gen.generateFieldMap(0.12, 0.846, grad1=-94, grad2=-94, fileOutputName='quad2', nFMPoints = 20, showPlot = False, magCentreXWobbles = Q2MCXWobbles, magCentreYWobbles = Q2MCYWobbles, skewAngleWobbles = Q2SkewAngleWobbles, gradWobbles = Q2GradWobbles)
+    
+        # save parameters
+        Q2MCXAmp1[0], Q2MCXFreq1[0], Q2MCXIniPhase1[0] = 1000000*float(gen.MCXAmp1), float(gen.MCXFreq1), float(gen.MCXIniPhase1)
+        Q2MCXAmp2[0], Q2MCXFreq2[0], Q2MCXIniPhase2[0] = 1000000*float(gen.MCXAmp2), float(gen.MCXFreq2), float(gen.MCXIniPhase2)
+        Q2MCYAmp1[0], Q2MCYFreq1[0], Q2MCYIniPhase1[0] = 1000000*float(gen.MCYAmp1), float(gen.MCYFreq1), float(gen.MCYIniPhase1)
+        Q2MCYAmp2[0], Q2MCYFreq2[0], Q2MCYIniPhase2[0] = 1000000*float(gen.MCYAmp2), float(gen.MCYFreq2), float(gen.MCYIniPhase2)
+        Q2GradAmp[0], Q2GradFreq[0], Q2GradIniPhase[0] = 1000000*float(gen.gradAmp), float(gen.gradFreq), float(gen.gradIniPhase)
+        Q2SkewAngleAmp1[0] ,Q2SkewAngleFreq1[0], Q2SkewAngleIniPhase1[0] = 1000*float(gen.skewAmp1), float(gen.skewFreq1), float(gen.skewIniPhase1)
+        Q2SkewAngleAmp2[0] ,Q2SkewAngleFreq2[0], Q2SkewAngleIniPhase2[0] = 1000*float(gen.skewAmp2), float(gen.skewFreq2), float(gen.skewIniPhase2)
+
+    elif switch == 2:
+        gen.generateFieldMap(0.1, 0.855, grad1=57, grad2=57, fileOutputName='quad3', nFMPoints = 20, showPlot = False, magCentreXWobbles = Q3MCXWobbles, magCentreYWobbles = Q3MCYWobbles, skewAngleWobbles = Q3SkewAngleWobbles, gradWobbles = Q3GradWobbles)
+    
+        # save parameters
+        Q3MCXAmp1[0], Q3MCXFreq1[0], Q3MCXIniPhase1[0] = 1000000*float(gen.MCXAmp1), float(gen.MCXFreq1), float(gen.MCXIniPhase1)
+        Q3MCXAmp2[0], Q3MCXFreq2[0], Q3MCXIniPhase2[0] = 1000000*float(gen.MCXAmp2), float(gen.MCXFreq2), float(gen.MCXIniPhase2)
+        Q3MCYAmp1[0], Q3MCYFreq1[0], Q3MCYIniPhase1[0] = 1000000*float(gen.MCYAmp1), float(gen.MCYFreq1), float(gen.MCYIniPhase1)
+        Q3MCYAmp2[0], Q3MCYFreq2[0], Q3MCYIniPhase2[0] = 1000000*float(gen.MCYAmp2), float(gen.MCYFreq2), float(gen.MCYIniPhase2)
+        Q3GradAmp[0], Q3GradFreq[0], Q3GradIniPhase[0] = 1000000*float(gen.gradAmp), float(gen.gradFreq), float(gen.gradIniPhase)
+        Q3SkewAngleAmp1[0] ,Q3SkewAngleFreq1[0], Q3SkewAngleIniPhase1[0] = 1000000*float(gen.skewAmp1), float(gen.skewFreq1), float(gen.skewIniPhase1)
+        Q3SkewAngleAmp2[0] ,Q3SkewAngleFreq2[0], Q3SkewAngleIniPhase2[0] = 1000000*float(gen.skewAmp2), float(gen.skewFreq2), float(gen.skewIniPhase2)
+
+
+def fillIniBeamInfo(beamX, beamY):
+
+    global sigX
+    global sigPx
+    global iniAvrX
+    global iniRMSX
+    global iniRMSXPrime
+    global iniEmitNormX
+
+    global sigY
+    global sigPy
+    global iniAvrY
+    global iniRMSY
+    global iniRMSYPrime
+    global iniEmitNormY
+
+
+    # Initial beam info
+    sigX[0], sigPx[0],iniAvrX[0],iniRMSX[0], iniRMSXPrime[0],iniEmitNormX[0] = beamX
+    sigY[0] ,sigPy[0],iniAvrY[0],iniRMSY[0], iniRMSYPrime[0],iniEmitNormY[0] = beamY
+
+
+def fillOutBeamInfo(beamX, beamY):
+
+    global outAvrX
+    global outRMSX
+    global outRMSXPrime
+    global outEmitNormX
+
+    global outAvrY
+    global outRMSY
+    global outRMSYPrime
+    global outEmitNormY
+
+    # Output beam info
+    outAvrX[0],outRMSX[0], outRMSXPrime[0],outEmitNormX[0] = beamX
+    outAvrY[0],outRMSY[0] ,outRMSYPrime[0],outEmitNormY[0] = beamY
+
+def fillSetupInfo(D1,D2,D3,D4,l,PZ, acc):
+
+    global d1, d2, d3, d4, L, pz, accX,accY
+    d1[0] = D1
+    d2[0] = D2
+    d3[0] = D3
+    d4[0] = D4
+    L[0] = l
+    pz[0] = PZ/1000000
+    accX[0], accY[0] = acc
+
+def tolerance(Pz, D1, wobbles, offsetAll):
+    
+    # set length at which the focusing will be done
+    astra.setupLength = 2.0  #m
+    astra.quadType(3)
+
+    setFile.changeInputData("ZSTOP", str(astra.setupLength))
+
+    setFile.changeInputData('File_Efield(1)', "'cavity/3Dquad1'")
+    setFile.changeInputData('File_Efield(2)', "'cavity/3Dquad2'")
+    setFile.changeInputData('File_Efield(3)', "'cavity/3Dquad3'")
+
+    setFile.changeInputData('File_Aperture(1)', "'aperture/quad1.dat'")
+    setFile.changeInputData('File_Aperture(2)', "'aperture/quad2.dat'")
+    setFile.changeInputData('File_Aperture(3)', "'aperture/quad3.dat'")
+
+    raySolution = [0.15, 0.10423853, 0.28500707]
+
+    acc = astra.checkAngleAcceptance(*raySolution, None, astra.setupLength, Pz)
+
+    # find solution with rays
+    #raySolution = tripletFocusing(Pz, D1 = D1)
+    if raySolution == 1:
+        return 1
+
+    D2 = raySolution[1]
+    D3 = raySolution[2]
+
+    # Generate and plot beams
+    #plot_beams( generate_beam(1) )
+
+    sigx = 1
+    sigy = 1
+    sigpx = 1*Pz/1000
+    sigpy = 1*Pz/1000
+    setFile.changeInputData("sig_x", sigx/1000)
+    setFile.changeInputData("sig_y", sigy/1000)
+    setFile.changeInputData("sig_px", sigpx)
+    setFile.changeInputData("sig_py", sigpy)
+
+    #run the perfect beam
+    astra.setupLength = 2.2
+    setFile.changeInputData("ZSTOP", str(astra.setupLength))
+    setFile.changeInputData("FNAME", iniFile )
+    setFile.changeInputData("Distribution", iniFile)
+    setFile.changeInputData("RUN", "1")
+
+    astra.runGenerator()
+
+    #offsetAll = [1, 5, 10, 50, 100, 500] #microns
+    #offsetAll = [50] #microns
+
+    for offset in offsetAll:
+        for i in range(1000):
+
+            print(f"Offset {offset}, Run {i}")
+            # generate new random offsets, wobbles and field maps of quads
+            if i == 0:
+                generateNewOffsets(offset/1000000, 0, [0,0,0,0])
+                generateNewOffsets(offset/1000000, 1, [0,0,0,0])
+                generateNewOffsets(offset/1000000, 2, [0,0,0,0])
+            else:
+                generateNewOffsets(offset/1000000, 0, wobbles)
+                generateNewOffsets(offset/1000000, 1, wobbles)
+                generateNewOffsets(offset/1000000, 2, wobbles)
+
+
+            # fill info about setup
+            fillSetupInfo(D1,D2,D3,2-D1-D2-D3 - 0.036 - 0.22,2, Pz, acc)
+
+
+            # generate new beam
+            astra.runGenerator()
+
+            # run astra 
+            astra.runAstra()
+
+            # plot initial distribution
+            '''
+            iniBeam = astra.loadData("0000")
+            xIni = [math.ceil(line[0]*1000000000)/1000 for line in iniBeam]
+            yIni = [math.ceil(line[1]*1000000000)/1000 for line in iniBeam]
+            xPIni = [math.ceil(line[3]/Pz*1000000)/1000 for line in iniBeam]
+            yPIni = [math.ceil(line[4]/Pz*1000000)/1000 for line in iniBeam]
+            plot_beams(xIni,xPIni, yIni,yPIni)
+            '''
+
+            # load initial distribution
+            iniBeamX = astra.getClosest( astra.loadData("Xemit"), 0 )
+            iniBeamY = astra.getClosest( astra.loadData("Yemit"), 0 )
+
+            # save initial distribution to tree
+            fillIniBeamInfo([sigx,sigpx, *iniBeamX[2:6] ], [sigy, sigpy, *iniBeamY[2:6]])
+
+            # plot distribution on screen
+            '''
+            outBeam = astra.loadData("0200")
+            xOut = [line[0]*1000000 for line in outBeam]
+            yOut = [line[1]*1000000 for line in outBeam]
+            xPOut = [line[3]/Pz*1000 for line in outBeam]
+            yPOut = [line[4]/Pz*1000 for line in outBeam]
+            plot_beams(xOut,xPOut, yOut,yPOut)
+            '''
+            # load and save final position info
+            outBeamX = astra.getClosest( astra.loadData("Xemit"), 2 )
+            outBeamY = astra.getClosest( astra.loadData("Yemit"), 2 )
+            fillOutBeamInfo(outBeamX[2:6] ,outBeamY[2:6])
+
+
+            tree.Fill()
 
 
 
 if __name__ == "__main__":
 
-    setFile = SettingsFile("novelApproach")
+    args = sys.argv
+    args.pop(0)
+    if len(args) != 1:
+        print(f"more than 1 argument")
+    inputFile = args[0]
+
+    iniFile = "tolerance.ini"
+
+    setFile = SettingsFile("toleranceAnalysis")
     astra = Astra(setFile)
-    generator = Generator('novelApproach')
+    gen = Generator("generatorFile")
 
-    astra.setupLength = 1.2
+    wobbles = [1,1,1,1] #magnetic centre x, magnetic centre y, gradient, skew angle
 
+    D1 = 0.15
+    Pz = 600
 
-    l1 = 0.08
-    l2 = 0.15
-    
-    r1 = 0.004
-    r2 = 0.012
+    lines = []
+    result = []
+    with open(inputFile, "r") as file:
+        lines = file.readlines()
+        for line in lines:
+            offs = float(line.split(" ")[0])
 
-    #PZs = [ 850, 900, 950, 1000]
-    PZs = [200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000]
-
-    data = []
-    for Pz in PZs:
-
-        generator.generateFieldMap(l1, 0.8, Qbore1 = r1,Qbore2 = r1 ,fieldType = 0, fileOutputName='quad1', nFMPoints = 21, showPlot = False)
-        intGrad1 = generator.integrateGradProfile(showPlot = False)
-        
-        generator.generateFieldMap(l2, 0.8, Qbore1 = r2, Qbore2 = r2,fieldType = 0, fileOutputName='quad2', xFocusing=False,nFMPoints = 21, showPlot = False)
-        intGrad2 = generator.integrateGradProfile(showPlot = False)
-        print("Integrated gradients of untapered quads:",intGrad1, intGrad2)
-
-        setFile.changeInputData("File_Efield(1)", "'cavity/3Dquad1'")
-        setFile.changeInputData("File_Efield(2)", "'cavity/3Dquad2'")
-
-        sol = []
-        try:
-            sol = doubletFocusing( 0.1, 0.3,l1, l2, Pz = Pz,findD = True)
-            #sol = [0.24460857727063723, 0.0002194907587622068, 1.2, 650, 7.261961855621302e-17]
-        except Exception as e:
-            print(f"exception: {e}")
-            continue
-
-        print("Found solution of D with untapered quads: ",sol)
-
-        D1 = sol[0]
-        D2 = sol[1]
-
-        sol.append(D1 + l1 + D2 + l2)
-        sol.append(l1)
-        sol.append(l2)
-        sol.append(intGrad1)
-        sol.append(intGrad2)
-
-        # first quad vals
-        r11 = r1*D1/(D1 + l1)
-        l1Prime = D1*( math.exp(l1/(D1+l1)) - 1)
-        r12 = r1*(D1 + l1Prime)/(D1 + l1)
+            tolerance(Pz*1000000, D1, wobbles, [offs])
 
 
-        # second quad vals
-        r21 = r2*(D1+ l1Prime + D2)/(D1 + l1 + D2 + l2)
-        l2Prime = (D1 + l1Prime + D2)*(math.exp(l2/(D1 + l1 + D2 + l2)) - 1)
-        r22 = r2*(D1 + l1Prime + D2 + l2Prime)/(D1 + l1 + D2 + l2)
+    tree.Write()
+    output_file.Close()
 
-
-
-        generator.generateFieldMap(l1Prime, 0.8, Qbore1 = r11,Qbore2 = r12 ,fieldType = 0, fileOutputName='quad1Tapered', nFMPoints = 21, showPlot = False)
-        intGrad1 = generator.integrateGradProfile(showPlot = False)
-        
-        generator.generateFieldMap(l2Prime, 0.8, Qbore1 = r21, Qbore2 = r22,fieldType = 0, fileOutputName='quad2Tapered', xFocusing=False,nFMPoints = 21, showPlot = False)
-        intGrad2 = generator.integrateGradProfile(showPlot = False)
-        setFile.changeInputData("File_Efield(1)", "'cavity/3Dquad1Tapered'")
-        setFile.changeInputData("File_Efield(2)", "'cavity/3Dquad2Tapered'")
-
-        print("Integrated gradients of tapered quads:",intGrad1, intGrad2)
-
-        sol3 = []
-        try: 
-            sol3 = doubletFocusing( 0.1, 0.3,l1Prime, l2Prime, Pz = Pz,findD = True)
-        except Exception as e:
-            print("exception: ", e)
-        
-        sol3.append(D1 + l1Prime + D2 + l2Prime)
-        sol3.append(l1Prime)
-        sol3.append(l2Prime)
-        sol3.append(intGrad1)
-        sol3.append(intGrad2)
-        print("sol: ", sol) 
-        print("sol3:", sol3)
-        data.append( list(sol) )
-        data.append(list(sol3) )
-
-
-    df = pd.DataFrame(data)
-    header = ["D1 [m]", "D2 [m]", "setup length [m]", "Pz [MeV]", "f(x',y') [mrad^2]", "D1 + l1 + D2 + l2 [m]", "l1 [m]", "l2 [m]", "int Grad1 [T]", "int Grad2 [m]"]
-
-    df.to_csv(f"outputNovelApproach.csv", header=header, index=False)
-
-
-
-
-    #sol:  [0.3141409247274675, 0.03684367018821179, 1.2, 850, 1.0986445633217993e-20, 0.6509845949156794]
-    #sol3: [0.3128260516242866, 0.06141230057748473, 1.2, 850, 1.6877110001384084e-14, 0.5938677173583706]
-
-    #sol:  [0.31566391878793365, 0.0381584279038233, 1.2, 850, 2.6477957370242217e-06, 0.653822346691757]
-    #sol3: [0.3144820776078279, 0.062476468678611854, 1.2, 850, 6.821411275294118e-06, 0.5970117879651433]
+    print(f"All runs finished, output saved to output.root.")
