@@ -72,10 +72,10 @@ cor_Ekin=0.0E0
 &APERTURE
  LApert=T
 
- A_pos(1)=0.34266442557541654
+ A_pos(1)=0.1
  File_Aperture(1)='aperture/quad1.dat',
 
- A_pos(2)=0.6006387901241925
+ A_pos(2)=0.3418158348490639
  File_Aperture(2)='aperture/quad2.dat',
 
 /
@@ -88,14 +88,14 @@ cor_Ekin=0.0E0
  File_Efield(1)='cavity/3Dquad1Tapered'
  !MaxE(1)=1
  Com_grid(1)=all
- C_pos(1)=0.34266442557541654
+ C_pos(1)=0.1
  C_noscale(1)=True
 
  Bx_stat(2)=True
  By_stat(2)=True
  File_Efield(2)='cavity/3Dquad2Tapered'
  Com_grid(2)=all
- C_pos(2)=0.5430323924780385
+ C_pos(2)=0.2842094372029098
  C_noscale(2)=True
 
 /

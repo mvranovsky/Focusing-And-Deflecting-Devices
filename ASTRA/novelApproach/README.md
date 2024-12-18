@@ -1,0 +1,5 @@
+
+# Novel Approach
+
+This study was focused on tapered magnets meaning magnets with linearly increasing radius. According to the changing radius, the gradient of the quadrupole changes also. The relation between radius and gradient is given by B_{tipField} = RG. The tip field is the strength of the magnetic field at the maximum radius of the bore, therefore as one increases the radius, the gradient decreases and vice versa.
+The main function for this study is in *novelApproach.py* and instead of using a triplet of magnets, it only uses a doublet. This function does not require any argument, it can be executed separately. First, the untapered quads are defined and field maps are generated accordingly. The minimization process looks for a solution with these magnets. Then, radii are tapered according to a relation, field maps are again generated accordingly and the entire minimization process runs again, but this running with tapered quads. If the solution is not found then the process continues with different Pz. If the solution is found then all the results are saved to a .csv file.

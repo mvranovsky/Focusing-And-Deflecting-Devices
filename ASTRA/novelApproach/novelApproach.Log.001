@@ -1605,7 +1605,7 @@
  AP_Z2   =  -1.00000000000000     , 500*0.000000000000000E+000  ,
  AP_R    = 500*0.000000000000000E+000  ,
  AP_GR   = 20000*0.000000000000000E+000  ,
- A_POS   =  0.342664425575417     ,  0.600638790124193     , 498*0.000000000000000E+000  ,
+ A_POS   =  0.100000000000000     ,  0.341815834849064     , 498*0.000000000000000E+000  ,
  A_XOFF  = 501*0.000000000000000E+000  ,
  A_YOFF  = 501*0.000000000000000E+000  ,
  A_XROT  = 500*0.000000000000000E+000  ,
@@ -3551,7 +3551,7 @@
  MAXE    = 500*0.000000000000000E+000  ,
  FLATNESS        = 500*0.000000000000000E+000  ,
  PHI     = 501*0.000000000000000E+000  ,
- C_POS   =  0.342664425575417     ,  0.543032392478038     , 498*0.000000000000000E+000  ,
+ C_POS   =  0.100000000000000     ,  0.284209437202910     , 498*0.000000000000000E+000  ,
  C_NUMB  = 500*1,
  MODE    = 500*0,
  T_DEPENDENCE    = constantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantconstantco
@@ -4999,6 +4999,6 @@
 test1.ini                       0.0000D+00  0.0000D+00  F
 novelApproach.0000.001          0.0000D+00  0.0000D+00  F
 
-     execution started:    5.12.2024     16:46
-     execution finished:   5.12.2024     16:46
-     execution time:  0.12 sec                         
+     execution started:   17.12.2024     18:22
+     execution finished:  17.12.2024     18:22
+     execution time:  0.13 sec                         

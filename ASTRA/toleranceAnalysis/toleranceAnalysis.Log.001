@@ -4999,8 +4999,3 @@
 tolerance.ini                   0.0000D+00  0.0000D+00  F
 toleranceAnalysis.0000.001                               0.0000D+00  0.0000D+00  F
 toleranceAnalysis.0200.001                               2.0000D+00  0.0000D+00  F
-toleranceAnalysis.0220.001                               2.2000D+00  0.0000D+00  F
-
-     execution started:   12.12.2024     15:30
-     execution finished:  12.12.2024     15:30
-     execution time: 22.92 sec                         

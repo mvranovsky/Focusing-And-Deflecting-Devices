@@ -402,7 +402,7 @@ class Generator:
 
     def generateFieldMap(self, qLength, BTipField ,Qbore1 = None, Qbore2 = None, xFocusing = True,grad1 = None, grad2 = None,gradWobbles = False,fieldType = 1, nGradPoints = 100,nFMPoints = 21, fileOutputName = None , magCentreXWobbles=False, magCentreYWobbles = False ,skewAngleWobbles = False, showPlot = True):
 
-        Zpos, gradVal, radius = self.generateGradProfile(qLength, BTipField, Qbore1 = Qbore1, Qbore2=Qbore2,xFocusing=xFocusing, grad1 = grad1, grad2=grad2, wobbles=gradWobbles, fieldType=fieldType, nPoints = nGradPoints, fileOutputName=fileOutputName, showPlot = showPlot)
+        Zpos, gradVal, radius = self.generateGradProfile(qLength, BTipField, Qbore1 = Qbore1, Qbore2=Qbore2,xFocusing=xFocusing, grad1 = grad1, grad2=grad2, wobbles=gradWobbles, fieldType=fieldType, nPoints = nGradPoints, fileOutputName=fileOutputName, showPlot = False)
 
         self.radius = radius
         skewAng = list(self.skewAngle(np.array(Zpos), skewAngleWobbles))
@@ -583,9 +583,9 @@ class Generator:
         
         plt.subplot(row,col,1)
         plt.title("Skew angle alpha")
-        plt.plot(z_val,alpha,label='Skew angle', color = 'blue')
-        plt.ylim(-2,2)
-        plt.ylabel('Skew Angle [degrees] ')
+        plt.plot(z_val,[num*1000 for num in alpha],label='Skew angle', color = 'blue')
+        #plt.ylim(-2,2)
+        plt.ylabel('Skew Angle [mrad] ')
         plt.xlabel("z [m]")
         plt.grid()
         
