@@ -1,0 +1,57 @@
+#HMax H_max 0.001 0.0005 0.0001 0.003 H_{max} ns
+#sourceSizeX sig_x 1E-9 0.003 0.015 0.03 sigma_x mm
+#sourceSizeY sig_y 1E-9 0.003 0.015 0.03 sigma_y mm
+#sourceOffsetX1 x_off 0 0.001 0.01 0.05 offset_x mm
+#sourceOffsetX2 x_off 0 -0.001 -0.01 -0.05 offset_x mm
+sourceOffsetY1 y_off 0 0.001 0.01 0.05 offset_y mm
+sourceOffsetY2 y_off 0 -0.001 -0.01 -0.05 offset_y mm
+sourceEkinSpread1 sig_Ekin 0 1 10 100 Ekin_sigma keV
+sourceEkinSpread2 sig_Ekin 0 1000 5000 10000 Ekin_sigma keV
+
+Q1OffsetX1 Q_xoff(1) 0 1.0E-4 5.0E-4 1.0E-3 Q1_Offset_x m
+Q1OffsetX2 Q_xoff(1) 0 -1.0E-4 -5.0E-4 -1.0E-3 Q1_Offset_x m
+Q1OffsetY1 Q_yoff(1) 0 1.0E-4 5.0E-4 1.0E-3 Q1_Offset_y m
+Q1OffsetY2 Q_yoff(1) 0 -1.0E-4 -5.0E-4 -1.0E-3 Q1_Offset_y m
+Q1OffsetZ1 Q_pos(1) 0 1.0E-4 1.0E-3 1.0E-2 Q1_Offset_z m
+Q1OffsetZ2 Q_pos(1) 0 -1.0E-4 -1.0E-3 -1.0E-2 Q1_Offset_z m
+Q1RotX1 Q_xrot(1) 0 1.0E-3 5.0E-3 1.0E-2 Q1_Rot_x rad
+Q1RotX2 Q_xrot(1) 0 -1.0E-3 -5.0E-3 -1.0E-2 Q1_Rot_x rad
+Q1RotY1 Q_yrot(1) 0 1.0E-3 5.0E-3 1.0E-2 Q1_Rot_y rad
+Q1RotY2 Q_yrot(1) 0 -1.0E-3 -5.0E-3 -1.0E-2 Q1_Rot_y rad
+Q1RotZ1 Q_zrot(1) 0 1.0E-3 5.0E-3 1.0E-2 Q1_Rot_z rad
+Q1RotZ2 Q_zrot(1) 0 -1.0E-3 -5.0E-3 -1.0E-2 Q1_Rot_z rad
+
+Q2OffsetX1 Q_xoff(2) 0 1.0E-4 5.0E-4 1.0E-3 Q2_Offset_x m
+Q2OffsetX2 Q_xoff(2) 0 -1.0E-4 -5.0E-4 -1.0E-3 Q2_Offset_x m
+Q2OffsetY1 Q_yoff(2) 0 1.0E-4 5.0E-4 1.0E-3 Q2_Offset_y m
+Q2OffsetY2 Q_yoff(2) 0 -1.0E-4 -5.0E-4 -1.0E-3 Q2_Offset_y m
+Q2OffsetZ1 Q_pos(2) 0 1.0E-4 1.0E-3 1.0E-2 Q2_Offset_z m
+Q2OffsetZ2 Q_pos(2) 0 -1.0E-4 -1.0E-3 -1.0E-2 Q2_Offset_z m
+Q2RotX1 Q_xrot(2) 0 1.0E-3 5.0E-3 1.0E-2 Q2_Rot_x rad
+Q2RotX2 Q_xrot(2) 0 -1.0E-3 -5.0E-3 -1.0E-2 Q2_Rot_x rad
+Q2RotY1 Q_yrot(2) 0 1.0E-3 5.0E-3 1.0E-2 Q2_Rot_y rad
+Q2RotY2 Q_yrot(2) 0 -1.0E-3 -5.0E-3 -1.0E-2 Q2_Rot_y rad
+Q2RotZ1 Q_zrot(2) 0 1.0E-3 5.0E-3 1.0E-2 Q2_Rot_z rad
+Q2RotZ2 Q_zrot(2) 0 -1.0E-3 -5.0E-3 -1.0E-2 Q2_Rot_z rad
+
+Q3OffsetX1 Q_xoff(3) 0 1.0E-4 5.0E-4 1.0E-3 Q3_Offset_x m
+Q3OffsetX2 Q_xoff(3) 0 -1.0E-4 -5.0E-4 -1.0E-3 Q3_Offset_x m
+Q3OffsetY1 Q_yoff(3) 0 1.0E-4 5.0E-4 1.0E-3 Q3_Offset_y m
+Q3OffsetY2 Q_yoff(3) 0 -1.0E-4 -5.0E-4 -1.0E-3 Q3_Offset_y m
+Q3OffsetZ1 Q_pos(3) 0 1.0E-4 1.0E-3 1.0E-2 Q3_Offset_z m
+Q3OffsetZ2 Q_pos(3) 0 -1.0E-4 -1.0E-3 -1.0E-2 Q3_Offset_z m
+Q3RotX1 Q_xrot(3) 0 1.0E-3 5.0E-3 1.0E-2 Q3_Rot_x rad
+Q3RotX2 Q_xrot(3) 0 -1.0E-3 -5.0E-3 -1.0E-2 Q3_Rot_x rad
+Q3RotY1 Q_yrot(3) 0 1.0E-3 5.0E-3 1.0E-2 Q3_Rot_y rad
+Q3RotY2 Q_yrot(3) 0 -1.0E-3 -5.0E-3 -1.0E-2 Q3_Rot_y rad
+Q3RotZ1 Q_zrot(3) 0 1.0E-3 5.0E-3 1.0E-2 Q3_Rot_z rad
+Q3RotZ2 Q_zrot(3) 0 -1.0E-3 -5.0E-3 -1.0E-2 Q3_Rot_z rad
+
+#Q1Gradient1 Q_grad(1) 0 0.5 1 5 Q1_grad T/m
+#Q1Gradient2 Q_grad(1) 0 -0.5 -1 -5 Q1_grad T/m
+
+#Q2Gradient1 Q_grad(2) 0 0.5 1 5 Q2_grad T/m
+#Q2Gradient2 Q_grad(2) 0 -0.5 -1 -5 Q2_grad T/m
+
+#Q3Gradient1 Q_grad(3) 0 0.5 1 5 Q3_grad T/m
+#Q3Gradient2 Q_grad(3) 0 -0.5 -1 -5 Q3_grad T/m

@@ -16,10 +16,8 @@ import array
 import random
 
 
-# Define all variables with explicit types
+# Define all variables with explicit types for ROOT TTree
 # Setup info
-
-
 d1 = array.array('f', [0.0]) 
 d2 = array.array('f', [0.0])
 d3 = array.array('f', [0.0])
@@ -170,7 +168,7 @@ Q3rotX = array.array('f',[0.0])
 Q3rotY = array.array('f',[0.0])
 Q3rotZ = array.array('f',[0.0])
 
-
+#define tree and all its branches
 output_file = ROOT.TFile("output.root", "RECREATE")
 tree = ROOT.TTree("outputTree", "output TTree")
 
@@ -326,7 +324,7 @@ tree.Branch("Q3rotZ", Q3rotZ, "Q3rotZ/F")
 
 
 def func(D,D1, Pz, focusing):
-
+    # for evaluating focusing minimized function with rays
     data = []
     Sum = 1E+9
     try:
@@ -345,6 +343,7 @@ def func(D,D1, Pz, focusing):
 
 
 def tripletFocusing(Pz, D1 = None , focusing = "point", limitValue = 0.0000001, FFFactor = 1 ):
+    #function to find a solution for specific Pz, D1 with rays
     method = "Powell"
     tolerance = 1e-6
 
@@ -369,48 +368,8 @@ def tripletFocusing(Pz, D1 = None , focusing = "point", limitValue = 0.0000001, 
 
 
 
-def generate_1D(emittance, num_particles=1000):
-    """
-    Generate a beam with a given emittance.
-    """
-    # Generate random points in normalized phase space (x, px)
-    theta = np.random.uniform(0, 2 * np.pi, num_particles)  # Random angles
-    r = np.sqrt(np.random.normal(0, 1, num_particles))  # Random radii (normalized)
-    
-    # Scale points to satisfy the emittance ellipse
-    x = r * np.sqrt(emittance) * np.cos(theta)
-    px = r * np.sqrt(emittance) * np.sin(theta)
-    
-    return x, px
-
-def generate_beam(emittance, num_particles=1000):
-    # emittance in pi mu m mrad
-    x, px = generate_1D(emittance, num_particles)
-    y, py = generate_1D(emittance, num_particles)
-
-
-    x = x/1000000
-    y = y/1000000
-
-    px = px*Pz/1000
-    py = py*Pz/1000
-
-    #here in future, add z, Pz spread
-
-    out = f"0 0 0 0 0 {Pz} 0 -1E-4   1   5\n"
-
-    for i in range(num_particles):
-        out += f"{x[i]} {y[i]} {0} {px[i]} {py[i]} {0} {0} -1E-4   1   5\n"
-
-    print(out)
-
-    with open(iniFile, "w") as file:
-        file.write(out)
-
-    return x, xPrime, y, yPrime
-
 def plot_beams(x,xPrime,y,yPrime):
-
+    #simple function to plot the initial or final distribtution
 
     plt.figure(figsize=(10, 8))
     plt.scatter(x, xPrime, s=1, label=f'Emittance: x')
@@ -430,99 +389,9 @@ def generateFreq(length):
     return 2*random.choices(numbers, weights=weights, k=1)[0]*np.pi/length
 
 
-def generateNewOffsetsWithConstantIntGrad(offset, switch, wobbles):
-
-
-    global offsetInMicrons
-    global Q1MCXWobbles,Q1MCYWobbles, Q1GradWobbles, Q1SkewAngleWobbles
-    global Q2MCXWobbles,Q2MCYWobbles, Q2GradWobbles, Q2SkewAngleWobbles
-    global Q3MCXWobbles,Q3MCYWobbles, Q3GradWobbles, Q3SkewAngleWobbles
-
-    global Q1MCXAmp1, Q1MCXFreq1, Q1MCXIniPhase1, Q1MCXAmp2, Q1MCXFreq2, Q1MCXIniPhase2
-    global Q1MCYAmp1, Q1MCYFreq1, Q1MCYIniPhase1, Q1MCYAmp2, Q1MCYFreq2, Q1MCYIniPhase2
-    global Q1GradAmp, Q1GradFreq, Q1GradIniPhase
-    global Q1SkewAngleAmp1 ,Q1SkewAngleFreq1, Q1SkewAngleIniPhase1, Q1SkewAngleAmp2 ,Q1SkewAngleFreq2, Q1SkewAngleIniPhase2 
-
-    global Q2MCXAmp1, Q2MCXFreq1, Q2MCXIniPhase1, Q2MCXAmp2, Q2MCXFreq2, Q2MCXIniPhase2
-    global Q2MCYAmp1, Q2MCYFreq1, Q2MCYIniPhase1, Q2MCYAmp2, Q2MCYFreq2, Q2MCYIniPhase2
-    global Q2GradAmp, Q2GradFreq, Q2GradIniPhase
-    global Q2SkewAngleAmp1 ,Q2SkewAngleFreq1, Q2SkewAngleIniPhase1, Q2SkewAngleAmp2 ,Q2SkewAngleFreq2, Q2SkewAngleIniPhase2 
-
-    global Q3MCXAmp1, Q3MCXFreq1, Q3MCXIniPhase1, Q3MCXAmp2, Q3MCXFreq2, Q3MCXIniPhase2
-    global Q3MCYAmp1, Q3MCYFreq1, Q3MCYIniPhase1, Q3MCYAmp2, Q3MCYFreq2, Q3MCYIniPhase2
-    global Q3GradAmp, Q3GradFreq, Q3GradIniPhase
-    global Q3SkewAngleAmp1 ,Q3SkewAngleFreq1, Q3SkewAngleIniPhase1, Q3SkewAngleAmp2 ,Q3SkewAngleFreq2, Q3SkewAngleIniPhase2 
-
-    Qlength = [36000, 120000, 100000]
-    Qgrad = [222,94,57]
-
-    gen.MCXAmp1 = np.random.uniform(0, offset)
-    #gen.MCXFreq1 = generateFreq(Qlength[switch]/1000000)
-    gen.MCXFreq1 = np.random.uniform(1,50)
-    gen.MCXIniPhase1 = np.random.uniform(0,2*np.pi)
-
-    gen.MCXAmp2 = 0
-    gen.MCXFreq2 = 0
-    gen.MCXIniPhase2 = 0
-
-    gen.MCYAmp1 = np.random.uniform(0, offset)
-    gen.MCXFreq1 = np.random.uniform(1,50)
-    #gen.MCYFreq1 = generateFreq(Qlength[switch]/1000000)
-    gen.MCYIniPhase1 = np.random.uniform(0,2*np.pi)
-
-
-    gen.MCYAmp2 = 0
-    gen.MCYFreq2 = 0
-    gen.MCYIniPhase2 = 0
-
-    
-    offsetInMicrons[0] = offset*1000000
-
-    Q1MCXWobbles[0],Q1MCYWobbles[0], Q1GradWobbles[0], Q1SkewAngleWobbles[0] = wobbles
-    Q2MCXWobbles[0],Q2MCYWobbles[0], Q2GradWobbles[0], Q2SkewAngleWobbles[0] = wobbles
-    Q3MCXWobbles[0],Q3MCYWobbles[0], Q3GradWobbles[0], Q3SkewAngleWobbles[0] = wobbles
-
-
-    if switch == 0:
-        gen.generateFieldMap(0.036, 0.777, grad1=222, grad2=222, fileOutputName='quad1', nFMPoints = 20, showPlot = False, magCentreXWobbles = Q1MCXWobbles[0], magCentreYWobbles = Q1MCYWobbles[0], skewAngleWobbles = Q1SkewAngleWobbles[0], gradWobbles = Q1GradWobbles[0])
-    
-        # save parameters
-        Q1MCXAmp1[0], Q1MCXFreq1[0], Q1MCXIniPhase1[0] = 1000000*float(gen.MCXAmp1), float(gen.MCXFreq1), float(gen.MCXIniPhase1)
-        Q1MCXAmp2[0], Q1MCXFreq2[0], Q1MCXIniPhase2[0] = 1000000*float(gen.MCXAmp2), float(gen.MCXFreq2), float(gen.MCXIniPhase2)
-        Q1MCYAmp1[0], Q1MCYFreq1[0], Q1MCYIniPhase1[0] = 1000000*float(gen.MCYAmp1), float(gen.MCYFreq1), float(gen.MCYIniPhase1)
-        Q1MCYAmp2[0], Q1MCYFreq2[0], Q1MCYIniPhase2[0] = 1000000*float(gen.MCYAmp2), float(gen.MCYFreq2), float(gen.MCYIniPhase2)
-        Q1GradAmp[0], Q1GradFreq[0], Q1GradIniPhase[0] = 1000000*float(gen.gradAmp), float(gen.gradFreq), float(gen.gradIniPhase)
-        Q1SkewAngleAmp1[0] ,Q1SkewAngleFreq1[0], Q1SkewAngleIniPhase1[0] = 1000000*float(gen.skewAmp1), float(gen.skewFreq1), float(gen.skewIniPhase1)
-        Q1SkewAngleAmp2[0] ,Q1SkewAngleFreq2[0], Q1SkewAngleIniPhase2[0] = 1000000*float(gen.skewAmp2), float(gen.skewFreq2), float(gen.skewIniPhase2)
-
-    elif switch == 1:
-        gen.generateFieldMap(0.12, 0.846, grad1=-94, grad2=-94, fileOutputName='quad2', nFMPoints = 20, showPlot = False, magCentreXWobbles = Q2MCXWobbles[0], magCentreYWobbles = Q2MCYWobbles[0], skewAngleWobbles = Q2SkewAngleWobbles[0], gradWobbles = Q2GradWobbles[0])
-    
-        # save parameters
-        Q2MCXAmp1[0], Q2MCXFreq1[0], Q2MCXIniPhase1[0] = 1000000*float(gen.MCXAmp1), float(gen.MCXFreq1), float(gen.MCXIniPhase1)
-        Q2MCXAmp2[0], Q2MCXFreq2[0], Q2MCXIniPhase2[0] = 1000000*float(gen.MCXAmp2), float(gen.MCXFreq2), float(gen.MCXIniPhase2)
-        Q2MCYAmp1[0], Q2MCYFreq1[0], Q2MCYIniPhase1[0] = 1000000*float(gen.MCYAmp1), float(gen.MCYFreq1), float(gen.MCYIniPhase1)
-        Q2MCYAmp2[0], Q2MCYFreq2[0], Q2MCYIniPhase2[0] = 1000000*float(gen.MCYAmp2), float(gen.MCYFreq2), float(gen.MCYIniPhase2)
-        Q2GradAmp[0], Q2GradFreq[0], Q2GradIniPhase[0] = 1000000*float(gen.gradAmp), float(gen.gradFreq), float(gen.gradIniPhase)
-        Q2SkewAngleAmp1[0] ,Q2SkewAngleFreq1[0], Q2SkewAngleIniPhase1[0] = 1000*float(gen.skewAmp1), float(gen.skewFreq1), float(gen.skewIniPhase1)
-        Q2SkewAngleAmp2[0] ,Q2SkewAngleFreq2[0], Q2SkewAngleIniPhase2[0] = 1000*float(gen.skewAmp2), float(gen.skewFreq2), float(gen.skewIniPhase2)
-
-    elif switch == 2:
-        gen.generateFieldMap(0.1, 0.855, grad1=57, grad2=57, fileOutputName='quad3', nFMPoints = 20, showPlot = False, magCentreXWobbles = Q3MCXWobbles[0], magCentreYWobbles = Q3MCYWobbles[0], skewAngleWobbles = Q3SkewAngleWobbles[0], gradWobbles = Q3GradWobbles[0])
-    
-        # save parameters
-        Q3MCXAmp1[0], Q3MCXFreq1[0], Q3MCXIniPhase1[0] = 1000000*float(gen.MCXAmp1), float(gen.MCXFreq1), float(gen.MCXIniPhase1)
-        Q3MCXAmp2[0], Q3MCXFreq2[0], Q3MCXIniPhase2[0] = 1000000*float(gen.MCXAmp2), float(gen.MCXFreq2), float(gen.MCXIniPhase2)
-        Q3MCYAmp1[0], Q3MCYFreq1[0], Q3MCYIniPhase1[0] = 1000000*float(gen.MCYAmp1), float(gen.MCYFreq1), float(gen.MCYIniPhase1)
-        Q3MCYAmp2[0], Q3MCYFreq2[0], Q3MCYIniPhase2[0] = 1000000*float(gen.MCYAmp2), float(gen.MCYFreq2), float(gen.MCYIniPhase2)
-        Q3GradAmp[0], Q3GradFreq[0], Q3GradIniPhase[0] = 1000000*float(gen.gradAmp), float(gen.gradFreq), float(gen.gradIniPhase)
-        Q3SkewAngleAmp1[0] ,Q3SkewAngleFreq1[0], Q3SkewAngleIniPhase1[0] = 1000000*float(gen.skewAmp1), float(gen.skewFreq1), float(gen.skewIniPhase1)
-        Q3SkewAngleAmp2[0] ,Q3SkewAngleFreq2[0], Q3SkewAngleIniPhase2[0] = 1000000*float(gen.skewAmp2), float(gen.skewFreq2), float(gen.skewIniPhase2)
-
-
 
 def generateNewOffsets(offset, switch, wobbles):
-
+    #funcition to generate new offsets for wobbles of the quadrupoles. according to this, the field maps will be created
 
     global offsetInMicrons
     global Q1MCXWobbles,Q1MCYWobbles, Q1GradWobbles, Q1SkewAngleWobbles
@@ -623,7 +492,98 @@ def generateNewOffsets(offset, switch, wobbles):
         Q3SkewAngleAmp2[0] ,Q3SkewAngleFreq2[0], Q3SkewAngleIniPhase2[0] = 1000000*float(gen.skewAmp2), float(gen.skewFreq2), float(gen.skewIniPhase2)
 
 
+
+def generateNewOffsetsWithConstantIntGrad(offset, switch, wobbles):
+    # same function as the previous, only this one keeps the gradient constant when wobbling magnetic centre x,y
+
+    global offsetInMicrons
+    global Q1MCXWobbles,Q1MCYWobbles, Q1GradWobbles, Q1SkewAngleWobbles
+    global Q2MCXWobbles,Q2MCYWobbles, Q2GradWobbles, Q2SkewAngleWobbles
+    global Q3MCXWobbles,Q3MCYWobbles, Q3GradWobbles, Q3SkewAngleWobbles
+
+    global Q1MCXAmp1, Q1MCXFreq1, Q1MCXIniPhase1, Q1MCXAmp2, Q1MCXFreq2, Q1MCXIniPhase2
+    global Q1MCYAmp1, Q1MCYFreq1, Q1MCYIniPhase1, Q1MCYAmp2, Q1MCYFreq2, Q1MCYIniPhase2
+    global Q1GradAmp, Q1GradFreq, Q1GradIniPhase
+    global Q1SkewAngleAmp1 ,Q1SkewAngleFreq1, Q1SkewAngleIniPhase1, Q1SkewAngleAmp2 ,Q1SkewAngleFreq2, Q1SkewAngleIniPhase2 
+
+    global Q2MCXAmp1, Q2MCXFreq1, Q2MCXIniPhase1, Q2MCXAmp2, Q2MCXFreq2, Q2MCXIniPhase2
+    global Q2MCYAmp1, Q2MCYFreq1, Q2MCYIniPhase1, Q2MCYAmp2, Q2MCYFreq2, Q2MCYIniPhase2
+    global Q2GradAmp, Q2GradFreq, Q2GradIniPhase
+    global Q2SkewAngleAmp1 ,Q2SkewAngleFreq1, Q2SkewAngleIniPhase1, Q2SkewAngleAmp2 ,Q2SkewAngleFreq2, Q2SkewAngleIniPhase2 
+
+    global Q3MCXAmp1, Q3MCXFreq1, Q3MCXIniPhase1, Q3MCXAmp2, Q3MCXFreq2, Q3MCXIniPhase2
+    global Q3MCYAmp1, Q3MCYFreq1, Q3MCYIniPhase1, Q3MCYAmp2, Q3MCYFreq2, Q3MCYIniPhase2
+    global Q3GradAmp, Q3GradFreq, Q3GradIniPhase
+    global Q3SkewAngleAmp1 ,Q3SkewAngleFreq1, Q3SkewAngleIniPhase1, Q3SkewAngleAmp2 ,Q3SkewAngleFreq2, Q3SkewAngleIniPhase2 
+
+    Qlength = [36000, 120000, 100000]
+    Qgrad = [222,94,57]
+
+    gen.MCXAmp1 = np.random.uniform(0, offset)
+    #gen.MCXFreq1 = generateFreq(Qlength[switch]/1000000)
+    gen.MCXFreq1 = np.random.uniform(1,50)
+    gen.MCXIniPhase1 = np.random.uniform(0,2*np.pi)
+
+    gen.MCXAmp2 = 0
+    gen.MCXFreq2 = 0
+    gen.MCXIniPhase2 = 0
+
+    gen.MCYAmp1 = np.random.uniform(0, offset)
+    gen.MCXFreq1 = np.random.uniform(1,50)
+    #gen.MCYFreq1 = generateFreq(Qlength[switch]/1000000)
+    gen.MCYIniPhase1 = np.random.uniform(0,2*np.pi)
+
+
+    gen.MCYAmp2 = 0
+    gen.MCYFreq2 = 0
+    gen.MCYIniPhase2 = 0
+
+    
+    offsetInMicrons[0] = offset*1000000
+
+    Q1MCXWobbles[0],Q1MCYWobbles[0], Q1GradWobbles[0], Q1SkewAngleWobbles[0] = wobbles
+    Q2MCXWobbles[0],Q2MCYWobbles[0], Q2GradWobbles[0], Q2SkewAngleWobbles[0] = wobbles
+    Q3MCXWobbles[0],Q3MCYWobbles[0], Q3GradWobbles[0], Q3SkewAngleWobbles[0] = wobbles
+
+
+    if switch == 0:
+        gen.generateFieldMap(0.036, 0.777, grad1=222, grad2=222, fileOutputName='quad1', nFMPoints = 20, showPlot = False, magCentreXWobbles = Q1MCXWobbles[0], magCentreYWobbles = Q1MCYWobbles[0], skewAngleWobbles = Q1SkewAngleWobbles[0], gradWobbles = Q1GradWobbles[0])
+    
+        # save parameters
+        Q1MCXAmp1[0], Q1MCXFreq1[0], Q1MCXIniPhase1[0] = 1000000*float(gen.MCXAmp1), float(gen.MCXFreq1), float(gen.MCXIniPhase1)
+        Q1MCXAmp2[0], Q1MCXFreq2[0], Q1MCXIniPhase2[0] = 1000000*float(gen.MCXAmp2), float(gen.MCXFreq2), float(gen.MCXIniPhase2)
+        Q1MCYAmp1[0], Q1MCYFreq1[0], Q1MCYIniPhase1[0] = 1000000*float(gen.MCYAmp1), float(gen.MCYFreq1), float(gen.MCYIniPhase1)
+        Q1MCYAmp2[0], Q1MCYFreq2[0], Q1MCYIniPhase2[0] = 1000000*float(gen.MCYAmp2), float(gen.MCYFreq2), float(gen.MCYIniPhase2)
+        Q1GradAmp[0], Q1GradFreq[0], Q1GradIniPhase[0] = 1000000*float(gen.gradAmp), float(gen.gradFreq), float(gen.gradIniPhase)
+        Q1SkewAngleAmp1[0] ,Q1SkewAngleFreq1[0], Q1SkewAngleIniPhase1[0] = 1000000*float(gen.skewAmp1), float(gen.skewFreq1), float(gen.skewIniPhase1)
+        Q1SkewAngleAmp2[0] ,Q1SkewAngleFreq2[0], Q1SkewAngleIniPhase2[0] = 1000000*float(gen.skewAmp2), float(gen.skewFreq2), float(gen.skewIniPhase2)
+
+    elif switch == 1:
+        gen.generateFieldMap(0.12, 0.846, grad1=-94, grad2=-94, fileOutputName='quad2', nFMPoints = 20, showPlot = False, magCentreXWobbles = Q2MCXWobbles[0], magCentreYWobbles = Q2MCYWobbles[0], skewAngleWobbles = Q2SkewAngleWobbles[0], gradWobbles = Q2GradWobbles[0])
+    
+        # save parameters
+        Q2MCXAmp1[0], Q2MCXFreq1[0], Q2MCXIniPhase1[0] = 1000000*float(gen.MCXAmp1), float(gen.MCXFreq1), float(gen.MCXIniPhase1)
+        Q2MCXAmp2[0], Q2MCXFreq2[0], Q2MCXIniPhase2[0] = 1000000*float(gen.MCXAmp2), float(gen.MCXFreq2), float(gen.MCXIniPhase2)
+        Q2MCYAmp1[0], Q2MCYFreq1[0], Q2MCYIniPhase1[0] = 1000000*float(gen.MCYAmp1), float(gen.MCYFreq1), float(gen.MCYIniPhase1)
+        Q2MCYAmp2[0], Q2MCYFreq2[0], Q2MCYIniPhase2[0] = 1000000*float(gen.MCYAmp2), float(gen.MCYFreq2), float(gen.MCYIniPhase2)
+        Q2GradAmp[0], Q2GradFreq[0], Q2GradIniPhase[0] = 1000000*float(gen.gradAmp), float(gen.gradFreq), float(gen.gradIniPhase)
+        Q2SkewAngleAmp1[0] ,Q2SkewAngleFreq1[0], Q2SkewAngleIniPhase1[0] = 1000*float(gen.skewAmp1), float(gen.skewFreq1), float(gen.skewIniPhase1)
+        Q2SkewAngleAmp2[0] ,Q2SkewAngleFreq2[0], Q2SkewAngleIniPhase2[0] = 1000*float(gen.skewAmp2), float(gen.skewFreq2), float(gen.skewIniPhase2)
+
+    elif switch == 2:
+        gen.generateFieldMap(0.1, 0.855, grad1=57, grad2=57, fileOutputName='quad3', nFMPoints = 20, showPlot = False, magCentreXWobbles = Q3MCXWobbles[0], magCentreYWobbles = Q3MCYWobbles[0], skewAngleWobbles = Q3SkewAngleWobbles[0], gradWobbles = Q3GradWobbles[0])
+    
+        # save parameters
+        Q3MCXAmp1[0], Q3MCXFreq1[0], Q3MCXIniPhase1[0] = 1000000*float(gen.MCXAmp1), float(gen.MCXFreq1), float(gen.MCXIniPhase1)
+        Q3MCXAmp2[0], Q3MCXFreq2[0], Q3MCXIniPhase2[0] = 1000000*float(gen.MCXAmp2), float(gen.MCXFreq2), float(gen.MCXIniPhase2)
+        Q3MCYAmp1[0], Q3MCYFreq1[0], Q3MCYIniPhase1[0] = 1000000*float(gen.MCYAmp1), float(gen.MCYFreq1), float(gen.MCYIniPhase1)
+        Q3MCYAmp2[0], Q3MCYFreq2[0], Q3MCYIniPhase2[0] = 1000000*float(gen.MCYAmp2), float(gen.MCYFreq2), float(gen.MCYIniPhase2)
+        Q3GradAmp[0], Q3GradFreq[0], Q3GradIniPhase[0] = 1000000*float(gen.gradAmp), float(gen.gradFreq), float(gen.gradIniPhase)
+        Q3SkewAngleAmp1[0] ,Q3SkewAngleFreq1[0], Q3SkewAngleIniPhase1[0] = 1000000*float(gen.skewAmp1), float(gen.skewFreq1), float(gen.skewIniPhase1)
+        Q3SkewAngleAmp2[0] ,Q3SkewAngleFreq2[0], Q3SkewAngleIniPhase2[0] = 1000000*float(gen.skewAmp2), float(gen.skewFreq2), float(gen.skewIniPhase2)
+
 def fillIniBeamInfo(beamX, beamY):
+    #fill in information about the initial beam distribution
 
     global sigX
     global sigPx
@@ -646,7 +606,7 @@ def fillIniBeamInfo(beamX, beamY):
 
 
 def fillOutBeamInfo(beamX, beamY):
-
+    #fill in information about the final beam distribution
     global outAvrX
     global outRMSX
     global outRMSXPrime
@@ -662,7 +622,7 @@ def fillOutBeamInfo(beamX, beamY):
     outAvrY[0],outRMSY[0] ,outRMSYPrime[0],outEmitNormY[0] = beamY
 
 def fillSetupInfo(D1,D2,D3,D4,l,PZ, acc):
-
+    #fill up information about the configuration
     global d1, d2, d3, d4, L, pz, accX,accY
     d1[0] = D1
     d2[0] = D2
@@ -674,6 +634,8 @@ def fillSetupInfo(D1,D2,D3,D4,l,PZ, acc):
 
 def generateAstraOffsets(offset):
     # argument offset expected in m
+
+    #this function generates new random offsets, rotations of the entire quadrupoles which go into Astra input file
 
     Qlength = [0.036, 0.12, 0.1]
 
@@ -733,12 +695,11 @@ def tolerance(Pz, D1, wobbles, offsetAll, runAstraOffsets = False):
 
     generateAstraOffsets(0)
 
-    raySolution = [0.15, 0.10423853, 0.28500707]
 
     acc = astra.checkAngleAcceptance(*raySolution, None, astra.setupLength, Pz)
 
     # find solution with rays
-    #raySolution = tripletFocusing(Pz, D1 = D1)
+    raySolution = tripletFocusing(Pz, D1 = D1)
     if raySolution == 1:
         return 1
 
@@ -748,6 +709,7 @@ def tolerance(Pz, D1, wobbles, offsetAll, runAstraOffsets = False):
     # Generate and plot beams
     #plot_beams( generate_beam(1) )
 
+    # define initial distribution for beam particles
     sigx = 1
     sigy = 1
     sigpx = 1*Pz/1000
@@ -757,7 +719,6 @@ def tolerance(Pz, D1, wobbles, offsetAll, runAstraOffsets = False):
     setFile.changeInputData("sig_px", sigpx)
     setFile.changeInputData("sig_py", sigpy)
 
-    #run the perfect beam
     astra.setupLength = 2.2
     setFile.changeInputData("ZSTOP", str(astra.setupLength))
     setFile.changeInputData("FNAME", iniFile )
@@ -833,6 +794,7 @@ def tolerance(Pz, D1, wobbles, offsetAll, runAstraOffsets = False):
 
 if __name__ == "__main__":
 
+    # take in argument 
     args = sys.argv
     args.pop(0)
     if len(args) != 1:
@@ -845,8 +807,10 @@ if __name__ == "__main__":
     astra = Astra(setFile)
     gen = Generator("generatorFile")
 
+    # define which wobbles to generate quadrupole magnet field maps with, 1 = with, 0 = without
     wobbles = [1,1,0,0] #magnetic centre x, magnetic centre y, gradient, skew angle
 
+    # define which D1, Pz to use
     D1 = 0.15
     Pz = 600
 
@@ -857,9 +821,10 @@ if __name__ == "__main__":
         for line in lines:
             offs = float(line.split(" ")[0])
 
+            #run tolerance analysis
             tolerance(Pz*1000000, D1, wobbles, [offs], runAstraOffsets = True)
 
-
+    #close tree and file 
     tree.Write()
     output_file.Close()
 

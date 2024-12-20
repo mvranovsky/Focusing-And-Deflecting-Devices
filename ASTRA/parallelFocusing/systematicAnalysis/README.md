@@ -1,4 +1,0 @@
-# Systematic analysis
-
-Results in this directory come from a large number of runs of astra and the minimization procedure. Systematically, D1 in ranges from around 1 cm to around 40 cm and Pz from 200 to 1000 MeV were ran, and the results for the specific Pz, or D1 are saved in this directory based on what kind of focusing it was. For parallel focusing, the minimization process first looked for a solution in less than 90 cm, if it could not be found, the range was expanded to 120 cm. This does not play a large role, because the size of the setup is calculated according to D1,D2,D3 and the lengths of quadrupoles. 
-Setups for point focusing were searched in range of 2 and 3 m from the initial point. Because beam size is irrelevant when using minimization procedure for point focusing, plots include several other variables such as magnification, absolute displacement of the ray at the end position. 
